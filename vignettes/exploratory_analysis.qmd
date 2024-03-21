@@ -1,0 +1,575 @@
+---
+title: "Exploratory analys of PurpleAir and WeatherUnderground temperatures in RTP"
+format: html
+editor: visual
+---
+
+```{r}
+library(ggplot2)
+library(ggpubr)
+library(devtools)
+load_all()
+```
+
+## Materials
+
+RTP counties
+
+```{r}
+nc_poly <- paste0("NC_county_boundary/",
+                  "North_Carolina_State_and_County_Boundary_Polygons.shp")
+nc_borders <- terra::vect(paste0("../input/", nc_poly))
+rtp <- nc_borders[which(nc_borders$County %in% c("Wake", "Orange",
+                                                 "Durham", "Chatham", "Granville")),] |>
+  terra::project("EPSG:4326")
+```
+
+## Open data sources
+
+### PurpleAir
+
+```{r}
+pa <- data.table::fread("../input/rtp/pa_20210720_20210727.csv")
+pa$time_stamp_est <- as.POSIXct(pa$time_stamp, "EST")
+```
+
+```{r}
+head(pa)
+length(unique(pa$sensor_index))
+pa <- pa |> 
+  sftime::st_as_sftime(coords = c("longitude", "latitude"),
+                       time_column_name = "time_stamp",
+                       crs = 4326,
+                       remove = FALSE) 
+pa
+```
+
+Convert Fahrenheit to Celsius
+
+```{r}
+pa$temperature_c <- convert_temp(pa$temperature, from = "F", to = "C")
+```
+
+### Weather Underground
+
+```{r}
+wu <- data.table::fread("../input/rtp/wu_20210701_20210731.csv")
+lubridate::tz(wu$datetime) <- "EST"
+wu <- sftime::st_as_sftime(wu,
+                           coords = c("lon", "lat"), 
+                           crs = 4326,
+                           time_column_name = "datetime",
+                           remove = FALSE) 
+```
+
+Some cleaning
+
+```{r}
+wu$tempAvg_c <- convert_temp(wu$tempAvg, from = "F", to = "C")
+wu$tempLow_c <- convert_temp(wu$tempLow, from = "F", to = "C")
+wu$obsTimeEST <- as.POSIXct(wu$obsTimeUtc, tz = "EST")
+wu <- wu[which(wu$stationID != "KNCFOXHA3"), ]
+```
+
+Select rtp
+
+```{r}
+wu <- wu[which(wu$lat >= 35.6 &
+           wu$lat <= 36.11 &
+           wu$lon >= -79.19 &
+           wu$lon <= -78.39), ]
+```
+
+### Reference stations
+
+#### GHCN-Hourly stations
+
+Open reference GHCN-Hourly
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+ghcnh <- load_ghcnh_period("../input/ghcn-hourly_v1.0.0_d2021_c20231201/",
+                  ts, te, "../input/")
+```
+
+Raleigh state university station
+
+```{r}
+ghcnh_ral <- read.table("../input/GHCNh_USC00317079_por.psv",
+                        sep = "|",
+                        header = TRUE,
+                        stringsAsFactors = FALSE)
+```
+
+```{r}
+ghcnh_ral$time <- apply(ghcnh_ral[, c("Year", "Month", "Day", "Hour")],
+                       1,
+                       function(x) {
+                         as.POSIXct(paste0(x[1],
+                                           "-",
+                                           x[2],
+                                           "-",
+                                           x[3],
+                                           " ",
+                                           x[4],
+                                           ":00:00"),
+                                    format = "%Y-%m-%d %H:%M:%S",
+                                    tz = "UTC")
+    })
+```
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+ghcnh_ral_hw <- ghcnh_ral[which(ghcnh_ral$time >= ts & ghcnh_ral$time <= te), ]
+```
+
+Data from Raleigh station not available for 2021 (not hourly).
+
+```{r}
+library(spData)
+data(us_states)
+ghcnh <- sf::st_as_sf(ghcnh, coords = c("Longitude", "Latitude"), crs = 4326, remove = FALSE)
+p <- ggplot() + 
+  geom_sf(
+      data = ghcnh,
+      aes(geometry = geometry), color = "black",
+      size = 2, shape = 21
+    ) +
+    geom_sf(
+      data = us_states, aes(geometry = geometry),
+      colour = "white", linewidth = .3, fill = NA
+    ) + 
+  ggtitle("GHCNh stations available in 2021")
+p 
+ggsave(plot = p,
+       filename = "../graphs/map_ghcnh_available_2021.png",
+       width = 6,
+       height = 3,
+       dpi = 300)
+```
+
+Selection of the only station in NC
+
+```{r}
+closer_ref <- ghcnh[which(ghcnh$Longitude > -83 & ghcnh$Longitude < -80), ]
+unique(closer_ref$Station_ID)
+```
+
+```{r}
+closer_ref$time <- as.POSIXct(closer_ref$time, tz = "EST")
+ref_ts <- closer_ref |>
+  rename_for_plot("time",
+                  "temperature",
+                  "Station_ID",
+                  "Latitude",
+                  "Longitude") |>
+  plot_ts(ts, te) 
+```
+
+#### Econet weather stations
+
+Data downloaded here: <https://products.climate.ncsu.edu/data/>
+
+```{r}
+eco1 <- read.csv("../input/econet/econet_20210601_20210831_NK5FS1N1_1.csv")
+eco2 <- read.csv("../input/econet/econet_20210601_20210831_NK5FS1N1_2.csv")
+eco3 <- read.csv("../input/econet/econet_20210601_20210831_NK5FS1N1_3.csv")
+eco4 <- read.csv("../input/econet/econet_20210601_20210831_NK5FS1N1_4.csv")
+eco <- rbind(eco1, eco2, eco3, eco4)
+eco$time_est <- as.POSIXct(eco$time_est, tz = "EST", format = "%m/%d/%y %H:%M")
+eco$temp <- as.numeric(eco$temp)
+eco$lat <- as.numeric(eco$lat)
+eco$lon <- as.numeric(eco$lon)
+eco <- eco |> 
+  na.omit() |>
+  sftime::st_as_sftime(coords = c("lon", "lat"), 
+                           crs = 4326,
+                           time_column_name = "time_est",
+                           remove = FALSE) 
+head(eco)
+```
+
+#### Heatwatch campaign
+
+Open spatialize product
+
+```{r}
+hw_path <- "../input/rasters_chw_raleigh_durham_110821/"
+hw_am <- terra::rast(paste0(hw_path, "am_t_f.tif")) |>
+  convert_temp(from = "F", to = "C") |>
+  terra::project("EPSG:4326")
+hw_af <- terra::rast(paste0(hw_path, "af_t_f.tif")) |>
+  convert_temp(from = "F", to = "C") |>
+  terra::project("EPSG:4326")
+hw_pm <- terra::rast(paste0(hw_path, "pm_t_f.tif")) |>
+  convert_temp(from = "F", to = "C") |>
+  terra::project("EPSG:4326")
+```
+
+Open transects data
+
+```{r}
+hw_path <- "../input/traverses_chw_raleigh-durham_110821/"
+hw_pt_am <- terra::vect(paste0(hw_path, "am_trav.shp")) |>
+  sf::st_as_sf(remove = FALSE)
+hw_pt_am$temp_c <- convert_temp(hw_pt_am$temp_f, from = "F", to = "C") 
+hw_pt_am$datetime <- as.POSIXct(hw_pt_am$datetime, tz = "EST")
+hw_pt_am$datetime <- lubridate::floor_date(hw_pt_am$datetime, unit = "hours")
+hw_pt_af <- terra::vect(paste0(hw_path, "af_trav.shp")) |>
+  sf::st_as_sf(remove = FALSE)
+hw_pt_af$temp_c <- convert_temp(hw_pt_af$temp_f, from = "F", to = "C") 
+hw_pt_af$datetime <- as.POSIXct(hw_pt_af$datetime, tz = "EST")
+hw_pt_af$datetime <- lubridate::floor_date(hw_pt_af$datetime, unit = "hours")
+hw_pt_pm <- terra::vect(paste0(hw_path, "pm_trav.shp")) |>
+  sf::st_as_sf(remove = FALSE)
+hw_pt_pm$temp_c <- convert_temp(hw_pt_pm$temp_f, from = "F", to = "C") 
+hw_pt_pm$datetime <- as.POSIXct(hw_pt_pm$datetime, tz = "EST")
+hw_pt_pm$datetime <- lubridate::floor_date(hw_pt_pm$datetime, unit = "hours")
+```
+
+Add spatial coordinates from geometry column
+
+```{r}
+hw_pt_am$lon <- sf::st_coordinates(hw_pt_am)[, 1]
+hw_pt_am$lat <- sf::st_coordinates(hw_pt_am)[, 2]
+hw_pt_af$lon <- sf::st_coordinates(hw_pt_af)[, 1]
+hw_pt_af$lat <- sf::st_coordinates(hw_pt_af)[, 2]
+hw_pt_pm$lon <- sf::st_coordinates(hw_pt_pm)[, 1]
+hw_pt_pm$lat <- sf::st_coordinates(hw_pt_pm)[, 2]
+```
+
+## Plots
+
+Rename columns for plotting
+
+```{r}
+wu_p <- wu |>
+  rename_for_plot(
+    "obsTimeEST",
+    "tempAvg_c",
+    "stationID",
+    "lat",
+    "lon"
+  )
+wu_p$time <- lubridate::floor_date(wu_p$time, unit = "hours")
+pa_p <- pa |>
+  rename_for_plot(
+    "time_stamp_est",
+    "temperature_c",
+    "sensor_index",
+    "latitude",
+    "longitude"
+  )
+eco_p <- eco |>
+  rename_for_plot(
+    "time_est",
+    "temp",
+    "station_id",
+    "lat",
+    "lon"
+  )
+hw_am_p <- hw_pt_am |>
+  rename_for_plot(
+    "datetime",
+    "temp_c",
+    "trav_id",
+    "lat",
+    "lon"
+  )
+hw_af_p <- hw_pt_af |>
+  rename_for_plot(
+    "datetime",
+    "temp_c",
+    "trav_id",
+    "lat",
+    "lon"
+  )
+hw_pm_p <- hw_pt_pm |>
+  rename_for_plot(
+    "datetime",
+    "temp_c",
+    "trav_id",
+    "lat",
+    "lon"
+  )
+```
+
+Merge all data sources in one sftime
+
+```{r}
+eco_p$source <- "ECO"
+wu_p$source <- "WU"
+pa_p$source <- "PA"
+hw_am_p$source <- "HW"
+hw_af_p$source <- "HW"
+hw_pm_p$source <- "HW"
+var_list <- c("time", "temp", "lat", "lon", "id", "geometry", "source")
+obs <- rbind(eco_p[, var_list],
+             wu_p[, var_list],
+             pa_p[, var_list],
+             hw_am_p[, var_list],
+             hw_af_p[, var_list],
+             hw_pm_p[, var_list])
+```
+
+### Same PurpleAir and Weather Underground ?
+
+```{r}
+sensors <- unique(obs[which(!(obs$source %in% c("HW", "ECO"))),
+                      c("id", "lon", "lat", "source")])
+summary(as.factor(sensors$source))
+dist <- sf::st_distance(sensors, sensors)
+dist <- apply(dist, MARGIN = c(1, 2), FUN = as.numeric)
+diag(dist) <- NA
+colnames(dist) <- sensors$id
+rownames(dist) <- sensors$id
+
+colMap <- colorRampPalette(c("red","white","blue" ))(10)
+image(dist, col = colMap)
+legend(grconvertX(-2, "device"),
+       grconvertY(-2, "device"),
+       fill = colMap, xpd = NA)
+    
+image(dist)
+image(dist < 100)
+pairs <- which(dist < 100, arr.ind = TRUE) |>
+  as.data.frame()
+pairs$cws_a <- sensors[pairs[, 1], ]$id
+pairs$cws_b <- sensors[pairs[, 2], ]$id
+pairs
+```
+
+```{r}
+library('plot.matrix')
+par(mar = c(4.1, 4.1, 4.1, 4.1)) # adapt margins
+plot(dist,
+     key = list(side = 3, cex.axis = 0.75),
+     border = NA, asp = TRUE, 
+     breaks = seq(0, 
+                  60000,
+                  length.out = 10))
+```
+
+```{r}
+idx <- 2
+mypair <- obs[which(obs$id %in% c(pairs[idx, ]$cws_a, pairs[idx, ]$cws_b)), ]
+```
+
+```{r}
+for (idx in seq(1, 16,1)) {
+  mypair <- obs[which(obs$id %in% c(pairs[idx, ]$cws_a, pairs[idx, ]$cws_b)), ]
+  print(plot_ts_net(mypair, ts, te))
+}
+```
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+plot_ts_net(obs[which(obs$id %in% pairs$cws_a), ], ts, te) 
+```
+
+### Tileplot
+
+Select a period of study
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+```
+
+Raw data and data withou
+
+t na
+
+```{r}
+tile_pa_na <- pa_p[which(between(pa_p$time, ts, te)), ] |>
+  tile_ts()
+tile_wu_na <- wu_p[which(between(wu_p$time, ts, te)), ] |>
+  tile_ts()
+
+tile_pa <- pa_p[which(between(pa_p$time, ts, te)), ] |>
+  manage_na(na_thresh = 0) |>
+  tile_ts()
+tile_wu <- wu_p[which(between(wu_p$time, ts, te)), ] |>
+  manage_na(na_thresh = 0) |>
+  tile_ts()
+```
+
+Plot and save
+
+```{r}
+p <- ggarrange(tile_pa_na, tile_pa, nrow = 2)
+p
+ggsave(plot = p,
+       filename = "../graphs/tileplot_purpleair.png",
+       width = 10,
+       height = 12,
+       dpi = 300)
+p <- ggarrange(tile_wu_na, tile_wu, nrow = 2)
+p
+ggsave(plot = p,
+       filename = "../graphs/tileplot_weatherunderground.png",
+       width = 10,
+       height = 12,
+       dpi = 300)
+```
+
+### Timeseries with econet stations
+
+Select a period of study
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+```
+
+Plot timeserie
+
+```{r}
+pa_eco_ts <- plot_ts_ref(pa_p, eco_p, ts, te) + 
+  ggtitle("RTP PurpleAir vs Econet ref")
+wu_eco_ts <- plot_ts_ref(wu_p, eco_p, ts, te) +
+  ggtitle("RTP Weather Underground vs Econet ref")
+eco_ts <- ggarrange(pa_eco_ts, wu_eco_ts, nrow = 2)
+eco_ts
+ggsave(plot = eco_ts,
+       filename = "../graphs/ts_cws_vs_eco_ref.png",
+       width = 10,
+       height = 10,
+       dpi = 300)
+```
+
+### Timeseries per network
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+```
+
+```{r}
+plot_ts_net(obs, ts, te)
+```
+
+### Hourly boxplots per network
+
+```{r}
+ts <- as.POSIXct("2021-07-23 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-23 23:59:59", tz = "EST")
+```
+
+```{r}
+obs_plot <- obs[which(between(obs$time, ts, te)), ]
+p0 <- hourly_boxplot_networks(obs_plot, temp)
+p0
+```
+
+Save previous file
+
+```{r}
+ggsave(plot = p0,
+       filename = "../graphs/boxplot_networks_hourly.png",
+       width = 11,
+       height = 5,
+       dpi = 300)
+```
+
+### Maps
+
+```{r}
+map_observations(obs,
+                 var = temp,
+                 background = rtp,
+                 date = as.POSIXct("2021-07-21 02:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 24, "WU" = 21, "PA" = 22),
+                 title = "Networks comparison")
+map_observations(obs,
+                 var = temp,
+                 background = rtp,
+                 date = as.POSIXct("2021-07-21 12:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 24, "WU" = 21, "PA" = 22),
+                 title = "Networks comparison")
+```
+
+Open and project imperviousness raster
+
+```{r}
+imp <- terra::rast("../input/rtp_imp.tif") |>
+  terra::project("EPSG:4326")
+```
+
+#### Observations with imperviousness as a background
+
+```{r}
+p1 <- map_observations_imp(obs,
+                 var = temp,
+                 imp = imp,
+                 date = as.POSIXct("2021-07-21 02:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 16, "WU" = 17, "PA" = 18),
+                 title = "Imperviousness and networks comparison")
+p2 <- map_observations_imp(obs,
+                 var = temp,
+                 imp = imp,
+                 date = as.POSIXct("2021-07-21 12:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 16, "WU" = 17, "PA" = 18),
+                 title = "Imperviousness and networks comparison")
+```
+
+Save plots
+
+```{r}
+imp_net <- ggarrange(p1, p2, ncol = 2)
+ggsave(plot = imp_net,
+       filename = "../graphs/map_networks.png",
+       width = 16,
+       height = 6,
+       dpi = 300)
+```
+
+#### With heatwatch campaign as background
+
+Todel
+
+```{r}
+obs[which(obs$source == "HW" & obs$id == "am"),]
+```
+
+```{r}
+p3 <- map_observations_hw(obs[which(!(obs$source %in% c("HW"))), ],
+                 var = temp,
+                 imp = imp,
+                 hw = hw_am,
+                 date = as.POSIXct("2021-07-23 06:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 21, "WU" = 24, "HW" = 22),
+                 title = "Heatwatch campaign and networks comparison")
+p3
+p4 <- map_observations_hw(obs[which(!(obs$source %in% c("HW"))), ],
+                 var = temp,
+                 imp = imp,
+                 hw = hw_af,
+                 date = as.POSIXct("2021-07-23 15:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 21, "WU" = 24, "HW" = 22),
+                 title = "Heatwatch campaign and networks comparison")
+p4
+p5 <- map_observations_hw(obs[which(!(obs$source %in% c("HW"))), ],
+                 var = temp,
+                 imp = imp,
+                 hw = hw_pm,
+                 date = as.POSIXct("2021-07-23 19:00:00", tz = "EST"),
+                 shape_values = c("ECO" = 21, "WU" = 24, "HW" = 22),
+                 title = "Heatwatch campaign and networks comparison")
+  
+p5
+```
+
+Save previous plots
+
+```{r}
+imp_net <- ggarrange(p3, p4, p5, ncol = 3)
+ggsave(plot = imp_net,
+       filename = "../graphs/map_heatwatch_vs_networks.png",
+       width = 22,
+       height = 6,
+       dpi = 300)
+```

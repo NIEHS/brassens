@@ -1,0 +1,354 @@
+#' Rename x columns for homogeneous plots
+#' @param x data frame or sftime
+#' @param time character, name of the time column
+#' @param temp character, name of the temperature column
+#' @param id character, name of the id column
+#' @param lat character, name of the latitude column
+#' @param lon character, name of the longitude column
+#' @return same as x with renamed columns
+#' @export
+#' @author Eva Marques
+rename_for_plot <- function(x, time, temp, id, lat, lon) {
+  vars <- c("time" = time,
+            "temp" = temp,
+            "id" = id,
+            "lat" = lat,
+            "lon" = lon)
+  output <- x |>
+    dplyr::rename(all_of(vars))
+  return(output)
+}
+
+#' Timeseries plot of temperature
+#' @param data data frame or sftime of cws observations
+#' @param ts datetime, start time
+#' @param te datetime, end time
+#' @return A ggplo2 object with the timeseries
+#' @export
+#' @author Eva Marques
+plot_ts <- function(data, ts, te) {
+  p <- ggplot(data) +
+    geom_line(aes(x = time,
+                  y = temp,
+                  group = as.factor(id),
+                  color = as.factor(id))) +
+    scale_x_datetime(date_labels = "%m-%d %Hh",
+                     date_breaks = "6 hours",
+                     date_minor_breaks = "1 hour",
+                     limits = c(ts, te)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "azure2"),
+      legend.position = "none"
+    )
+  return(p)
+}
+
+plot_ts_net <- function(data, ts, te) {
+  min <- floor(quantile(data$temp,
+                        na.rm = TRUE,
+                        probs = 0.01))
+  max <- ceiling(quantile(data$temp,
+                          na.rm = TRUE,
+                          probs = 1))
+  p <- ggplot(data,
+              aes(x = time,
+                  y = temp,
+                  group = as.factor(id),
+                  color = source)) +
+    geom_line() +
+    scale_x_datetime(date_labels = "%m-%d %Hh",
+                     date_breaks = "6 hours",
+                     date_minor_breaks = "1 hour",
+                     limits = c(ts, te)) +
+    scale_y_continuous(breaks = seq(min, max, by = 5),
+                       minor_breaks = seq(min, max, by = 1),
+                       limits = c(min, max)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "azure2"),
+      legend.position = "right"
+    )
+  return(p)
+}
+
+
+#' Timeseries plot of temperature with reference network
+#' @param data data frame or sftime of cws observations
+#' @param ref data frame or sftime, reference network
+#' @param ts datetime, start time
+#' @param te datetime, end time
+#' @return A ggplo2 object with the timeseries
+#' @export
+#' @author Eva Marques
+plot_ts_ref <- function(data, ref, ts, te) {
+  p <- ggplot(data,
+              aes(x = time,
+                  y = temp,
+                  group = as.factor(id),
+                  color = as.factor(id))) +
+    geom_line() +
+    geom_line(data = ref, color = "red", size = 1) +
+    scale_x_datetime(date_labels = "%m-%d %Hh",
+                     date_breaks = "6 hours",
+                     date_minor_breaks = "1 hour",
+                     limits = c(ts, te)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "azure2"),
+      legend.position = "none"
+    )
+  return(p)
+}
+
+#' Tile plot with temperature through time for all cws
+#' @param data data frame or sftime of cws observations
+#' @return A ggplo2 object with the tileplot
+#' @export
+#' @author Eva Marques
+tile_ts <- function(data){
+  plot <- ggplot(data,
+                 aes(y = as.factor(id),
+                     x = lubridate::floor_date(time, unit = "hours"),
+                     fill = temp)) +
+    geom_tile() +
+    scale_fill_stepsn(colours = rev(RColorBrewer::brewer.pal(10, "RdBu")),
+                      n.breaks = 15,
+                      guide = guide_legend()) +
+    labs(x = "time",
+         y = "id station",
+         fill = "temperature") +
+    scale_x_datetime(date_labels = "%m-%d %Hh",
+                     date_breaks = "12 hours",
+                     date_minor_breaks = "1 hour") +
+    guides(fill = guide_colourbar(barwidth = 0.7, barheight = 25)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.title.y = element_blank(),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "azure2"),
+      legend.position = "right"
+    )
+  return(plot)
+}
+
+#' Hourly boxplot of temperature for per network (source)
+#' @param data data frame or sftime with all the network, contains "source"
+#' column
+#' @param var continuous variable to boxplot (in general: temp)
+#' @return A ggplo2 object with the boxplots
+#' @export
+#' @author Eva Marques
+hourly_boxplot_networks <- function(data, var) {
+  min <- floor(quantile(data[[deparse(substitute(var))]],
+                   na.rm = TRUE,
+                   probs = 0.01))
+  max <- ceiling(quantile(data[[deparse(substitute(var))]],
+                   na.rm = TRUE,
+                   probs = 0.997))
+  ggplot(
+    data = data,
+    aes(x = source,
+        y = {{var}},
+        color = source,
+        group = source)
+  ) +
+    geom_boxplot(outlier.shape = 3, fill = "white", width = .8) +
+    facet_wrap(~ lubridate::floor_date(time, unit = "hours"), ncol = 12) +
+    scale_y_continuous(breaks = seq(min, max, by = 5),
+                       minor_breaks = seq(min, max, by = 1),
+                       limits = c(min, max)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "gray95"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "white"),
+      legend.position = "none"
+    )
+}
+
+
+map_observations <- function(data,
+                             var,
+                             background,
+                             date,
+                             shape_values,
+                             title) {
+  pal <- c("cyan4", "yellow","orange", "red", "firebrick")
+
+  ggplot() +
+    tidyterra::geom_spatvector(data = background) +
+    geom_sf(
+      data = data[which(between(data$time,
+                                date,
+                                date + lubridate::hours(1))), ],
+      aes(geometry = geometry, fill = {{var}}, shape = source),
+      color = "black",
+      size = 2,
+    ) +
+    xlim(min(data$lon), max(data$lon)) +
+    ylim(min(data$lat), max(data$lat)) +
+    scale_shape_manual(values = shape_values) +
+    scale_fill_gradientn(colours = pal, na.value = NA) +
+    labs(
+      title = title,
+      subtitle = date
+    ) +
+    ggspatial::annotation_scale(
+      location = "bl", pad_x = unit(1, "cm"),
+      pad_y = unit(1, "cm"),
+      height = unit(0.30, "cm"),
+      text_cex = 1
+    ) +
+    ggspatial::annotation_north_arrow(
+      location = "br",
+      which_north = "true",
+      pad_x = unit(0.2, "cm"),
+      pad_y = unit(0.2, "cm")
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey")
+    )
+}
+
+map_observations_imp <- function(data,
+                             var,
+                             imp,
+                             date,
+                             shape_values,
+                             title) {
+  pal <- c("cyan4", "yellow","orange", "red", "firebrick")
+
+  ggplot() +
+    tidyterra::geom_spatraster(data = imp) +
+    geom_sf(
+      data = data[which(between(data$time,
+                                date,
+                                date + lubridate::hours(1))), ],
+      aes(geometry = geometry, color = {{var}}, shape = source),
+      size = 3,
+    ) +
+    xlim(min(data$lon), max(data$lon)) +
+    ylim(min(data$lat), max(data$lat)) +
+    scale_shape_manual(values = shape_values) +
+    scale_color_gradientn(colours = pal, na.value = NA) +
+    scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
+    guides(fill = guide_legend(title = "Imperviousness (%)")) +
+    labs(
+      title = title,
+      subtitle = date
+    ) +
+    ggspatial::annotation_scale(
+      location = "bl", pad_x = unit(1, "cm"),
+      pad_y = unit(1, "cm"),
+      height = unit(0.30, "cm"),
+      text_cex = 1
+    ) +
+    ggspatial::annotation_north_arrow(
+      location = "br",
+      which_north = "true",
+      pad_x = unit(0.2, "cm"),
+      pad_y = unit(0.2, "cm")
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey")
+    )
+}
+
+
+
+map_observations_hw <- function(data,
+                                 var,
+                                 imp,
+                                 hw,
+                                 date,
+                                 shape_values,
+                                 title) {
+  pal <- c("blue", "cyan","lemonchiffon", "yellow", "orange", "red", "firebrick")
+  data_p <- data[which(between(data$time,
+                     date,
+                     date + lubridate::hours(1))), ]
+  tmin <- quantile(data_p[[deparse(substitute(var))]],
+                   na.rm = TRUE,
+                   probs = 0.05)
+  tmax <- quantile(data_p[[deparse(substitute(var))]],
+                   na.rm = TRUE,
+                   probs = 0.95)
+  ggplot() +
+    tidyterra::geom_spatraster(data = hw) +
+    tidyterra::geom_spatraster_contour(data = imp,
+                                       breaks = seq(0, 100, 20),
+                                       alpha = .3) +
+    geom_sf(
+      data = data_p,
+      aes(geometry = geometry, fill = {{var}}, shape = source),
+      size = 3,
+      stroke = NA
+    ) +
+    xlim(min(data$lon), max(data$lon)) +
+    ylim(min(data$lat), max(data$lat)) +
+    scale_shape_manual(values = shape_values) +
+    scale_fill_gradientn(colours = pal, na.value = NA, limits = c(tmin, tmax)) +
+    labs(
+      title = title,
+      subtitle = date
+    ) +
+    ggspatial::annotation_scale(
+      location = "bl", pad_x = unit(1, "cm"),
+      pad_y = unit(1, "cm"),
+      height = unit(0.30, "cm"),
+      text_cex = 1
+    ) +
+    ggspatial::annotation_north_arrow(
+      location = "br",
+      which_north = "true",
+      pad_x = unit(0.2, "cm"),
+      pad_y = unit(0.2, "cm")
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey")
+    )
+}
+

@@ -1,0 +1,70 @@
+---
+title: "CWS data cleaning"
+format: html
+editor: visual
+---
+
+## Open data
+
+## CrowdQC+
+
+
+## Curve clustering
+
+Create curves
+
+```{r}
+curves <- pa_p |>
+  manage_na() |>
+  compute_daily_trend() |>
+  create_curves(seed = 50, type = "raw") 
+```
+
+Curve clustering
+
+```{r}
+pa_class <- curves |> clustering_ts(k = 6)
+pa_p$id <- as.character(pa_p$id)
+test <- merge(pa_p, pa_class, by = "id")
+test[which(test$clust == 1), ] |>
+  compute_daily_trend() |>
+  plot_daily_trend()
+test[which(test$clust == 2), ] |>
+  compute_daily_trend() |>
+  plot_daily_trend()
+test[which(test$clust == 3), ] |>
+  compute_daily_trend() |>
+  plot_daily_trend()
+test[which(test$clust == 4), ] |>
+  compute_daily_trend() |>
+  plot_daily_trend()
+test[which(test$clust == 5), ] |>
+  compute_daily_trend() |>
+  plot_daily_trend()
+test[which(test$clust == 6), ] |>
+  compute_daily_trend() |>
+  plot_daily_trend()
+```
+
+Map Purple Air and Weather Underground locations
+
+```{r}
+eco_p <- sftime::st_as_sftime(eco,
+                      coords = c("lon", "lat"),
+                      crs = 4326,
+                      time_column_name = "time_est")
+wu_sensors <- unique(as.data.frame(wu_hw[, c("stationID")]))
+
+ggplot() +
+  tidyterra::geom_spatvector(data = rtp) +
+  geom_sf(
+    data = wu_sensors,
+    aes(geometry = geometry),
+    size = 2, shape = 21
+  ) +
+  geom_sf(
+    data = eco_p,
+    aes(geometry = geometry, fill = station_id),
+    size = 2, shape = 21
+  )
+```

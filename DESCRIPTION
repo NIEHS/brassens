@@ -1,9 +1,14 @@
 Package: brassens
-Type: Package
 Title: Bias-corrected Recordings from Air temperature Sensors to Support EnviroNmental Sciences
-Author: Eva Marques, Kyle Messier
+Version: 1.0.0
+Authors@R: c(
+  person("Eva", "Marques", role = c("aut", "cre"), email = "eva.marques@nih.gov"),
+  person("Kyle", "Messier", role = "ctb")
+  )
 Maintainer: The package maintainer eva.marques@nih.gov
 Description: Citizen Weather Stations data access and cleaning toolbox.
+Depends: R (>=- 4.1.0)
+VignetteBuilder: knitr, rmarkdown
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.1
+RoxygenNote: 7.2.3

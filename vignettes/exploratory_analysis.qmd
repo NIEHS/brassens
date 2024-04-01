@@ -30,6 +30,8 @@ rtp <- nc_borders[which(nc_borders$County %in% c("Wake", "Orange",
 
 ```{r}
 pa <- data.table::fread("../input/rtp/pa_20210720_20210727.csv")
+test <- format_pa(pa)
+
 pa$time_stamp_est <- as.POSIXct(pa$time_stamp, "EST")
 ```
 

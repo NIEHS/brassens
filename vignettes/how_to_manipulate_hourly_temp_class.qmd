@@ -1,0 +1,37 @@
+---
+title: "How to manipulate hourly_temp class"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{How to manipulate ws_temp class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+date: "2024-04-01"
+author: "Eva Marques"
+---
+
+### Open PurpleAir
+
+```{r}
+pa <- data.table::fread("../input/rtp/pa_20210720_20210727.csv")
+pa$time_stamp_est <- as.POSIXct(pa$time_stamp, "EST")
+```
+
+### ws_temp class
+
+We try to make a ws_temp object from the PurpleAir data. Unfortunately, it doesn't work because pa object does not pass validity checks.
+
+```{r}
+testthat::expect_error(hourly_temp(pa),
+                       "temp, lat, lon, time columns missing or mispelled.")
+```
+
+With right column names, pa object, it should pass now.
+
+```{r}
+pa$time_stamp <- as.POSIXct(pa$time_stamp, "UTC")
+testthat::expect_no_error(hourly_temp(pa,
+                                      time = "time_stamp",
+                                      lat = "latitude",
+                                      lon = "longitude",
+                                      temp = "temperature"))
+```

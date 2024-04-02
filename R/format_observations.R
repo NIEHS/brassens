@@ -78,7 +78,7 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
   hourly_avg <- hourly_avg |>
     dplyr::group_by(lat, lon, time) |>
-    dplyr::summarise(temp = mean(temp, na.rm = TRUE)) |>
+    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
     dplyr::ungroup() |>
     as.data.frame()
   return(hourly_avg)

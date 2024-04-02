@@ -1,0 +1,60 @@
+---
+title: "CrowdQCplus on PurpleAir and WeatherUnderground"
+format: html
+editor: visual
+---
+
+## Open WeatherUnderground
+
+```{r}
+wu <- data.table::fread("../input/rtp/wu_20210701_20210731.csv") |> 
+  format_wu()
+```
+
+Format for CrowdQCplus library:
+
+```{r}
+wu_qcp <- wu |>
+  dplyr::rename("p_id" = "site_id") |>
+  dplyr::rename("ta" = "temp") |>
+  as.data.table()
+wu_qcp$p_id <- as.character(wu_qcp$p_id)
+wu_qcp <- CrowdQCplus::cqcp_padding(wu_qcp)
+wu_qcp <- CrowdQCplus::cqcp_add_dem_height(wu_qcp)
+```
+
+```{r}
+data <- CrowdQCplus::cqcp_padding(wu_qcp)
+ok <- CrowdQCplus::cqcp_check_input(wu_qcp)
+
+if (ok) {
+  data_qc <- CrowdQCplus::cqcp_qcCWS(data,
+    m5_radius = 3000,
+    m5_n_buddies = 5,
+    m5_keep_isolated = T
+  )
+  stats <- CrowdQCplus::cqcp_output_statistics(data_qc)
+}
+```
+
+```{r}
+head(data_qc)
+```
+
+```{r}
+wu_qc <- data_qc[which(data_qc$o3), c("time", "p_id", "ta", "lat", "lon")] |>
+  dplyr::rename("site_id" = "p_id") |>
+  dplyr::rename("temp" = "ta") |>
+  sftime::st_as_sftime(
+    coords = c("lon", "lat"),
+    time_column_name = "time",
+    crs = 4326,
+    remove = FALSE
+  )
+```
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+plot_ts(wu_qc, ts, te)
+```

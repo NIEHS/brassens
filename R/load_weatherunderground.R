@@ -31,4 +31,3 @@ load_wu_period <- function(rpath, ts, te, wpath) {
   data.table::fwrite(wu, fname)
   return(wu)
 }
-

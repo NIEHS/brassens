@@ -17,13 +17,14 @@ setValidity("hourly_temp", function(object) {
     "time must be a POSIXct" =
       lubridate::is.POSIXct(object$time),
     "time must be in UTC" =
-      attr(object$time, "tzone") == "UTC"
+      attr(object$time, "tzone") == "UTC",
+    "network must be a character" =
+      is.character(object$network)
   )
-  obs_identification <- object[, c("lon", "lat", "time")]
-  obs_identification$time <- lubridate::floor_date(obs_identification$time,
-                                                   "hour")
+  obs_id <- object[, c("lon", "lat", "time")]
+  obs_id$time <- lubridate::floor_date(obs_id$time, "hour")
   stopifnot("duplicates found (more than 1 observation per hour?)" =
-              !any(duplicated(obs_identification)))
+              !any(duplicated(obs_id)))
   return(TRUE)
 })
 
@@ -40,7 +41,8 @@ hourly_temp <- function(x,
                         temp = "temp",
                         lat = "lat",
                         lon = "lon",
-                        time = "time") {
+                        time = "time",
+                        network) {
   stopifnot(
     "x is not a data.frame, data.table, sf or sftime." =
       class(x)[1] %in% c("data.frame", "data.table", "sf", "sftime"),
@@ -53,9 +55,8 @@ hourly_temp <- function(x,
     dplyr::rename("lat" = lat) |>
     dplyr::rename("lon" = lon) |>
     dplyr::rename("time" = time)
+  y$network <- network
   y <- generate_site_id(y) |>
     new(Class = "hourly_temp")
-  return(y)
+  return(y[, c("site_id", "temp", "lat", "lon", "time", "network")])
 }
-
-

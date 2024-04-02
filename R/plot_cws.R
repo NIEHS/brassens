@@ -1,24 +1,3 @@
-#' Rename x columns for homogeneous plots
-#' @param x data frame or sftime
-#' @param time character, name of the time column
-#' @param temp character, name of the temperature column
-#' @param id character, name of the id column
-#' @param lat character, name of the latitude column
-#' @param lon character, name of the longitude column
-#' @return same as x with renamed columns
-#' @export
-#' @author Eva Marques
-rename_for_plot <- function(x, time, temp, id, lat, lon) {
-  vars <- c("time" = time,
-            "temp" = temp,
-            "id" = id,
-            "lat" = lat,
-            "lon" = lon)
-  output <- x |>
-    dplyr::rename(all_of(vars))
-  return(output)
-}
-
 #' Timeseries plot of temperature
 #' @param data data frame or sftime of cws observations
 #' @param ts datetime, start time
@@ -28,14 +7,18 @@ rename_for_plot <- function(x, time, temp, id, lat, lon) {
 #' @author Eva Marques
 plot_ts <- function(data, ts, te) {
   p <- ggplot(data) +
-    geom_line(aes(x = time,
-                  y = temp,
-                  group = as.factor(id),
-                  color = as.factor(id))) +
-    scale_x_datetime(date_labels = "%m-%d %Hh",
-                     date_breaks = "6 hours",
-                     date_minor_breaks = "1 hour",
-                     limits = c(ts, te)) +
+    geom_line(aes(
+      x = time,
+      y = temp,
+      group = as.factor(site_id),
+      color = as.factor(site_id)
+    )) +
+    scale_x_datetime(
+      date_labels = "%m-%d %Hh",
+      date_breaks = "6 hours",
+      date_minor_breaks = "1 hour",
+      limits = c(ts, te)
+    ) +
     theme(
       axis.text = element_text(size = 12),
       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
@@ -52,24 +35,34 @@ plot_ts <- function(data, ts, te) {
 
 plot_ts_net <- function(data, ts, te) {
   min <- floor(quantile(data$temp,
-                        na.rm = TRUE,
-                        probs = 0.01))
+    na.rm = TRUE,
+    probs = 0.01
+  ))
   max <- ceiling(quantile(data$temp,
-                          na.rm = TRUE,
-                          probs = 1))
-  p <- ggplot(data,
-              aes(x = time,
-                  y = temp,
-                  group = as.factor(id),
-                  color = source)) +
+    na.rm = TRUE,
+    probs = 1
+  ))
+  p <- ggplot(
+    data,
+    aes(
+      x = time,
+      y = temp,
+      group = as.factor(site_id),
+      color = network
+    )
+  ) +
     geom_line() +
-    scale_x_datetime(date_labels = "%m-%d %Hh",
-                     date_breaks = "6 hours",
-                     date_minor_breaks = "1 hour",
-                     limits = c(ts, te)) +
-    scale_y_continuous(breaks = seq(min, max, by = 5),
-                       minor_breaks = seq(min, max, by = 1),
-                       limits = c(min, max)) +
+    scale_x_datetime(
+      date_labels = "%m-%d %Hh",
+      date_breaks = "6 hours",
+      date_minor_breaks = "1 hour",
+      limits = c(ts, te)
+    ) +
+    scale_y_continuous(
+      breaks = seq(min, max, by = 5),
+      minor_breaks = seq(min, max, by = 1),
+      limits = c(min, max)
+    ) +
     theme(
       axis.text = element_text(size = 12),
       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
@@ -94,17 +87,23 @@ plot_ts_net <- function(data, ts, te) {
 #' @export
 #' @author Eva Marques
 plot_ts_ref <- function(data, ref, ts, te) {
-  p <- ggplot(data,
-              aes(x = time,
-                  y = temp,
-                  group = as.factor(id),
-                  color = as.factor(id))) +
+  p <- ggplot(
+    data,
+    aes(
+      x = time,
+      y = temp,
+      group = as.factor(site_id),
+      color = as.factor(site_id)
+    )
+  ) +
     geom_line() +
     geom_line(data = ref, color = "red", size = 1) +
-    scale_x_datetime(date_labels = "%m-%d %Hh",
-                     date_breaks = "6 hours",
-                     date_minor_breaks = "1 hour",
-                     limits = c(ts, te)) +
+    scale_x_datetime(
+      date_labels = "%m-%d %Hh",
+      date_breaks = "6 hours",
+      date_minor_breaks = "1 hour",
+      limits = c(ts, te)
+    ) +
     theme(
       axis.text = element_text(size = 12),
       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
@@ -124,24 +123,35 @@ plot_ts_ref <- function(data, ref, ts, te) {
 #' @return A ggplo2 object with the tileplot
 #' @export
 #' @author Eva Marques
-tile_ts <- function(data){
-  plot <- ggplot(data,
-                 aes(y = as.factor(id),
-                     x = lubridate::floor_date(time, unit = "hours"),
-                     fill = temp)) +
+tile_ts <- function(data) {
+  plot <- ggplot(
+    data,
+    aes(
+      y = as.factor(site_id),
+      x = lubridate::floor_date(time, unit = "hours"),
+      fill = temp
+    )
+  ) +
     geom_tile() +
-    scale_fill_stepsn(colours = rev(RColorBrewer::brewer.pal(10, "RdBu")),
-                      n.breaks = 15,
-                      guide = guide_legend()) +
-    labs(x = "time",
-         y = "id station",
-         fill = "temperature") +
-    scale_x_datetime(date_labels = "%m-%d %Hh",
-                     date_breaks = "12 hours",
-                     date_minor_breaks = "1 hour") +
+    scale_fill_stepsn(
+      colours = rev(RColorBrewer::brewer.pal(10, "RdBu")),
+      n.breaks = 15,
+      guide = guide_legend()
+    ) +
+    labs(
+      x = "time",
+      y = "site_id",
+      fill = "temperature"
+    ) +
+    scale_x_datetime(
+      date_labels = "%m-%d %Hh",
+      date_breaks = "12 hours",
+      date_minor_breaks = "1 hour"
+    ) +
     guides(fill = guide_colourbar(barwidth = 0.7, barheight = 25)) +
     theme(
       axis.text = element_text(size = 12),
+      axis.text.y = element_blank(),
       axis.title.y = element_blank(),
       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
       plot.caption = element_text(size = 10),
@@ -155,8 +165,8 @@ tile_ts <- function(data){
   return(plot)
 }
 
-#' Hourly boxplot of temperature for per network (source)
-#' @param data data frame or sftime with all the network, contains "source"
+#' Hourly boxplot of temperature for per network (network)
+#' @param data data frame or sftime with all the network, contains "network"
 #' column
 #' @param var continuous variable to boxplot (in general: temp)
 #' @return A ggplo2 object with the boxplots
@@ -164,23 +174,29 @@ tile_ts <- function(data){
 #' @author Eva Marques
 hourly_boxplot_networks <- function(data, var) {
   min <- floor(quantile(data[[deparse(substitute(var))]],
-                   na.rm = TRUE,
-                   probs = 0.01))
+    na.rm = TRUE,
+    probs = 0.01
+  ))
   max <- ceiling(quantile(data[[deparse(substitute(var))]],
-                   na.rm = TRUE,
-                   probs = 0.997))
+    na.rm = TRUE,
+    probs = 0.997
+  ))
   ggplot(
     data = data,
-    aes(x = source,
-        y = {{var}},
-        color = source,
-        group = source)
+    aes(
+      x = network,
+      y = {{ var }},
+      color = network,
+      group = network
+    )
   ) +
     geom_boxplot(outlier.shape = 3, fill = "white", width = .8) +
     facet_wrap(~ lubridate::floor_date(time, unit = "hours"), ncol = 12) +
-    scale_y_continuous(breaks = seq(min, max, by = 5),
-                       minor_breaks = seq(min, max, by = 1),
-                       limits = c(min, max)) +
+    scale_y_continuous(
+      breaks = seq(min, max, by = 5),
+      minor_breaks = seq(min, max, by = 1),
+      limits = c(min, max)
+    ) +
     theme(
       axis.text = element_text(size = 12),
       axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
@@ -201,15 +217,17 @@ map_observations <- function(data,
                              date,
                              shape_values,
                              title) {
-  pal <- c("cyan4", "yellow","orange", "red", "firebrick")
+  pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
 
   ggplot() +
     tidyterra::geom_spatvector(data = background) +
     geom_sf(
-      data = data[which(between(data$time,
-                                date,
-                                date + lubridate::hours(1))), ],
-      aes(geometry = geometry, fill = {{var}}, shape = source),
+      data = data[which(between(
+        data$time,
+        date,
+        date + lubridate::hours(1)
+      )), ],
+      aes(geometry = geometry, fill = {{ var }}, shape = network),
       color = "black",
       size = 2,
     ) +
@@ -244,20 +262,22 @@ map_observations <- function(data,
 }
 
 map_observations_imp <- function(data,
-                             var,
-                             imp,
-                             date,
-                             shape_values,
-                             title) {
-  pal <- c("cyan4", "yellow","orange", "red", "firebrick")
+                                 var,
+                                 imp,
+                                 date,
+                                 shape_values,
+                                 title) {
+  pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
 
   ggplot() +
     tidyterra::geom_spatraster(data = imp) +
     geom_sf(
-      data = data[which(between(data$time,
-                                date,
-                                date + lubridate::hours(1))), ],
-      aes(geometry = geometry, color = {{var}}, shape = source),
+      data = data[which(between(
+        data$time,
+        date,
+        date + lubridate::hours(1)
+      )), ],
+      aes(geometry = geometry, color = {{ var }}, shape = network),
       size = 3,
     ) +
     xlim(min(data$lon), max(data$lon)) +
@@ -295,30 +315,44 @@ map_observations_imp <- function(data,
 
 
 map_observations_hw <- function(data,
-                                 var,
-                                 imp,
-                                 hw,
-                                 date,
-                                 shape_values,
-                                 title) {
-  pal <- c("blue", "cyan","lemonchiffon", "yellow", "orange", "red", "firebrick")
-  data_p <- data[which(between(data$time,
-                     date,
-                     date + lubridate::hours(1))), ]
+                                var,
+                                imp,
+                                hw,
+                                date,
+                                shape_values,
+                                title) {
+  pal <- c(
+    "blue",
+    "cyan",
+    "lemonchiffon",
+    "yellow",
+    "orange",
+    "red",
+    "firebrick"
+  )
+  data_p <- data[which(between(
+    data$time,
+    date,
+    date + lubridate::hours(1)
+  )), ]
   tmin <- quantile(data_p[[deparse(substitute(var))]],
-                   na.rm = TRUE,
-                   probs = 0.05)
+    na.rm = TRUE,
+    probs = 0.05
+  )
   tmax <- quantile(data_p[[deparse(substitute(var))]],
-                   na.rm = TRUE,
-                   probs = 0.95)
+    na.rm = TRUE,
+    probs = 0.95
+  )
   ggplot() +
     tidyterra::geom_spatraster(data = hw) +
-    tidyterra::geom_spatraster_contour(data = imp,
-                                       breaks = seq(0, 100, 20),
-                                       alpha = .3) +
+    tidyterra::geom_spatraster_contour(
+      data = imp,
+      breaks = seq(0, 100, 20),
+      alpha = .3
+    ) +
     geom_sf(
       data = data_p,
-      aes(geometry = geometry, fill = {{var}}, shape = source),
+      aes(geometry = geometry, fill = {{ var }}, shape = network),
       size = 3,
       stroke = NA
     ) +
@@ -351,4 +385,3 @@ map_observations_hw <- function(data,
       panel.grid.major = element_line(colour = "grey")
     )
 }
-

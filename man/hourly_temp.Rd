@@ -4,7 +4,7 @@
 \alias{hourly_temp}
 \title{Build a hourly_temp from a data.frame, data.table, sf or sftime}
 \usage{
-hourly_temp(x, temp = "temp", lat = "lat", lon = "lon", time = "time")
+hourly_temp(x, temp = "temp", lat = "lat", lon = "lon", time = "time", network)
 }
 \arguments{
 \item{x}{a data.frame, data.table, sf or sftime}

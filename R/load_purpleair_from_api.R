@@ -1,4 +1,4 @@
-#` `@title` `Load PurpleAir data`
+# ` `@title` `Load PurpleAir data`
 
 
 #' Find a list of sensors in a specific area
@@ -20,21 +20,24 @@ find_sensors <- function(nwlat,
                          api_key,
                          location_type = 0) {
   fields <- "sensor_index,latitude, longitude, temperature, humidity"
-  query_list <- list(nwlng = nwlng,
-                     nwlat = nwlat,
-                     selng = selng,
-                     selat = selat,
-                     max_age = 0,
-                     location_type = 0,
-                     fields = fields)
-  url_base <- paste0('https://api.purpleair.com/v1/sensors/')
+  query_list <- list(
+    nwlng = nwlng,
+    nwlat = nwlat,
+    selng = selng,
+    selat = selat,
+    max_age = 0,
+    location_type = 0,
+    fields = fields
+  )
+  url_base <- paste0("https://api.purpleair.com/v1/sensors/")
   # GET PurpleAir sensor history data
-  r_temp <- httr::GET(url = url_base,
-                      query = query_list,
-                      config = add_headers("X-API-Key" = api_key)
+  r_temp <- httr::GET(
+    url = url_base,
+    query = query_list,
+    config = add_headers("X-API-Key" = api_key)
   )
   # Structurized data in form of R vectors and lists
-  r_parsed <- fromJSON(content(r_temp, as="text"))
+  r_parsed <- fromJSON(content(r_temp, as = "text"))
   # Data frame from JSON data
   sensors <- as.data.frame(r_parsed$data)
   colnames(sensors) <- r_parsed$fields
@@ -59,13 +62,17 @@ request_sensor_history <- function(start_ts,
                                    api_key,
                                    average = "60",
                                    fields = "temperature, humidity") {
-  query_list <- list(start_timestamp = as.character(as.integer(start_ts)),
-                     end_timestamp = as.character(as.integer(end_ts)),
-                     average = average,
-                     fields = fields)
-  url_base <- paste0('https://api.purpleair.com/v1/sensors/',
-                     sensor_index,
-                     "/history")
+  query_list <- list(
+    start_timestamp = as.character(as.integer(start_ts)),
+    end_timestamp = as.character(as.integer(end_ts)),
+    average = average,
+    fields = fields
+  )
+  url_base <- paste0(
+    "https://api.purpleair.com/v1/sensors/",
+    sensor_index,
+    "/history"
+  )
   # GET PurpleAir sensor history data
   r_temp <- httr::GET(
     url = url_base,
@@ -81,8 +88,9 @@ request_sensor_history <- function(start_ts,
   } else {
     colnames(s_history) <- r_parsed$fields
     s_history$time_stamp <- as.POSIXct(s_history$time_stamp,
-                                       origin = "1970-01-01",
-                                       tz = "UTC")
+      origin = "1970-01-01",
+      tz = "UTC"
+    )
     return(s_history)
   }
 }
@@ -98,24 +106,32 @@ request_sensors_history <- function(nwlat,
                                     api_key,
                                     average = "60",
                                     fields = "temperature, humidity") {
-  sensors <- find_sensors(nwlat,
-                          selat,
-                          nwlng,
-                          selng,
-                          api_key,
-                          location_type)
+  sensors <- find_sensors(
+    nwlat,
+    selat,
+    nwlng,
+    selng,
+    api_key,
+    location_type
+  )
   for (s in sensors$sensor_index) {
-    s_history <- request_sensor_history(start_ts,
-                                        end_ts,
-                                        s,
-                                        api_key,
-                                        average,
-                                        fields)
+    s_history <- request_sensor_history(
+      start_ts,
+      end_ts,
+      s,
+      api_key,
+      average,
+      fields
+    )
     if (!is.null(s_history)) {
-      s_history$latitude <- as.numeric(sensors[sensors$sensor_index == s,
-                                               "latitude"])
-      s_history$longitude <- as.numeric(sensors[sensors$sensor_index == s,
-                                                 "longitude"])
+      s_history$latitude <- as.numeric(sensors[
+        sensors$sensor_index == s,
+        "latitude"
+      ])
+      s_history$longitude <- as.numeric(sensors[
+        sensors$sensor_index == s,
+        "longitude"
+      ])
       s_history$sensor_index <- s
       if (exists("sensors_history")) {
         sensors_history <- rbind(sensors_history, s_history)

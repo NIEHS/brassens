@@ -29,7 +29,7 @@ convert_temp <- function(x, from, to) {
 my_pal <- function(pal_name) {
   # -- define palettes
   if (pal_name == "temp") {
-    return(tim.colors(n=64, alpha=1.0))
+    return(fields::tim.colors(n = 64, alpha = 1.0))
   } else if (pal_name == "sw") {
     return(RColorBrewer::brewer.pal(10, "RdYlBu"))
   } else if (pal_name == "reds") {
@@ -37,6 +37,12 @@ my_pal <- function(pal_name) {
   } else if (pal_name == "prior") {
     return(RColorBrewer::brewer.pal(10, "RdBu"))
   } else if (pal_name == "uhi") {
-    return(c("cyan4", "grey", "yellow","orange", "red", "firebrick", "black"))
+    return(c("cyan4",
+             "grey",
+             "yellow",
+             "orange",
+             "red",
+             "firebrick",
+             "black"))
   }
 }

@@ -245,6 +245,13 @@ obs <- rbind(eco[, var_list],
              hw_pt_pm[, var_list])
 ```
 
+#### Removal of a station with very low temperatures
+
+```{r}
+obs <- obs[which(obs$temp >= 0), ]
+wu <- wu[which(wu$temp >= 0), ]
+```
+
 ### Same PurpleAir and Weather Underground ?
 
 ```{r}
@@ -291,13 +298,6 @@ for (idx in seq(1, 16,1)) {
   mypair <- obs[which(obs$site_id %in% c(pairs[idx, ]$cws_a, pairs[idx, ]$cws_b)), ]
   print(plot_ts_net(mypair, ts, te))
 }
-```
-
-#### Removal of a station with very low temperatures
-
-```{r}
-obs <- obs[which(obs$temp >= -20), ]
-wu <- wu[which(wu$temp >= -20), ]
 ```
 
 ### Tileplot
@@ -409,13 +409,13 @@ ggsave(plot = p0,
 map_observations(obs,
                  var = temp,
                  background = rtp,
-                 date = as.POSIXct("2021-07-21 02:00:00", tz = "EST"),
-                 shape_values = c("ECONET" = 24, "WU" = 21, "PA" = 22),
+                 date = as.POSIXct("2021-07-23 06:00:00", tz = "EST"),
+                 shape_values = c("ECONET" = 24, "WU" = 21, "PA" = 22, "HEATWATCH" = 23),
                  title = "Networks comparison")
 map_observations(obs,
                  var = temp,
                  background = rtp,
-                 date = as.POSIXct("2021-07-21 12:00:00", tz = "EST"),
+                 date = as.POSIXct("2021-07-23 15:00:00", tz = "EST"),
                  shape_values = c("ECONET" = 24, "WU" = 21, "PA" = 22),
                  title = "Networks comparison")
 ```

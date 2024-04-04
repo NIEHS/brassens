@@ -1,0 +1,33 @@
+---
+title: "Measurement error of citizen weather stations" 
+format: html
+editor: visual
+author: "Eva Marques"
+---
+
+Open citizen weather stations data
+
+```{r}
+wu <- data.table::fread("../input/rtp/wu_20210701_20210731.csv") |> 
+  format_wu()
+```
+
+Open reference network
+
+```{r}
+site_id <- "AQC00914594"
+year <- 2020
+my_gchnh <- load_ghcnh_station(site_id, year)
+```
+
+Development steps:
+
+1.  create a sf object with only metadata of sites
+
+2.  find closest points between ref metadata and cws
+
+3.  in hourly_temp sftime, add temperature
+
+```{r}
+head(wu)
+```

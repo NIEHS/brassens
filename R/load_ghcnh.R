@@ -1,3 +1,49 @@
+
+find_ghcnh_polygon <- function(polygon) {
+  stopifnot("polygon is not a sf" = is(polygon, "sf"),
+            "polygon is not a POLYGON" =
+              all(sf::st_geometry_type(polygon) == "POLYGON"))
+  polygon <- sf::st_transform(polygon, crs = 4326)
+  url <- paste0("https://www.ncei.noaa.gov/oa/",
+                "global-historical-climatology-network/hourly/doc/",
+                "ghcnh-station-list.csv")
+  inv <- read.csv(url, sep = ",", header = FALSE)
+  colnames(inv) <- c("site_id",
+                     "lat",
+                     "lon",
+                     "elevation",
+                     "state",
+                     "name",
+                     "gsnflag",
+                     "hcnflag",
+                     "wmoid")
+  inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  inv_in_poly <- sf::st_filter(inv, polygon)
+  return(inv_in_poly)
+}
+
+find_nearest_ghcnh <- function(lat, lon) {
+  my_point <- sf::st_point(c(lon, lat)) |>
+    sf::st_sfc(crs = 4326) |>
+    sf::st_sf()
+  url <- paste0("https://www.ncei.noaa.gov/oa/",
+                "global-historical-climatology-network/hourly/doc/",
+                "ghcnh-station-list.csv")
+  inv <- read.csv(url, sep = ",", header = FALSE)
+  colnames(inv) <- c("site_id",
+                     "lat",
+                     "lon",
+                     "elevation",
+                     "state",
+                     "name",
+                     "gsnflag",
+                     "hcnflag",
+                     "wmoid")
+  inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  nearest <- sf::st_nearest_feature(my_point, inv)
+  return(inv[nearest,])
+}
+
 load_ghcnh_station <- function(site_id, year) {
   url <- paste0("https://www.ncei.noaa.gov/oa/",
                 "global-historical-climatology-network/hourly/access/by-year/",
@@ -7,17 +53,15 @@ load_ghcnh_station <- function(site_id, year) {
                 "_",
                 as.character(year),
                 ".psv")
-  x <- read.table(url, sep = "|", header = TRUE, stringsAsFactors = FALSE)
-  return(x)
+  if (RCurl::url.exists(url)){
+    x <- read.table(url, sep = "|", header = TRUE, stringsAsFactors = FALSE)
+    return(x)
+  } else {
+    warning("The URL does not exist for station ", site_id, ".")
+    return(NULL)
+  }
 }
 
-find_ghcnh_polygon <- function(polygon) {
-  cat("todoooo")
-}
-
-find_nearest_ghcnh <- function(point) {
-  cat("todoooo")
-}
 
 load_ghcnh_period <- function(rpath, ts, te, wpath) {
   files <- list.files(rpath, full.names = TRUE)

@@ -2,7 +2,9 @@
 % Please edit documentation in R/format_observations.R
 \name{summarize_hourly_temp}
 \alias{summarize_hourly_temp}
-\title{Summarize hourly temperature at each site.}
+\title{Summarize hourly temperature at each site.
+This function might be used when stations record more than
+one observation per hour.}
 \usage{
 summarize_hourly_temp(x, time, temp, lat, lon)
 }
@@ -22,6 +24,8 @@ a data.frame of hourly average of temperature at each site
 }
 \description{
 Summarize hourly temperature at each site.
+This function might be used when stations record more than
+one observation per hour.
 }
 \author{
 Eva Marques

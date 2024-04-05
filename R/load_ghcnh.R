@@ -1,4 +1,8 @@
-
+#' Find all the GHCN-H stations within a polygon
+#' @param polygon a sf object with a POLYGON geometry
+#' @return a sf object with the GHCN-H stations within the polygon
+#' @author Eva Marques
+#' @export
 find_ghcnh_polygon <- function(polygon) {
   stopifnot("polygon is not a sf" = is(polygon, "sf"),
             "polygon is not a POLYGON" =
@@ -22,6 +26,12 @@ find_ghcnh_polygon <- function(polygon) {
   return(inv_in_poly)
 }
 
+#' Find the nearest GHCN-H station to a point
+#' @param lat latitude of the point (in WGS84)
+#' @param lon longitude of the point (in WGS84)
+#' @return a sf object with the nearest GHCN-H station
+#' @author Eva Marques
+#' @export
 find_nearest_ghcnh <- function(lat, lon) {
   my_point <- sf::st_point(c(lon, lat)) |>
     sf::st_sfc(crs = 4326) |>
@@ -44,6 +54,12 @@ find_nearest_ghcnh <- function(lat, lon) {
   return(inv[nearest,])
 }
 
+#' Load GHCN-H station data of a given year
+#' @param site_id the GHCN-H station ID
+#' @param year the year of the data
+#' @return a data.frame with the GHCN-H station raw data
+#' @author Eva Marques
+#' @export
 load_ghcnh_station <- function(site_id, year) {
   url <- paste0("https://www.ncei.noaa.gov/oa/",
                 "global-historical-climatology-network/hourly/access/by-year/",
@@ -63,46 +79,3 @@ load_ghcnh_station <- function(site_id, year) {
   }
 }
 
-
-load_ghcnh_period <- function(rpath, ts, te, wpath) {
-  files <- list.files(rpath, full.names = TRUE)
-  for (f in files) {
-    data <- read.table(f, sep = "|", header = TRUE, stringsAsFactors = FALSE)
-    data$time <- apply(
-      data[, c("Year", "Month", "Day", "Hour")],
-      1,
-      function(x) {
-        as.POSIXct(
-          paste0(
-            x[1],
-            "-",
-            x[2],
-            "-",
-            x[3],
-            " ",
-            x[4],
-            ":00:00"
-          ),
-          format = "%Y-%m-%d %H:%M:%S",
-          tz = "UTC"
-        )
-      }
-    )
-    data <- data[which(data$time >= ts & data$time <= te), ]
-    if (exists("output")) {
-      output <- rbind(output, data)
-    } else {
-      output <- data
-    }
-  }
-  fname <- paste0(
-    wpath,
-    "ghcnh_",
-    format(ts, "%Y%m%d"),
-    "_",
-    format(te, "%Y%m%d"),
-    ".csv"
-  )
-  data.table::fwrite(output, fname)
-  return(output)
-}

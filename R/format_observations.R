@@ -1,3 +1,29 @@
+#' Summarize hourly temperature at each site.
+#' This function might be used when stations record more than
+#' one observation per hour.
+#' @param x a data.frame, data.table, sf or sftime
+#' @param time the column name for the time
+#' @param temp the column name for the temperature
+#' @param lat the column name for the latitude
+#' @param lon the column name for the longitude
+#' @return a data.frame of hourly average of temperature at each site
+#' @author Eva Marques
+#' @export
+summarize_hourly_temp <- function(x, time, temp, lat, lon) {
+  hourly_avg <- x |>
+    dplyr::rename("lat" = lat) |>
+    dplyr::rename("lon" = lon) |>
+    dplyr::rename("time" = time) |>
+    dplyr::rename("temp" = temp)
+  hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
+  hourly_avg <- hourly_avg |>
+    dplyr::group_by(lat, lon, time) |>
+    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
+    dplyr::ungroup() |>
+    as.data.frame()
+  return(hourly_avg)
+}
+
 #' Format observations directly downloaded on PurpleAir API.
 #' @param raw a data.frame with the raw observations
 #' @param raw_tz the initial timezone, see PurpleAir API documentation
@@ -5,6 +31,7 @@
 #' @param raw_crs the initial coordinate reference system
 #' @return sftime from hourly_temp class
 #' @author Eva Marques
+#' @export
 format_pa <- function(raw,
                       raw_tz = "UTC",
                       raw_temp_unit = "F",
@@ -37,6 +64,7 @@ format_pa <- function(raw,
 #' @param raw_crs the initial coordinate reference system
 #' @return sftime from hourly_temp class
 #' @author Eva Marques
+#' @export
 format_wu <- function(raw,
                       raw_tz = "UTC",
                       raw_temp_unit = "F",
@@ -62,6 +90,12 @@ format_wu <- function(raw,
 }
 
 
+#' Format observations from raw data downloaded on NOAA website
+#' See function load_ghcnh_station.
+#' @param raw a data.frame with the raw observations
+#' @return sftime from hourly_temp class
+#' @author Eva Marques
+#' @export
 format_ghcnh <- function(raw) {
   x <- ghcnh
   # note: as.POSIXct return a double when called through apply.
@@ -96,27 +130,4 @@ format_ghcnh <- function(raw) {
                          crs = 4326,
                          remove = FALSE)
   return(x)
-}
-
-#' Summarize hourly temperature at each site.
-#' @param x a data.frame, data.table, sf or sftime
-#' @param time the column name for the time
-#' @param temp the column name for the temperature
-#' @param lat the column name for the latitude
-#' @param lon the column name for the longitude
-#' @return a data.frame of hourly average of temperature at each site
-#' @author Eva Marques
-summarize_hourly_temp <- function(x, time, temp, lat, lon) {
-  hourly_avg <- x |>
-    dplyr::rename("lat" = lat) |>
-    dplyr::rename("lon" = lon) |>
-    dplyr::rename("time" = time) |>
-    dplyr::rename("temp" = temp)
-  hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
-  hourly_avg <- hourly_avg |>
-    dplyr::group_by(lat, lon, time) |>
-    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
-    dplyr::ungroup() |>
-    as.data.frame()
-  return(hourly_avg)
 }

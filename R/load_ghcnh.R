@@ -54,10 +54,11 @@ load_ghcnh_station <- function(site_id, year) {
                 as.character(year),
                 ".psv")
   if (RCurl::url.exists(url)){
-    x <- read.table(url, sep = "|", header = TRUE, stringsAsFactors = FALSE)
+    x <- read.table(url, sep = "|", header = TRUE, stringsAsFactors = FALSE) |>
+      tidyr::drop_na(temperature)
     return(x)
   } else {
-    warning("The URL does not exist for station ", site_id, ".")
+    message("The URL does not exist for station ", site_id, ".")
     return(NULL)
   }
 }
@@ -104,10 +105,4 @@ load_ghcnh_period <- function(rpath, ts, te, wpath) {
   )
   data.table::fwrite(output, fname)
   return(output)
-}
-
-
-
-format_ghcnh <- function(x) {
-  cat("todoooo")
 }

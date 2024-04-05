@@ -61,6 +61,43 @@ format_wu <- function(raw,
   return(x)
 }
 
+
+format_ghcnh <- function(raw) {
+  x <- ghcnh
+  # note: as.POSIXct return a double when called through apply.
+  # this is why it is called after the apply
+  x$time <- apply(x[, c("Year", "Month", "Day", "Hour")],
+                  1,
+                  function(x) {paste0(x[1],
+                                      "-",
+                                      x[2],
+                                      "-",
+                                      x[3],
+                                      " ",
+                                      x[4],
+                                      ":00:00")
+                  }
+  ) |>
+    as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+  x <- x |>
+    summarize_hourly_temp(
+      "time",
+      "temperature",
+      "Latitude",
+      "Longitude"
+    ) |>
+    hourly_temp(temp = "temp",
+                lat = "lat",
+                lon = "lon",
+                time = "time",
+                network = "GHCNh") |>
+    sftime::st_as_sftime(coords = c("lon", "lat"),
+                         time_column_name = "time",
+                         crs = 4326,
+                         remove = FALSE)
+  return(x)
+}
+
 #' Summarize hourly temperature at each site.
 #' @param x a data.frame, data.table, sf or sftime
 #' @param time the column name for the time

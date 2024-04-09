@@ -15,9 +15,31 @@ wu <- data.table::fread("../input/rtp/wu_20210701_20210731.csv") |>
 Open reference network
 
 ```{r}
-site_id <- "AQC00914594"
-year <- 2020
-my_gchnh <- load_ghcnh_station(site_id, year)
+nc_poly <- paste0("NC_county_boundary/",
+                  "North_Carolina_State_and_County_Boundary_Polygons.shp")
+nc_borders <- terra::vect(paste0("../input/", nc_poly))
+rtp <- nc_borders[which(nc_borders$County %in% c("Wake", "Orange",
+                                                 "Durham", "Chatham", "Granville")),] |>
+  terra::project("EPSG:4326")
+```
+
+```{r}
+rtp_stations <- rtp |>
+  sf::st_as_sf() |>
+  find_ghcnh_polygon()
+
+closer_station <- find_nearest_ghcnh(lat = 35.8840, lon = -78.8778)
+for (i in 1:nrow(rtp_stations)) {
+  site_id <- rtp_stations[i, ]$site_id
+  if (exists("ghcnh")) {
+    ghcnh <- rbind(ghcnh, 
+                   load_ghcnh_station(site_id,
+                                      year = 2021)) 
+  } else {
+    ghcnh <- load_ghcnh_station(site_id,
+                                year = 2021)
+  }
+}
 ```
 
 Development steps:
@@ -28,6 +50,4 @@ Development steps:
 
 3.  in hourly_temp sftime, add temperature
 
-```{r}
-head(wu)
-```
+Work in progress

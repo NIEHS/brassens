@@ -5,49 +5,186 @@ editor: visual
 author: "Eva Marques"
 ---
 
-Open citizen weather stations data
+## Open RTP data
+
+citizen weather stations data + ref measurements + RTP polygons
 
 ```{r}
-wu <- data.table::fread("../input/rtp/wu_20210701_20210731.csv") |> 
-  format_wu()
+devtools::load_all()
+rtp <- load_rtp_observations()
+cws <- rtp$cws
+ref <- rtp$ref
+ref <- ref[which(ref$network != "HEATWATCH"), ]
+poly <- rtp$poly
 ```
 
-Open reference network
+## Compute measurement error
 
 ```{r}
-nc_poly <- paste0("NC_county_boundary/",
-                  "North_Carolina_State_and_County_Boundary_Polygons.shp")
-nc_borders <- terra::vect(paste0("../input/", nc_poly))
-rtp <- nc_borders[which(nc_borders$County %in% c("Wake", "Orange",
-                                                 "Durham", "Chatham", "Granville")),] |>
+cws_err <- add_temp_reference(cws, ref)
+hist(cws_err$dist_to_ref)
+hist(cws_err[which(cws_err$network == "WU" & cws_err$temp_err > -10), ]$temp_err)
+hist(cws_err[which(cws_err$network == "PA"), ]$temp_err)
+```
+
+```{r}
+imp <- terra::rast("../input/rtp_imp.tif") |>
   terra::project("EPSG:4326")
+date <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+map_observations_imp(cws_err,
+                     dist_to_ref,
+                     imp,
+                     date,
+                     shape_values = c("PA" = 16, "WU" = 17),
+                     "Imperviousness and reference networks")
 ```
 
-```{r}
-rtp_stations <- rtp |>
-  sf::st_as_sf() |>
-  find_ghcnh_polygon()
+Measurement error per hour
 
-closer_station <- find_nearest_ghcnh(lat = 35.8840, lon = -78.8778)
-for (i in 1:nrow(rtp_stations)) {
-  site_id <- rtp_stations[i, ]$site_id
-  if (exists("ghcnh")) {
-    ghcnh <- rbind(ghcnh, 
-                   load_ghcnh_station(site_id,
-                                      year = 2021)) 
-  } else {
-    ghcnh <- load_ghcnh_station(site_id,
-                                year = 2021)
-  }
+```{r}
+hourly_summary_boxplots <- function(data, var) {
+  min <- floor(quantile(data[[deparse(substitute(var))]],
+    na.rm = TRUE,
+    probs = 0.01
+  ))
+  max <- ceiling(quantile(data[[deparse(substitute(var))]],
+    na.rm = TRUE,
+    probs = 0.997
+  ))
+  ggplot(
+    data = data,
+    aes(
+      x = network,
+      y = {{ var }},
+      color = network,
+      group = network
+    )
+  ) +
+    geom_hline(yintercept = 0, color = "red") +
+    geom_hline(yintercept = -1, color = "blue", linetype = "dashed") +
+    geom_hline(yintercept = 1, color = "blue", linetype = "dashed") +
+    geom_boxplot(outlier.shape = 3, fill = "white", width = .8) +
+    facet_wrap(~ hour, ncol = 12) +
+    scale_y_continuous(
+      breaks = seq(min, max, by = 5),
+      minor_breaks = seq(min, max, by = 1),
+      limits = c(min, max)
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "gray95"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "white"),
+      legend.position = "none"
+    )
 }
 ```
 
-Development steps:
+```{r}
+h_summary <- cws_err 
+h_summary$hour <- lubridate::hour(h_summary$time)
+h_summary <- h_summary |>
+    dplyr::group_by(site_id, geometry, network, hour, dist_to_ref) |>
+    dplyr::summarise(temp_err = median(temp_err, na.rm = TRUE)) |>
+    dplyr::ungroup() |>
+    as.data.frame()
 
-1.  create a sf object with only metadata of sites
+p <- hourly_summary_boxplots(h_summary[which(h_summary$dist_to_ref <= 10000),], temp_err)
+p
+ggsave(plot = p,
+       filename = "../graphs/boxplot_hourly_summary_error.png",
+       width = 10,
+       height = 6,
+       dpi = 300)
+```
 
-2.  find closest points between ref metadata and cws
+Mean measurement error map (per stations, per network) ?
 
-3.  in hourly_temp sftime, add temperature
+```{r}
+map_error_hour <- function(data,
+                           imp,
+                           hour,
+                           shape_values,
+                           title) {
+  pal <- c("blue", "white", "red")
 
-Work in progress
+  ggplot() +
+    tidyterra::geom_spatraster(data = imp) +
+    geom_sf(
+      data = data[which(data$hour == hour), ],
+      aes(geometry = geometry, color = temp_err, shape = network),
+      size = 3,
+    ) +
+    #xlim(min(data$lon), max(data$lon)) +
+    #ylim(min(data$lat), max(data$lat)) +
+    scale_shape_manual(values = shape_values) +
+    scale_color_gradientn(colours = pal, na.value = NA, limits = c(-8,8)) +
+    scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
+    guides(fill = guide_legend(title = "Imperviousness (%)")) +
+    labs(
+      title = title,
+    ) +
+    ggspatial::annotation_scale(
+      location = "bl", pad_x = unit(1, "cm"),
+      pad_y = unit(1, "cm"),
+      height = unit(0.30, "cm"),
+      text_cex = 1
+    ) +
+    ggspatial::annotation_north_arrow(
+      location = "br",
+      which_north = "true",
+      pad_x = unit(0.2, "cm"),
+      pad_y = unit(0.2, "cm")
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey")
+    )
+}
+```
+
+```{r}
+map_error_hour(h_summary[which(h_summary$network == "PA"),],
+               imp,
+               15,
+               c("PA" = 16, "WU" = 17),
+               "Median error at 15UTC")
+map_error_hour(h_summary[which(h_summary$network == "WU"),],
+               imp,
+               15,
+               c("PA" = 16, "WU" = 17),
+               "Median error at 15UTC")
+map_error_hour(h_summary[which(h_summary$network == "WU"),],
+               imp,
+               8,
+               c("PA" = 16, "WU" = 17),
+               "Median error at 8UTC")
+
+map_error_hour(h_summary[which(h_summary$network == "WU"),],
+               imp,
+               2,
+               c("PA" = 16, "WU" = 17),
+               "Median error at 2UTC")
+
+map_error_hour(h_summary[which(h_summary$network == "WU"),],
+               imp,
+               3,
+               c("PA" = 16, "WU" = 17),
+               "Median error at 3UTC")
+
+map_error_hour(h_summary[which(h_summary$network == "WU"),],
+               imp,
+               4,
+               c("PA" = 16, "WU" = 17),
+               "Median error at 4UTC")
+```
+
+Au moins pour voir si cest spatialise ou si y a des stations particulierement touchees.

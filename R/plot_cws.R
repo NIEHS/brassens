@@ -3,10 +3,11 @@
 #' @param ts datetime, start time
 #' @param te datetime, end time
 #' @return A ggplo2 object with the timeseries
+#' @import ggplot2
 #' @export
 #' @author Eva Marques
 plot_ts <- function(data, ts, te) {
-  p <- ggplot(data) +
+  p <- ggplot2::ggplot(data) +
     geom_line(aes(
       x = time,
       y = temp,
@@ -33,6 +34,7 @@ plot_ts <- function(data, ts, te) {
   return(p)
 }
 
+#' @import ggplot2
 plot_ts_net <- function(data, ts, te) {
   min <- floor(quantile(data$temp,
     na.rm = TRUE,
@@ -42,7 +44,7 @@ plot_ts_net <- function(data, ts, te) {
     na.rm = TRUE,
     probs = 1
   ))
-  p <- ggplot(
+  p <- ggplot2::ggplot(
     data,
     aes(
       x = time,
@@ -84,10 +86,11 @@ plot_ts_net <- function(data, ts, te) {
 #' @param ts datetime, start time
 #' @param te datetime, end time
 #' @return A ggplo2 object with the timeseries
+#' @import ggplot2
 #' @export
 #' @author Eva Marques
 plot_ts_ref <- function(data, ref, ts, te) {
-  p <- ggplot(
+  p <- ggplot2::ggplot(
     data,
     aes(
       x = time,
@@ -122,9 +125,10 @@ plot_ts_ref <- function(data, ref, ts, te) {
 #' @param data data frame or sftime of cws observations
 #' @return A ggplo2 object with the tileplot
 #' @export
+#' @import ggplot2
 #' @author Eva Marques
 tile_ts <- function(data) {
-  plot <- ggplot(
+  plot <- ggplot2::ggplot(
     data,
     aes(
       y = as.factor(site_id),
@@ -171,6 +175,7 @@ tile_ts <- function(data) {
 #' @param var continuous variable to boxplot (in general: temp)
 #' @return A ggplo2 object with the boxplots
 #' @export
+#' @import ggplot2
 #' @author Eva Marques
 hourly_boxplot_networks <- function(data, var) {
   min <- floor(quantile(data[[deparse(substitute(var))]],
@@ -181,7 +186,7 @@ hourly_boxplot_networks <- function(data, var) {
     na.rm = TRUE,
     probs = 0.997
   ))
-  ggplot(
+  ggplot2::ggplot(
     data = data,
     aes(
       x = network,
@@ -210,7 +215,7 @@ hourly_boxplot_networks <- function(data, var) {
     )
 }
 
-
+#' @import ggplot2
 map_observations <- function(data,
                              var,
                              background,
@@ -219,9 +224,9 @@ map_observations <- function(data,
                              title) {
   pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
 
-  ggplot() +
+  ggplot2::ggplot() +
     tidyterra::geom_spatvector(data = background) +
-    geom_sf(
+    ggplot2::geom_sf(
       data = data[which(between(
         data$time,
         date,
@@ -261,6 +266,7 @@ map_observations <- function(data,
     )
 }
 
+#' @import ggplot2
 map_observations_imp <- function(data,
                                  var,
                                  imp,
@@ -269,9 +275,9 @@ map_observations_imp <- function(data,
                                  title) {
   pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
 
-  ggplot() +
+  ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = imp) +
-    geom_sf(
+    ggplot2::geom_sf(
       data = data[which(between(
         data$time,
         date,
@@ -313,7 +319,7 @@ map_observations_imp <- function(data,
 }
 
 
-
+#' @import ggplot2
 map_observations_hw <- function(data,
                                 var,
                                 imp,
@@ -343,14 +349,14 @@ map_observations_hw <- function(data,
     na.rm = TRUE,
     probs = 0.95
   )
-  ggplot() +
+  ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = hw) +
     tidyterra::geom_spatraster_contour(
       data = imp,
       breaks = seq(0, 100, 20),
       alpha = .3
     ) +
-    geom_sf(
+    ggplot2::geom_sf(
       data = data_p,
       aes(geometry = geometry, fill = {{ var }}, shape = network),
       size = 3,

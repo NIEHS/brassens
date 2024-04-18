@@ -97,7 +97,7 @@ format_wu <- function(raw,
 #' @author Eva Marques
 #' @export
 format_ghcnh <- function(raw) {
-  x <- ghcnh
+  x <- raw
   # note: as.POSIXct return a double when called through apply.
   # this is why it is called after the apply
   x$time <- apply(x[, c("Year", "Month", "Day", "Hour")],

@@ -11,7 +11,9 @@ citizen weather stations data + ref measurements + RTP polygons
 
 ```{r}
 devtools::load_all()
-rtp <- load_rtp_observations()
+ts <- as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
+te <- as.POSIXct("2021-08-01 00:00:00", tz = "UTC")
+rtp <- load_rtp_observations(ts, te)
 cws <- rtp$cws
 ref <- rtp$ref
 ref <- ref[which(ref$network != "HEATWATCH"), ]
@@ -21,7 +23,7 @@ poly <- rtp$poly
 ## Compute measurement error
 
 ```{r}
-cws_err <- add_temp_reference(cws, ref)
+cws_err <- calc_temp_error(cws, ref)
 hist(cws_err$dist_to_ref)
 hist(cws_err[which(cws_err$network == "WU" & cws_err$temp_err > -10), ]$temp_err)
 hist(cws_err[which(cws_err$network == "PA"), ]$temp_err)
@@ -36,10 +38,33 @@ map_observations_imp(cws_err,
                      imp,
                      date,
                      shape_values = c("PA" = 16, "WU" = 17),
-                     "Imperviousness and reference networks")
+                     "Distance to reference station") 
 ```
 
-Measurement error per hour
+## Measurement error per hour of the day
+
+Compute summary per hour of the day
+
+```{r}
+h_summary <- cws_err 
+h_summary$hour <- lubridate::hour(h_summary$time)
+h_summary <- h_summary |>
+    dplyr::group_by(site_id, geometry, network, hour, dist_to_ref) |>
+    dplyr::summarise(temp_err = median(temp_err, na.rm = TRUE),
+                     temp = median(temp, na.rm = TRUE)) |>
+    dplyr::ungroup() |>
+    as.data.frame()
+
+h_summary_ref <- ref
+h_summary_ref$hour <- lubridate::hour(h_summary_ref$time)
+h_summary_ref <- h_summary_ref |>
+    dplyr::group_by(site_id, geometry, network, hour) |>
+    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
+    dplyr::ungroup() |>
+    as.data.frame()
+```
+
+Function to create hourly boxplots
 
 ```{r}
 hourly_summary_boxplots <- function(data, var) {
@@ -84,15 +109,9 @@ hourly_summary_boxplots <- function(data, var) {
 }
 ```
 
-```{r}
-h_summary <- cws_err 
-h_summary$hour <- lubridate::hour(h_summary$time)
-h_summary <- h_summary |>
-    dplyr::group_by(site_id, geometry, network, hour, dist_to_ref) |>
-    dplyr::summarise(temp_err = median(temp_err, na.rm = TRUE)) |>
-    dplyr::ungroup() |>
-    as.data.frame()
+Plot error boxplots per hour
 
+```{r}
 p <- hourly_summary_boxplots(h_summary[which(h_summary$dist_to_ref <= 10000),], temp_err)
 p
 ggsave(plot = p,
@@ -102,10 +121,13 @@ ggsave(plot = p,
        dpi = 300)
 ```
 
-Mean measurement error map (per stations, per network) ?
+## Error maps
+
+Median per station and per hour of the day
 
 ```{r}
 map_error_hour <- function(data,
+                           error_var,
                            imp,
                            hour,
                            shape_values,
@@ -116,11 +138,9 @@ map_error_hour <- function(data,
     tidyterra::geom_spatraster(data = imp) +
     geom_sf(
       data = data[which(data$hour == hour), ],
-      aes(geometry = geometry, color = temp_err, shape = network),
+      aes(geometry = geometry, color = {{ error_var }}, shape = network),
       size = 3,
     ) +
-    #xlim(min(data$lon), max(data$lon)) +
-    #ylim(min(data$lat), max(data$lat)) +
     scale_shape_manual(values = shape_values) +
     scale_color_gradientn(colours = pal, na.value = NA, limits = c(-8,8)) +
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
@@ -149,42 +169,165 @@ map_error_hour <- function(data,
       panel.grid.major = element_line(colour = "grey")
     )
 }
+
+map_temp_hour <- function(data,
+                           error_var,
+                           imp,
+                           hour,
+                           shape_values,
+                           title) {
+  pal <- c("blue", "white", "red")
+
+  ggplot() +
+    tidyterra::geom_spatraster(data = imp) +
+    geom_sf(
+      data = data[which(data$hour == hour), ],
+      aes(geometry = geometry, color = {{ error_var }}, shape = network),
+      size = 3,
+    ) +
+    scale_shape_manual(values = shape_values) +
+    scale_color_gradientn(colours = pal, na.value = NA) +
+    scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
+    guides(fill = guide_legend(title = "Imperviousness (%)")) +
+    labs(
+      title = title,
+    ) +
+    ggspatial::annotation_scale(
+      location = "bl", pad_x = unit(1, "cm"),
+      pad_y = unit(1, "cm"),
+      height = unit(0.30, "cm"),
+      text_cex = 1
+    ) +
+    ggspatial::annotation_north_arrow(
+      location = "br",
+      which_north = "true",
+      pad_x = unit(0.2, "cm"),
+      pad_y = unit(0.2, "cm")
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey")
+    )
+}
+
 ```
 
 ```{r}
-map_error_hour(h_summary[which(h_summary$network == "PA"),],
+for (utc in seq(0, 23, 1)) {
+  m <- map_error_hour(h_summary[which(h_summary$network == "WU"),],
+               temp_err,
                imp,
-               15,
+               utc,
                c("PA" = 16, "WU" = 17),
-               "Median error at 15UTC")
-map_error_hour(h_summary[which(h_summary$network == "WU"),],
-               imp,
-               15,
-               c("PA" = 16, "WU" = 17),
-               "Median error at 15UTC")
-map_error_hour(h_summary[which(h_summary$network == "WU"),],
-               imp,
-               8,
-               c("PA" = 16, "WU" = 17),
-               "Median error at 8UTC")
-
-map_error_hour(h_summary[which(h_summary$network == "WU"),],
-               imp,
-               2,
-               c("PA" = 16, "WU" = 17),
-               "Median error at 2UTC")
-
-map_error_hour(h_summary[which(h_summary$network == "WU"),],
-               imp,
-               3,
-               c("PA" = 16, "WU" = 17),
-               "Median error at 3UTC")
-
-map_error_hour(h_summary[which(h_summary$network == "WU"),],
-               imp,
-               4,
-               c("PA" = 16, "WU" = 17),
-               "Median error at 4UTC")
+               paste0("Median error at ", utc,"UTC"))
+  print(m)
+}
 ```
 
-Au moins pour voir si cest spatialise ou si y a des stations particulierement touchees.
+```{r}
+for (utc in seq(0, 3, 1)) {
+  m <- map_temp_hour(h_summary_ref,
+               temp,
+               imp,
+               utc,
+               c("ECONET" = 16, "GHCNh" = 17),
+               paste0("Median error at ", utc,"UTC"))
+  print(m)
+}
+```
+
+Plot ts for ref stations (to check if they are all correct)
+
+```{r}
+ts <- as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
+te <- as.POSIXct("2021-07-08 00:00:00", tz = "UTC")
+ref[which(between(ref$time, ts, te)), ] |> plot_ts_net(ts, te) 
+```
+
+```{r}
+h_summary$temp_err_corr <- h_summary$temp_err - 5
+for (utc in seq(0, 23, 1)) {
+  m <- map_error_hour(h_summary[which(h_summary$network == "PA"),],
+               temp_err_corr,
+               imp,
+               utc,
+               c("PA" = 16),
+               paste0("Median error at ", utc,"UTC"))
+  print(m)
+}
+```
+
+```{r}
+plot_ts_err <- function(data, ts, te) {
+  p <- ggplot(data) +
+    geom_line(aes(
+      x = time,
+      y = temp_err,
+      group = as.factor(site_id),
+      color = as.factor(site_id)
+    )) +
+    scale_x_datetime(
+      date_labels = "%m-%d %Hh",
+      date_breaks = "6 hours",
+      date_minor_breaks = "1 hour",
+      limits = c(ts, te)
+    ) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "azure2"),
+      legend.position = "none"
+    )
+  return(p)
+}
+
+```
+
+```{r}
+ts <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
+te <- as.POSIXct("2021-07-27 00:00:00", tz = "EST")
+plot_ts_err(cws_err, ts, te) +
+  ylim(-5, 10)
+```
+
+```{r}
+ts_err <- function(data) {
+  p <- ggplot(data) +
+    geom_line(aes(
+      x = hour,
+      y = temp_err,
+      group = as.factor(site_id),
+      color = network
+    )) +
+    scale_x_continuous(breaks = seq(0, 23, 3)) +
+    theme(
+      axis.text = element_text(size = 12),
+      axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1),
+      plot.caption = element_text(size = 10),
+      legend.text = element_text(size = 12),
+      legend.title = element_text(size = 12),
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(colour = "grey"),
+      panel.grid.minor = element_line(colour = "azure2"),
+      legend.position = "none"
+    )
+  return(p)
+}
+
+p <- ts_err(h_summary)
+p
+ggsave(plot = p,
+       filename = "../graphs/ts_temperature_error_day.png",
+       width = 10,
+       height = 6,
+       dpi = 300)
+```

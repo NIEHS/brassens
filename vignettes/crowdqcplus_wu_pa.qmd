@@ -24,8 +24,8 @@ pa <- cws[which(cws$network == "PA"), ]
 CrowdQCplus is applied on both data source separately.
 
 ```{r}
-wu_qc <- clean_wu(wu)
-pa_qc <- clean_wu(pa)
+wu_qc <- clean_cws(wu)
+pa_qc <- clean_cws(pa)
 ```
 
 ```{r}

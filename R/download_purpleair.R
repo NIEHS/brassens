@@ -146,3 +146,21 @@ request_sensors_history <- function(nwlat,
     return(NULL)
   }
 }
+
+# to be tested
+download_pa <- function(ts, te, area, api_key) {
+  stopifnot("area is not a sf, sfc, or SpatRaster" =
+              inherits(area, c("sf", "sfc", "SpatRaster")))
+  bounds <- sf::st_bbox(area)
+  pa <- request_sensors_history(
+    bounds[2],
+    bounds[4],
+    bounds[1],
+    bounds[3],
+    0,
+    ts,
+    te,
+    api_key
+  )
+  return(pa)
+}

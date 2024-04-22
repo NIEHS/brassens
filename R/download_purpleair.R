@@ -148,10 +148,14 @@ request_sensors_history <- function(nwlat,
 }
 
 # to be tested
+#' Download all PurpleAir stations data in area between two dates
+#' @param ts start date
+#' @param te end date
+#' @param area a sf, sfc, SpatRaster or SpatVector object
 download_pa <- function(ts, te, area, api_key) {
-  stopifnot("area is not a sf, sfc, or SpatRaster" =
-              inherits(area, c("sf", "sfc", "SpatRaster")))
-  bounds <- sf::st_bbox(area)
+  bounds <- area |>
+    format_area() |>
+    sf::st_bbox()
   pa <- request_sensors_history(
     bounds[2],
     bounds[4],

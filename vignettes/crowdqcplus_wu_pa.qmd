@@ -40,7 +40,14 @@ Map
 ```{r}
 imp <- terra::rast("../input/rtp_imp.tif") |>
   terra::project("EPSG:4326")
-date <- as.POSIXct("2021-07-01 02:00:00", tz = "EST")
+
+```
+
+```{r}
+
+```
+
+```{date <- as.POSIXct("2021-07-01 02:00:00", tz = "EST")}
 map_observations_imp(wu_qc,
                  var = temp,
                  imp = imp,

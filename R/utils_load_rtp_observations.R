@@ -31,20 +31,9 @@ load_rtp_observations <- function(ts, te) {
   # load and format PurpleAir
   pa <- data.table::fread("../input/rtp/pa_20210720_20210727.csv") |>
     format_pa()
+
   # load and format GHCNh
-  ghcnh_rtp <- find_ghcnh_polygon(rtp_poly)
-  for (i in 1:nrow(ghcnh_rtp)) {
-    site_id <- ghcnh_rtp[i, ]$site_id
-    if (exists("ghcnh")) {
-      ghcnh <- rbind(ghcnh,
-                     load_ghcnh_station(site_id,
-                                        year = 2021))
-    } else {
-      ghcnh <- load_ghcnh_station(site_id,
-                                  year = 2021)
-    }
-  }
-  ghcnh <- format_ghcnh(ghcnh)
+  ghcnh <- download_ghcnh(ts, te, rtp_poly)
 
   # load and format HeatWatch
   hw_path <- "../input/traverses_chw_raleigh-durham_110821/"

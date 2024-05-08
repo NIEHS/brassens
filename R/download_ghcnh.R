@@ -5,8 +5,9 @@
 #' @export
 find_ghcnh_polygon <- function(polygon) {
   stopifnot("polygon is not a sf or sfc" = inherits(polygon, c("sf", "sfc")),
-            "polygon is not a POLYGON" =
-              sf::st_geometry_type(polygon, by_geometry = FALSE) == "POLYGON")
+            "polygon is not a POLYGON or MULTIPOLIGON" =
+              sf::st_geometry_type(polygon, by_geometry = FALSE) %in%
+              c("POLYGON", "MULTIPOLYGON"))
   url <- paste0("https://www.ncei.noaa.gov/oa/",
                 "global-historical-climatology-network/hourly/doc/",
                 "ghcnh-station-list.csv")

@@ -3,7 +3,7 @@
 #' @return a POLYGON object or a bbox
 format_area <- function(x) {
   stopifnot("x is not a sf, sfc, SpatRaster or SpatVector" =
-              inherits(x, c("sf", "SpatRaster", "SpatVector")))
+              inherits(x, c("sf", "sfc", "SpatRaster", "SpatVector")))
   if (inherits(x, c("sf"))) {
     sf <- x[, attributes(x)$sf_column]
     geom <- sf::st_geometry_type(sf, by_geometry = FALSE)

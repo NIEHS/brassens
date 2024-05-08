@@ -1,15 +1,29 @@
-#' Load Weather Underground stations for a given period.
-#' @param rpath Path to the directory containing the Weather Underground
-#' station files of a region
+#' Load Weather Underground stations for a given period and area.
 #' @param ts Start time
 #' @param te End time
-#' @return A data.table containing the weather data for the given period
+#' @param area Area of interest
+#' @param inventory an sf object with inventory of
+#' @return a data.table with the raw WU data
 #' @import data.table
-#' @export
 #' @author Eva Marques
-load_wu_period <- function(rpath, ts, te, wpath) {
-  files <- list.files(rpath, full.names = TRUE)
-  for (f in files) {
+#' Weather Underground stations (see create_wu_inventory function)
+load_wu <- function(ts, te, area, inventory) {
+  stopifnot("ts is not a POSIXct" = inherits(ts, "POSIXct"),
+            "te is not a POSIXct" = inherits(te, "POSIXct"),
+            "ts is after te" = ts <= te)
+  area <- area |>
+    format_area() |>
+    sf::st_transform(crs = sf::st_crs(inventory))
+  # extract stations in inventory that are within the area
+  inv_selection <- sf::st_filter(inventory, area)
+  # check type of ts_utc and te_utc
+  if (!inherits(inv_selection$ts_utc, "POSIXct") |
+      !inherits(inv_selection$te_utc, "POSIXct")) {
+    stop("inventory times must be POSIXt objects")
+  }
+  inv_selection <- inv_selection[inv_selection$ts_utc <= te &
+                                   inv_selection$te_utc >= ts, ]
+  for (f in inv_selection$fname) {
     aws <- data.table::fread(f)
     aws$datetime <- as.POSIXct(aws$obsTimeUtc, tz = "UTC")
     aws <- aws[datetime >= ts & datetime <= te, ]
@@ -19,15 +33,8 @@ load_wu_period <- function(rpath, ts, te, wpath) {
       wu <- aws
     }
   }
-  fname <- paste0(wpath,
-                  "wu_",
-                  format(ts, "%Y%m%d"),
-                  "_",
-                  format(te, "%Y%m%d"),
-                  ".csv")
   if (!exists("wu")) {
     stop("No data found for the given period")
   }
-  data.table::fwrite(wu, fname)
   return(wu)
 }

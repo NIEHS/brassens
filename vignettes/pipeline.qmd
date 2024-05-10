@@ -1,10 +1,9 @@
 ---
-title: "Pipeline"
+title: "Brassens pipeline"
 format: html
 editor: visual
 ---
 
-# Brassens pipeline 
 
 The following code generates clean CWS data on the Triangle.
 

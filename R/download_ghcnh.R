@@ -70,7 +70,10 @@ download_ghcnh_station <- function(site_id, year) {
                 as.character(year),
                 ".psv")
   if (RCurl::url.exists(url)){
-    x <- read.table(url, sep = "|", header = TRUE, stringsAsFactors = FALSE) |>
+    x <- read.table(url, sep = "|",
+                    header = TRUE,
+                    stringsAsFactors = FALSE,
+                    fill = TRUE) |>
       tidyr::drop_na(temperature)
     return(x)
   } else {
@@ -86,6 +89,7 @@ download_ghcnh_station <- function(site_id, year) {
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @return a data.frame with the GHCN-H stations observations in the area
 download_ghcnh <- function(ts, te, area) {
+  ghcnh <- NULL
   year_ts <- lubridate::year(ts)
   year_te <- lubridate::year(te)
   bounds <- area |>
@@ -95,6 +99,7 @@ download_ghcnh <- function(ts, te, area) {
     site_id <- area_inv[i, ]$site_id
     for (y in year_ts:year_te) {
       if (exists("ghcnh")) {
+        cat("Downloading data for station ", site_id, " in year ", y, "\n")
         ghcnh <- rbind(ghcnh,
                        download_ghcnh_station(site_id, year = y))
       } else {

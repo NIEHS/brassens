@@ -89,7 +89,6 @@ format_wu <- function(raw,
   return(x)
 }
 
-
 #' Format observations from raw data downloaded on NOAA website
 #' See function load_ghcnh_station.
 #' @param raw a data.frame with the raw observations
@@ -129,5 +128,17 @@ format_ghcnh <- function(raw) {
                          time_column_name = "time",
                          crs = 4326,
                          remove = FALSE)
+  network <- raw[, c("Longitude", "Latitude", "temperature_Source_Code")] |>
+    dplyr::rename("lon" = "Longitude") |>
+    dplyr::rename("lat" = "Latitude") |>
+    dplyr::rename("network" = "temperature_Source_Code") |>
+    unique()
+  x$network <- NULL
+  x <- merge(x, network, by = c("lon", "lat"))
+  # only keep observations from ASOS/AWOS and US CRN networks
+  x <- x[which(x$network %in% c(343, 345)), ]
+  x$network <- factor(x$network,
+                      levels = c(343, 345),
+                      labels = c("NCEI/ASOS/AWOS", "NCEI/US CRN"))
   return(x)
 }

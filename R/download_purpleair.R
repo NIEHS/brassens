@@ -168,3 +168,34 @@ download_pa <- function(ts, te, area, api_key) {
   )
   return(pa)
 }
+
+#' If a file is provided, open data from file. If not, call download_pa().
+#' @param ts start date
+#' @param te end date
+#' @param area a sf, sfc, SpatRaster or SpatVector object
+#' @param storage_file file path where PurpleAir data is stored
+#' @param api_key API key for PurpleAir
+load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
+  if (is.null(storage_file)) {
+    pa <- download_pa(ts, te, area, api_key)
+  } else {
+    pa <- read.csv(storage_file)
+    pa$time_stamp <- as.POSIXct(pa$time_stamp,
+                                tz = "UTC",
+                                format = "%Y-%m-%d %H:%M:%S")
+    pa$latitude <- as.numeric(pa$latitude)
+    pa$longitude <- as.numeric(pa$longitude)
+    pa <- pa |>
+      sf::st_as_sf(coords = c("longitude", "latitude"),
+                   crs = 4326,
+                   remove = FALSE)
+    area <- area |>
+      format_area() |>
+      sf::st_transform(crs = 4326)
+    pa <- sf::st_filter(pa, area)
+    pa <- pa[which(dplyr::between(pa$time_stamp, ts, te)),]
+  }
+  # back to dataframe class
+  pa$geometry <- NULL
+  return(data.table::data.table(pa))
+}

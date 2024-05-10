@@ -289,8 +289,14 @@ map_observations_imp <- function(data,
     xlim(min(data$lon), max(data$lon)) +
     ylim(min(data$lat), max(data$lat)) +
     scale_shape_manual(values = shape_values) +
-    scale_color_gradientn(colours = pal, na.value = NA) +
+    #scale_color_gradientn(colours = pal, na.value = NA) +
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
+    tidyterra::scale_color_whitebox_c(
+      palette = "muted",
+      labels = scales::label_number(suffix = paste0("ºC")),
+      n.breaks = 12,
+      guide = guide_legend(reverse = TRUE)
+    ) +
     guides(fill = guide_legend(title = "Imperviousness (%)")) +
     labs(
       title = title,

@@ -267,13 +267,15 @@ map_observations <- function(data,
 }
 
 #' @import ggplot2
+#' @import ggspatial
+#' @import tidyterra
 map_observations_imp <- function(data,
                                  var,
                                  imp,
                                  date,
                                  shape_values,
                                  title) {
-  pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
+  #pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
 
   ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = imp) +
@@ -292,7 +294,8 @@ map_observations_imp <- function(data,
     #scale_color_gradientn(colours = pal, na.value = NA) +
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
     tidyterra::scale_color_whitebox_c(
-      palette = "muted",
+      #palette = "muted",
+      palette = "bl_yl_rd",
       labels = scales::label_number(suffix = paste0("ºC")),
       n.breaks = 12,
       guide = guide_legend(reverse = TRUE)

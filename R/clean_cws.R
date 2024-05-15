@@ -20,6 +20,7 @@ manage_na <- function(data, na_thresh = 0.1) {
 #' Clean Weather Underground data with CrowdQC+
 #' @param x data.frame with columns: site_id, temp, lat, lon, time
 #' @return cleaned data.frame
+#' @import sftime
 clean_cws <- function(x) {
   x_qcp <- x |>
     dplyr::rename("p_id" = "site_id") |>

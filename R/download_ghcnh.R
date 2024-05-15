@@ -60,6 +60,9 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @return a data.frame with the GHCN-H station raw data
 #' @author Eva Marques
 #' @export
+#' @import RCurl
+#' @import tidyr
+#' @import dplyr
 download_ghcnh_station <- function(site_id, year) {
   url <- paste0("https://www.ncei.noaa.gov/oa/",
                 "global-historical-climatology-network/hourly/access/by-year/",

@@ -4,7 +4,6 @@ format: html
 editor: visual
 ---
 
-
 The following code generates clean CWS data on the Triangle.
 
 #### Load brassens library
@@ -20,7 +19,8 @@ nc_shp <- paste0("../input/NC_county_boundary/",
                  "North_Carolina_State_and_County_Boundary_Polygons.shp") |>
   terra::vect()
 counties <- c("Wake", "Orange", "Durham", "Chatham", "Granville")
-rtp_poly <- nc_shp[which(nc_shp$County %in% counties),] 
+rtp_poly <- nc_shp[which(nc_shp$County %in% counties),] |>
+  terra::project("epsg:4326")
 wake_poly <- nc_shp[which(nc_shp$County %in% "Wake"),] 
 ral_inv <- read.csv("../input/weatherunderground/Raleigh_Stations_inventory.csv") |>
   sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) 
@@ -41,8 +41,21 @@ config <- list(
 )
 ```
 
-#### Whole pipeline
+#### Raw data (for final comparison)
 
+```{r}
+setwd("../")
+wu_raw <- load_wu(config$ts, config$te, config$area, config$wu_inv) |>
+  format_wu()
+
+pa_raw <- load_pa(ts = config$ts,
+              te = config$te,
+              area = config$area,
+              storage_file = config$pa_file) |>
+  format_pa()
+```
+
+#### Whole pipeline
 
 ```{r}
 setwd("../")
@@ -68,6 +81,7 @@ pa_list <- load_pa(ts = config$ts,
 wu <- wu_list$obs
 pa <- pa_list$obs 
 cws <- rbind(wu, pa)
+cws_raw <- rbind(wu_raw, pa_raw)
 timestamp <- as.POSIXct("2021-07-23 06:00:00", tz = "America/New_York")
 imp <- terra::rast("../input/rtp_imp.tif") |>
   terra::project("EPSG:4326")
@@ -82,9 +96,10 @@ map <- map_observations_imp(cws,
                        "PA" = 18,
                        "NCEI/ASOS/AWOS" = 16,
                        "NCEI/US CRN" = 15),
-                     "Weather Underground and PurpleAir")
+                     "Weather Underground and PurpleAir") 
 map
 ```
+
 ```{r}
 ggsave(plot = map,
        filename = "../graphs/map_wu_pa_cleaned_am_heatwatch.png",
@@ -93,13 +108,31 @@ ggsave(plot = map,
        dpi = 300)
 ```
 
+Plot raw data
+
+```{r}
+p <- plot_ts_net(cws_raw, ts = config$ts, te = config$te)
+p
+ggsave(plot = p,
+       filename = "../graphs/ts_cws_raw.png",
+       width = 7,
+       height = 4,
+       dpi = 300)
+```
+
 Plot before calibration
 
 ```{r}
-plot_ts_net(cws, ts = config$ts, te = config$te)
+p <- plot_ts_net(cws, ts = config$ts, te = config$te)
+p
+ggsave(plot = p,
+       filename = "../graphs/ts_cws_cleaned.png",
+       width = 7,
+       height = 4,
+       dpi = 300)
 ```
-Plot after calibration
 
+Plot after calibration
 
 ```{r}
 data <- cws
@@ -146,5 +179,20 @@ min <- floor(quantile(data$temp_cal,
       legend.position = "right"
     )
   p
+  p
+ggsave(plot = p,
+       filename = "../graphs/ts_cws_cleaned_calibrated.png",
+       width = 7,
+       height = 4,
+       dpi = 300)
 ```
 
+Save cleaned and calibrated cws data in .rds file for mercury analysis
+
+```{r}
+saveRDS(cws, file = paste0("../output/cws_rtp_cleaned_calibrated_",
+                           lubridate::date(config$ts),
+                           "_",
+                           lubridate::date(config$te),
+                           ".rds"))
+```

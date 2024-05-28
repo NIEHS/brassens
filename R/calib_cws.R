@@ -8,15 +8,22 @@
 #' start and end time of the observations. Improvement idea: time constraint,
 #' bias calculation per month / season / on a sliding temporal window
 calib_cws <- function(x, ref, max_dist = 10000) {
+  # add tests about
+  # - crs of x and ref
+  # - time format
+  # - number of ref stations
+  # - length of ref stations timeseries
+  # (eg: if there is only one ref with missing dates)
+  # - no more x-ref pairs < max_dist
   # Estimate measurement error and select observations within
   # x meters from reference stations
   x_err <- calc_temp_error(x, ref)
   x_err <- x_err[which(x_err$dist_to_ref <= max_dist), ]
   n <- length(unique(x_err$site_id))
-  ts <- min(x_err$time, na.rm = TRUE)
-  te <- max(x_err$time, na.rm = TRUE)
+  ts <- min(x$time, na.rm = TRUE)
+  te <- max(x$time, na.rm = TRUE)
 
-  # Compute the average bias (param option: per hour of the day)
+  # Compute the average bias (per hour of the day)
   x_err$hour <- lubridate::hour(x_err$time)
   x_err <- x_err |>
     dplyr::group_by(site_id, geometry, network, hour, dist_to_ref) |>
@@ -41,5 +48,6 @@ calib_cws <- function(x, ref, max_dist = 10000) {
 
   # 5 - Return obs corrected and the average bias, the number of cws used to
   # compute the bias, ts and te
+  cat("calib_cws() done\n")
   return(list(obs = y, bias = median_err, n = n, ts = ts, te = te))
 }

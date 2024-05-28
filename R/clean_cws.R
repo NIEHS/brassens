@@ -18,7 +18,7 @@ manage_na <- function(data, na_thresh = 0.1) {
 }
 
 #' Clean Weather Underground data with CrowdQC+
-#' @param x data.frame with columns: site_id, temp, lat, lon, time
+#' @param x sftime with columns: site_id, temp, lat, lon, time
 #' @return cleaned data.frame
 #' @import sftime
 clean_cws <- function(x) {
@@ -61,5 +61,42 @@ clean_cws <- function(x) {
       crs = 4326,
       remove = FALSE
     )
+  cat("clean_cws() done\n")
   return(x_qc)
+}
+
+
+#' Clean Weather Underground data with CrowdQC+ on an area >100km*100km
+#' @param x sftime of formatted weather station data
+#' (with columns: site_id, temp, lat, lon, time)
+#' @param area polygon
+#' @param epsg_m crs in meters
+#' @return cleaned data.frame
+clean_cws_large <- function(x, area, epsg_m = "epsg:32119") {
+  # project area with a crs in meters
+  area_m <- area |>
+    format_area() |>
+    terra::vect() |>
+    terra::project(y = "epsg:32119") # linear unit of nc_shp in meters
+  # cut area in squares of 100km*100km
+  r <- terra::rast(area_m, res = 100000)
+  terra::values(r) <- 1:terra::ncell(r)
+  v <- terra::mask(r, area_m) |>
+    terra::as.polygons() |>
+    terra::project("epsg:4326") |>
+    sf::st_as_sf()
+  # apply crowcQC+ on each square
+  x_clean <- list()
+  for (sq in 1:nrow(v)) {
+    # select stations in square
+    x_in_sq <- sf::st_filter(x, v[sq, ])
+    cat("Square ", sq, " has ", length(unique(x_in_sq$site_id)), " stations\n")
+    if (nrow(x_in_sq) == 0) {
+      next
+    }
+    x_clean[[sq]] <- x_in_sq |>
+      clean_cws()
+  }
+  x_cleaned <- do.call("rbind", x_clean)
+  return(x_cleaned)
 }

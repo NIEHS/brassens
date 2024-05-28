@@ -16,11 +16,16 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
     dplyr::rename("time" = time) |>
     dplyr::rename("temp" = temp)
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
+  # floor lat and lon
+  #hourly_avg$lat <- floor(hourly_avg$lat*10000)/10000
+  #hourly_avg$lon <- floor(hourly_avg$lon*10000)/10000
   hourly_avg <- hourly_avg |>
     dplyr::group_by(lat, lon, time) |>
     dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
     dplyr::ungroup() |>
     as.data.frame()
+  # remove duplicates
+  hourly_avg <- unique(hourly_avg)
   return(hourly_avg)
 }
 
@@ -76,16 +81,21 @@ format_wu <- function(raw,
   }
   x$obsTimeUtc <- as.POSIXct(x$obsTimeUtc, tz = "UTC") |>
     lubridate::floor_date(unit = "hours")
-  x <- hourly_temp(x,
-                   temp = "tempAvg_c",
-                   lat = "lat",
-                   lon = "lon",
-                   time = "obsTimeUtc",
-                   network = "WU") |>
+  x <- summarize_hourly_temp(x,
+                             "obsTimeUtc",
+                             "tempAvg_c",
+                             "lat",
+                             "lon") |>
+        hourly_temp(temp = "temp",
+                    lat = "lat",
+                    lon = "lon",
+                    time = "time",
+                    network = "WU") |>
     sftime::st_as_sftime(coords = c("lon", "lat"),
                          time_column_name = "time",
                          crs = raw_crs,
                          remove = FALSE)
+  cat("format_wu() done\n")
   return(x)
 }
 

@@ -21,8 +21,8 @@ load_wu <- function(ts, te, area, inventory) {
       !inherits(inv_selection$te_utc, "POSIXct")) {
     stop("inventory times must be POSIXt objects")
   }
-  inv_selection <- inv_selection[inv_selection$ts_utc <= te &
-                                   inv_selection$te_utc >= ts, ]
+  inv_selection <- inv_selection[which(inv_selection$ts_utc <= te &
+                                   inv_selection$te_utc >= ts), ]
   for (f in inv_selection$fname) {
     aws <- data.table::fread(f)
     aws$datetime <- as.POSIXct(aws$obsTimeUtc, tz = "UTC")
@@ -34,7 +34,10 @@ load_wu <- function(ts, te, area, inventory) {
     }
   }
   if (!exists("wu")) {
-    stop("No data found for the given period")
+    wu <- NULL
+    message("No data found for the given period")
   }
+  wu <- unique(wu)
+  cat("load_wu() done\n")
   return(wu)
 }

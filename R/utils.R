@@ -6,18 +6,28 @@
 #' @export
 #' @author Eva Marques
 convert_temp <- function(x, from, to) {
+  stopifnot(
+    "from should be \"C\", \"F\" or \"K\"" =
+      from %in% c("C", "F", "K"),
+    "to should be \"C\", \"F\" or \"K\"" =
+      to %in% c("C", "F", "K"),
+    "x is not numeric" = is.numeric(x)
+  )
   if (from == "C") {
     ifelse(to == "F",
-           return((x * 9 / 5) + 32),
-           return(x + 273.15))
+      return((x * 9 / 5) + 32),
+      return(x + 273.15)
+    )
   } else if (from == "F") {
     ifelse(to == "C",
-           return((x - 32) * 5 / 9),
-           return((x - 32) * 5 / 9 + 273.15))
+      return((x - 32) * 5 / 9),
+      return((x - 32) * 5 / 9 + 273.15)
+    )
   } else if (from == "K") {
     ifelse(to == "C",
-           return(x - 273.15),
-           return((x - 273.15) * 9 / 5 + 32))
+      return(x - 273.15),
+      return((x - 273.15) * 9 / 5 + 32)
+    )
   }
 }
 
@@ -37,12 +47,14 @@ my_pal <- function(pal_name) {
   } else if (pal_name == "prior") {
     return(RColorBrewer::brewer.pal(10, "RdBu"))
   } else if (pal_name == "uhi") {
-    return(c("cyan4",
-             "grey",
-             "yellow",
-             "orange",
-             "red",
-             "firebrick",
-             "black"))
+    return(c(
+      "cyan4",
+      "grey",
+      "yellow",
+      "orange",
+      "red",
+      "firebrick",
+      "black"
+    ))
   }
 }

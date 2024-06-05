@@ -59,7 +59,6 @@ wu <- wu[, ..keep]
 Create simulated dataset from raw wu
 
 ```{r}
-set.seed(123)
 # replace stationID
 id <- data.table(stationID = unique(wu$stationID),
                  lon = unique(wu$lon),
@@ -96,7 +95,6 @@ saveRDS(wu_sim, "wu_raw_simulated_testdata.rds")
 PurpleAir testdata
 
 ```{r}
-set.seed(123)
 pa_file <- "../../input/rtp/pa_20210720_20210727.csv"
 pa <- load_pa(config$ts, config$te, config$area, storage_file = pa_file)
 head(pa)

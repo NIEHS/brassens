@@ -32,8 +32,14 @@ testthat::test_that("find_nearest_ghcnh works well", {
 })
 
 testthat::test_that("download_ghcnh_station works well", {
-
+  # USW00013722 is Raleigh Airport AWS
+  expect_true(is.null(download_ghcnh_station("USW00013722", 2100)))
+  expect_true(is.null(download_ghcnh_station("a", 2100)))
+  expect_true(is.null(download_ghcnh_station("a", 210000)))
+  expect_error(download_ghcnh_station(13722, 2023))
+  expect_no_error(download_ghcnh_station("USW00013722", 2023))
 })
+
 
 testthat::test_that("download_ghcnh works well", {
 

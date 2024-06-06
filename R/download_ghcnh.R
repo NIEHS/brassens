@@ -63,6 +63,7 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @import tidyr
 #' @import dplyr
 download_ghcnh_station <- function(site_id, year) {
+  stopifnot("site_id should be a character" = is.character(site_id))
   url <- paste0("https://www.ncei.noaa.gov/oa/",
                 "global-historical-climatology-network/hourly/access/by-year/",
                 as.character(year),

@@ -35,6 +35,7 @@ setValidity("hourly_temp", function(object) {
 #' @param lat the column name for the latitude
 #' @param lon the column name for the longitude
 #' @param time the column name for the time in UTC
+#' @param network the name of the network
 #' @return a hourly_temp object
 #' @author Eva Marques
 hourly_temp <- function(x,
@@ -46,6 +47,11 @@ hourly_temp <- function(x,
   stopifnot(
     "x is not a data.frame, data.table, sf or sftime." =
       class(x)[1] %in% c("data.frame", "data.table", "sf", "sftime"),
+    "time, temp, lat, lon are not all characters." =
+      is.character(time) &
+      is.character(temp) &
+      is.character(lat) &
+      is.character(lon),
     "temp, lat, lon, time columns missing or mispelled." =
       c(temp, lat, lon, time) %in% colnames(x)
   )
@@ -56,7 +62,8 @@ hourly_temp <- function(x,
     dplyr::rename("lon" = lon) |>
     dplyr::rename("time" = time)
   y$network <- network
-  y <- generate_site_id(y) |>
+  y <- generate_site_id(y)
+  y <- y[, c("site_id", "temp", "lat", "lon", "time", "network")] |>
     new(Class = "hourly_temp")
-  return(y[, c("site_id", "temp", "lat", "lon", "time", "network")])
+  return(y)
 }

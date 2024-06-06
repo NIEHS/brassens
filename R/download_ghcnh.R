@@ -4,10 +4,7 @@
 #' @author Eva Marques
 #' @export
 find_ghcnh_polygon <- function(polygon) {
-  stopifnot("polygon is not a sf or sfc" = inherits(polygon, c("sf", "sfc")),
-            "polygon is not a POLYGON or MULTIPOLIGON" =
-              sf::st_geometry_type(polygon, by_geometry = FALSE) %in%
-              c("POLYGON", "MULTIPOLYGON"))
+  poly <- format_area(polygon)
   url <- paste0("https://www.ncei.noaa.gov/oa/",
                 "global-historical-climatology-network/hourly/doc/",
                 "ghcnh-station-list.csv")
@@ -22,7 +19,7 @@ find_ghcnh_polygon <- function(polygon) {
                      "hcnflag",
                      "wmoid")
   inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
-  inv_in_poly <- sf::st_filter(inv, polygon)
+  inv_in_poly <- sf::st_filter(inv, poly)
   return(inv_in_poly)
 }
 
@@ -33,6 +30,8 @@ find_ghcnh_polygon <- function(polygon) {
 #' @author Eva Marques
 #' @export
 find_nearest_ghcnh <- function(lat, lon) {
+  stopifnot("lat and lon should be numeric" =
+              is.numeric(lat) & is.numeric(lon))
   my_point <- sf::st_point(c(lon, lat)) |>
     sf::st_sfc(crs = 4326) |>
     sf::st_sf()

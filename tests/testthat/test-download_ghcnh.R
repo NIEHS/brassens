@@ -32,16 +32,34 @@ testthat::test_that("find_nearest_ghcnh works well", {
 })
 
 testthat::test_that("download_ghcnh_station works well", {
-  # USW00013722 is Raleigh Airport AWS
+  # no page found:
+  expect_message(download_ghcnh_station("USW00013722", 2100))
   expect_true(is.null(download_ghcnh_station("USW00013722", 2100)))
   expect_true(is.null(download_ghcnh_station("a", 2100)))
   expect_true(is.null(download_ghcnh_station("a", 210000)))
+  # page found but empty:
+  expect_message(download_ghcnh_station("USC00310750", 2021))
+  expect_true(is.null(download_ghcnh_station("USC00310750", 2021)))
+  # test parameters:
   expect_error(download_ghcnh_station(13722, 2023))
+  # no error:
   expect_no_error(download_ghcnh_station("USW00013722", 2023))
 })
 
 
 testthat::test_that("download_ghcnh works well", {
-
+  ts = as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
+  te = as.POSIXct("2021-07-02 23:59:59", tz = "UTC")
+  area <- rbind(
+    c(-78.79, 35.8),
+    c(-78.79, 36),
+    c(-78.78, 36),
+    c(-78.78, 35.8)
+  ) |>
+    terra::vect("polygons", crs = "epsg:4326")
+  expect_no_error(download_ghcnh(ts, te, area))
+  expect_error(download_ghcnh(as.Date("2021-07-22"),
+                              as.Date("2021-07-24"),
+                              area))
 })
 

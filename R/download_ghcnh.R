@@ -78,6 +78,10 @@ download_ghcnh_station <- function(site_id, year) {
                     stringsAsFactors = FALSE,
                     fill = TRUE) |>
       tidyr::drop_na(temperature)
+    if (nrow(x) == 0) {
+      message("No data found for station ", site_id, " in year ", year, ".")
+      return(NULL)
+    }
     return(x)
   } else {
     message("The URL does not exist for station ", site_id, ".")
@@ -92,6 +96,8 @@ download_ghcnh_station <- function(site_id, year) {
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @return a data.frame with the GHCN-H stations observations in the area
 download_ghcnh <- function(ts, te, area) {
+  stopifnot("ts and te should be POSIXct objects" =
+              inherits(ts, "POSIXct") & inherits(te, "POSIXct"))
   ghcnh <- NULL
   year_ts <- lubridate::year(ts)
   year_te <- lubridate::year(te)
@@ -110,8 +116,13 @@ download_ghcnh <- function(ts, te, area) {
       }
     }
   }
-  ghcnh <- format_ghcnh(ghcnh)
-  ghcnh <- ghcnh[which(between(ghcnh$time, ts, te)), ]
-  return(ghcnh)
+  if (nrow(ghcnh) == 0) {
+    message("No data found in the area.")
+    return(NULL)
+  } else {
+    ghcnh <- format_ghcnh(ghcnh)
+    ghcnh <- ghcnh[which(between(ghcnh$time, ts, te)), ]
+    return(ghcnh)
+  }
 }
 

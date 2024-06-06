@@ -1,5 +1,20 @@
 testthat::test_that("summarize_hourly_temp works well", {
+  expect_error(summarize_hourly_temp(x = "Vive les croissants et les baguettes",
+                                     time = "obsTimeUtc",
+                                     temp = "tempAvg",
+                                     lat = "lat",
+                                     lon = "lon"))
   x <- readRDS(testthat::test_path("../testdata/wu_raw_simulated_testdata.rds"))
+  expect_error(summarize_hourly_temp(x = x,
+                                     time = "obsTimeUtc",
+                                     temp = "tempAvgggg",
+                                     lat = "lat",
+                                     lon = "lon"))
+  expect_error(summarize_hourly_temp(x = x,
+                                     time = "obsTimeUtc",
+                                     temp = 24,
+                                     lat = "lat",
+                                     lon = "lon"))
   expect_no_error(summarize_hourly_temp(x = x,
                                         time = "obsTimeUtc",
                                         temp = "tempAvg",

@@ -10,15 +10,22 @@
 #' @author Eva Marques
 #' @export
 summarize_hourly_temp <- function(x, time, temp, lat, lon) {
+  stopifnot("x is not a data.frame, data.table, sf or sftime" =
+              inherits(x, c("sf", "sftime", "data.table", "data.frame")),
+            "time, temp, lat, lon are not all characters" =
+              is.character(time) &
+              is.character(temp) &
+              is.character(lat) &
+              is.character(lon),
+            "time, temp, lat, lon are not in colnames(x)" =
+              all(c(time, temp, lat, lon) %in% colnames(x)))
   hourly_avg <- x |>
+    data.table::as.data.table() |>
     dplyr::rename("lat" = lat) |>
     dplyr::rename("lon" = lon) |>
     dplyr::rename("time" = time) |>
     dplyr::rename("temp" = temp)
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
-  # floor lat and lon
-  #hourly_avg$lat <- floor(hourly_avg$lat*10000)/10000
-  #hourly_avg$lon <- floor(hourly_avg$lon*10000)/10000
   hourly_avg <- hourly_avg |>
     dplyr::group_by(lat, lon, time) |>
     dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>

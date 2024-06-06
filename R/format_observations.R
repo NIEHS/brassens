@@ -17,7 +17,7 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
               is.character(temp) &
               is.character(lat) &
               is.character(lon),
-            "time, temp, lat, lon are not in colnames(x)" =
+            "time, temp, lat, lon columns missing or mispelled" =
               all(c(time, temp, lat, lon) %in% colnames(x)))
   hourly_avg <- x |>
     data.table::as.data.table() |>

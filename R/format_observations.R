@@ -72,11 +72,13 @@ format_pa <- function(raw,
                          time_column_name = "time",
                          crs = raw_crs,
                          remove = FALSE)
+  cat("format_pa() done\n")
   return(x)
 }
 
 #' Format observations sent by IBM.
-#' @param raw a data.frame with the raw observations
+#' @param raw a data.frame, data.table, sf or sftime with the raw observations
+#' and columns "obsTimeUtc", "lat", "lon", "tempAvg"
 #' @param raw_tz the initial timezone, see PurpleAir API documentation
 #' @param raw_temp_unit the initial temperature unit
 #' @param raw_crs the initial coordinate reference system
@@ -87,10 +89,14 @@ format_wu <- function(raw,
                       raw_tz = "UTC",
                       raw_temp_unit = "F",
                       raw_crs = 4326) {
+  wu_cols <- c("obsTimeUtc", "lat", "lon", "tempAvg")
+  stopifnot("raw is not a data.frame, data.table, sf or sftime" =
+              inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+            "Some columns missing or mispelled" =
+              all(wu_cols %in% colnames(raw)))
   x <- raw
   if (raw_temp_unit != "C") {
     x$tempAvg_c <- convert_temp(x$tempAvg, from = raw_temp_unit, to = "C")
-    x$tempLow_c <- convert_temp(x$tempLow, from = raw_temp_unit, to = "C")
   }
   x$obsTimeUtc <- as.POSIXct(x$obsTimeUtc, tz = "UTC") |>
     lubridate::floor_date(unit = "hours")

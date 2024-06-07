@@ -37,7 +37,8 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
 }
 
 #' Format observations directly downloaded on PurpleAir API.
-#' @param raw a data.frame with the raw observations
+#' @param raw a data.frame, data.table, sf or sftime with the raw observations
+#' and columns "time_stamp", "latitude", "longitude", "temperature"
 #' @param raw_tz the initial timezone, see PurpleAir API documentation
 #' @param raw_temp_unit the initial temperature unit
 #' @param raw_crs the initial coordinate reference system
@@ -48,6 +49,11 @@ format_pa <- function(raw,
                       raw_tz = "UTC",
                       raw_temp_unit = "F",
                       raw_crs = 4326) {
+  pa_cols <- c("time_stamp", "latitude", "longitude", "temperature")
+  stopifnot("raw is not a data.frame, data.table, sf or sftime" =
+              inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+            "Some columns missing or mispelled" =
+              all(pa_cols %in% colnames(raw)))
   x <- raw
   x$time_stamp <- as.POSIXct(x$time_stamp, tz = raw_tz)
   x$time_utc <- lubridate::with_tz(x$time_stamp, tzone = "UTC")

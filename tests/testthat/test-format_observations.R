@@ -65,7 +65,29 @@ testthat::test_that("summarize_hourly_temp works well", {
 })
 
 testthat::test_that("format_pa works well", {
-
+  raw <- "../testdata/pa_raw_simulated_testdata.rds" |>
+    testthat::test_path() |>
+    readRDS()
+  expect_no_error(format_pa(raw))
+  raw_df <- raw |>
+    as.data.frame()
+  expect_no_error(format_pa(raw_df))
+  raw_sf <- raw |>
+    sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, remove = FALSE)
+  expect_no_error(format_pa(raw_sf))
+  raw_sftime <- raw |>
+    sftime::st_as_sftime(coords = c("longitude", "latitude"),
+                         time_column_name = "time_stamp",
+                         crs = 4326,
+                         remove = FALSE)
+  expect_no_error(format_pa(raw_sftime))
+  # missing columns
+  expect_error(format_pa(raw[, c("time_stamp", "latitude", "longitude")]))
+  # test output format
+  expect_true(inherits(format_pa(raw), "sftime"))
+  cols <- c("site_id", "time", "lon", "lat", "geometry", "temp", "network")
+  expect_true(all(colnames(format_pa(raw)) %in% cols))
+  expect_true(all(cols %in% colnames(format_pa(raw))))
 })
 
 testthat::test_that("format_wu works well", {

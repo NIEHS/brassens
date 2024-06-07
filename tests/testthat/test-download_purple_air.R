@@ -17,6 +17,14 @@ testthat::test_that("load_pa works well", {
       storage_file = pa_path
     )
   )
+  expect_no_message(
+    load_pa(
+      ts = ts,
+      te = te,
+      area = triangle,
+      storage_file = pa_path
+    )
+  )
   ts = as.POSIXct("2000-07-21 00:00:00", tz = "UTC")
   te = as.POSIXct("2000-07-22 23:59:59", tz = "UTC")
   expect_message(

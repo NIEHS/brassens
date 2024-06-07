@@ -179,7 +179,14 @@ load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   if (is.null(storage_file)) {
     pa <- download_pa(ts, te, area, api_key)
   } else {
-    pa <- read.csv(storage_file)
+    extension <- substr(storage_file,
+                        nchar(storage_file) - 2,
+                        nchar(storage_file))
+    if (extension == "rds") {
+      pa <- readRDS(storage_file)
+    } else if (extension == "csv") {
+      pa <- read.csv(storage_file)
+    }
     pa$time_stamp <- as.POSIXct(pa$time_stamp,
                                 tz = "UTC",
                                 format = "%Y-%m-%d %H:%M:%S")
@@ -197,5 +204,8 @@ load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   }
   # back to dataframe class
   pa$geometry <- NULL
+  if (nrow(pa) == 0) {
+    message("No PurpleAir found at those dates and area.")
+  }
   return(data.table::data.table(pa))
 }

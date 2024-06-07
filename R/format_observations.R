@@ -120,11 +120,25 @@ format_wu <- function(raw,
 
 #' Format observations from raw data downloaded on NOAA website
 #' See function load_ghcnh_station.
-#' @param raw a data.frame with the raw observations
+#' @param raw a data.frame, data.table, sf or sftime with the raw observations
+#' and columns "Year", "Month", "Day", "Hour", "temperature", "Latitude",
+#' "Longitude", "temperature_Source_Code"
 #' @return sftime from hourly_temp class
 #' @author Eva Marques
 #' @export
 format_ghcnh <- function(raw) {
+  ghcnh_cols <- c("Year",
+                  "Month",
+                  "Day",
+                  "Hour",
+                  "temperature",
+                  "Latitude",
+                  "Longitude",
+                  "temperature_Source_Code")
+  stopifnot("raw is not a data.frame, data.table, sf or sftime" =
+              inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+            "Some columns missing or mispelled" =
+              all(ghcnh_cols %in% colnames(raw)))
   x <- raw
   # note: as.POSIXct return a double when called through apply.
   # this is why it is called after the apply
@@ -152,11 +166,7 @@ format_ghcnh <- function(raw) {
                 lat = "lat",
                 lon = "lon",
                 time = "time",
-                network = "GHCNh") |>
-    sftime::st_as_sftime(coords = c("lon", "lat"),
-                         time_column_name = "time",
-                         crs = 4326,
-                         remove = FALSE)
+                network = "GHCNh")
   network <- raw[, c("Longitude", "Latitude", "temperature_Source_Code")] |>
     dplyr::rename("lon" = "Longitude") |>
     dplyr::rename("lat" = "Latitude") |>
@@ -169,5 +179,11 @@ format_ghcnh <- function(raw) {
   x$network <- factor(x$network,
                       levels = c(343, 345),
                       labels = c("NCEI/ASOS/AWOS", "NCEI/US CRN"))
+  x <- x |>
+    sftime::st_as_sftime(coords = c("lon", "lat"),
+                         time_column_name = "time",
+                         crs = 4326,
+                         remove = FALSE)
+  cat("format_ghcnh() done\n")
   return(x)
 }

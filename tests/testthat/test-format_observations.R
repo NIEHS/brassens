@@ -117,6 +117,17 @@ testthat::test_that("format_wu works well", {
 })
 
 testthat::test_that("format_ghcnh works well", {
-
+  raw <- download_ghcnh_station(site_id = "USW00013722", year = 2021)
+  expect_no_error(format_ghcnh(raw))
+  # test output format
+  expect_true(inherits(format_ghcnh(raw), "sftime"))
+  cols <- c("site_id", "time", "lon", "lat", "geometry", "temp", "network")
+  expect_true(all(colnames(format_ghcnh(raw)) %in% cols))
+  expect_true(all(cols %in% colnames(format_ghcnh(raw))))
+  # check error if not the right columns
+  raw <- "../testdata/ghcnh_formatted_testdata.rds" |>
+    testthat::test_path() |>
+    readRDS()
+  expect_error(format_ghcnh(raw))
 })
 

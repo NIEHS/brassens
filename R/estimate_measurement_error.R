@@ -41,7 +41,27 @@ calc_temp_error <- function(cws, ref) {
   # check column names
   cols <- c("site_id", "temp", "geometry", "time")
   stopifnot("some columns missing in cws" = all(cols %in% colnames(cws)),
-            "some columns missing in ref" = all(cols %in% colnames(ref)))
+            "some columns missing in ref" = all(cols %in% colnames(ref))
+            )
+  # check time class
+  stopifnot("time should inherit from POSIXct in cws" =
+              inherits(cws$time, "POSIXct"),
+            "time should inherit from POSIXct in ref" =
+              inherits(ref$time, "POSIXct")
+            )
+  # check crs
+  stopifnot("cws and ref have different crs" =
+              sf::st_crs(cws) == sf::st_crs(ref)
+            )
+  # check time is rounded to the hour (minutes and seconds to 0)
+  stopifnot("time should be rounded to the hour in cws" =
+              all(lubridate::minute(cws$time) == 0) &
+              all(lubridate::second(cws$time) == 0),
+            "time should be rounded to the hour in ref" =
+              all(lubridate::minute(ref$time) == 0),
+              all(lubridate::second(ref$time) == 0)
+            )
+
   cws_r <- find_closest_ref(cws, ref)
   ref_reformat <- ref[, c("site_id",
                           "temp",

@@ -1,15 +1,30 @@
+#' Remove NA and stations with too many NA
+#' @param data formatted sftime (with columns: site_id, temp, time)
+#' @param na_thresh threshold of NA to remove a station
+#' @return cleaned data.frame
+#' @import dplyr
 manage_na <- function(data, na_thresh = 0.1) {
+  stopifnot(
+    "threshold must be between 0 and 1" =
+      na_thresh >= 0 & na_thresh <= 1,
+    "data must be a sftime" = inherits(data, "sftime"),
+    "site_id, temp, lat, lon, time missing or mispelled" =
+      all(c("site_id", "temp", "time") %in% colnames(data))
+  )
   # remove lines where temp is na
   output <- data[which(!(is.na(data$temp))), ]
   # timeserie length
-  n_tot <- as.numeric(difftime(max(output$time),
-    min(output$time),
-    unit = "hour"
-  )) + 1
+  n_tot <- as.numeric(
+    difftime(
+      max(output$time),
+      min(output$time),
+      unit = "hour"
+      )
+    ) + 1
   n_thresh <- n_tot * (1 - na_thresh)
   # remove stations with more than na_tresh % of na
   n <- output |>
-    group_by("site_id") |>
+    dplyr::group_by("site_id") |>
     dplyr::summarize(n = dplyr::n()) |>
     data.frame()
   keep_id <- unique(n[which(n$n >= n_thresh), c("site_id")])

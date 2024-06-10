@@ -86,26 +86,38 @@ clean_cws <- function(x) {
   return(x_qc)
 }
 
-
-#' Clean Weather Underground data with CrowdQC+ on an area >100km*100km
-#' @param x sftime of formatted weather station data
-#' (with columns: site_id, temp, lat, lon, time)
+#' Format an area to be used in clean_cws_large (cut in squares of res*res m2)
 #' @param area polygon
-#' @param epsg_m crs in meters
-#' @return cleaned data.frame
-clean_cws_large <- function(x, area, epsg_m = "epsg:32119") {
+#' @param epsg_m crs in meters (default: epsg:32119)
+#' @param res resolution of the squares in meters (default: 100km)
+#' @return sf of polygons
+cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
   # project area with a crs in meters
   area_m <- area |>
     format_area() |>
     terra::vect() |>
-    terra::project(y = "epsg:32119") # linear unit of nc_shp in meters
-  # cut area in squares of 100km*100km
-  r <- terra::rast(area_m, res = 100000)
+    terra::project(y = epsg_m) # linear unit of nc_shp in meters
+  # cut area in squares of res*res m2
+  r <- terra::rast(area_m, res = res)
   terra::values(r) <- 1:terra::ncell(r)
   v <- terra::mask(r, area_m) |>
     terra::as.polygons() |>
     terra::project("epsg:4326") |>
     sf::st_as_sf()
+  return(v)
+}
+
+
+#' Clean Weather Underground data with CrowdQC+ on an area >100km*100km
+#' @param x sftime of formatted weather station data
+#' (with columns: site_id, temp, lat, lon, time)
+#' @param area polygon
+#' @param epsg_m crs in meters (default: epsg:32119)
+#' @param res resolution of the squares in meters (default: 100km)
+#' @return cleaned data.frame
+clean_cws_large <- function(x, area, epsg_m = "epsg:32119", res = 100000) {
+  # cut area in squares of res*res m2
+  v <- cut_area(area, epsg_m, res)
   # apply crowcQC+ on each square
   x_clean <- list()
   for (sq in 1:nrow(v)) {

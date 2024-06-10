@@ -37,6 +37,12 @@ testthat::test_that("clean_cws works well", {
 })
 
 
-testthat::test_that("clean_cws_large works well", {
-
+testthat::test_that("cut_area works well", {
+  nc_url <- paste0("https://services1.arcgis.com/YBWrN5qiESVpqi92/arcgis/rest/",
+                   "services/ncgs_state_county_boundary/FeatureServer/0/",
+                   "query?outFields=*&where=1%3D1&f=geojson")
+  nc <- terra::vect(nc_url)
+  expect_no_error(cut_area(nc))
+  nc_squared <- cut_area(nc)
+  expect_equal(nrow(nc_squared), 20)
 })

@@ -1,12 +1,12 @@
 #' Find the closest reference site for each site in a cws object
-#' @param cws sf object with citizen weather stations
-#' @param ref sf object with reference weather stations
+#' @param cws sf (or inherited) object with citizen weather stations
+#' @param ref sf (or inherited) object with reference weather stations
 #' @return sf object with the closest reference site for each cws
 #' with additional columns ref_id, ref_geometry and dist_to_ref
 #' @export
 find_closest_ref <- function(cws, ref) {
-  stopifnot("cws is not a sf" = is(cws, "sf"),
-            "ref is not a sf" = is(ref, "sf"))
+  stopifnot("cws does not inherit from sf" = inherits(cws, "sf"),
+            "ref does not inherit from sf" = inherits(ref, "sf"))
   # check column names
   cols <- c("site_id", "geometry")
   stopifnot("some columns missing in cws" = all(cols %in% colnames(cws)),

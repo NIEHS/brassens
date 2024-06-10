@@ -1,8 +1,10 @@
 #' Find the closest reference site for each site in a cws object
 #' @param cws sf (or inherited) object with citizen weather stations
+#' with columns site_id and geometry
 #' @param ref sf (or inherited) object with reference weather stations
+#' with columns site_id and geometry
 #' @return sf object with the closest reference site for each cws
-#' with additional columns ref_id, ref_geometry and dist_to_ref
+#' with additional columns ref_id and dist_to_ref
 #' @export
 find_closest_ref <- function(cws, ref) {
   stopifnot("cws does not inherit from sf" = inherits(cws, "sf"),
@@ -29,9 +31,12 @@ find_closest_ref <- function(cws, ref) {
 }
 
 #' Add temperature from a reference to citizen weather stations observations
-#' @param cws sf object with citizen weather stations
-#' @param ref sf object with reference weather stations
-#' @return hourly_temp object with the reference temperature in columns temp_r
+#' @param cws sf (or inherited) object with citizen weather stations
+#' with columns site_id and geometry
+#' @param ref sf (or inherited) object with reference weather stations
+#' with columns site_id and geometry
+#' @return sf (or inherited) object with additional columns temp_ref, temp_err,
+#' ref_id, dist_to_ref
 calc_temp_error <- function(cws, ref) {
   # check column names
   cols <- c("site_id", "temp", "geometry", "time")

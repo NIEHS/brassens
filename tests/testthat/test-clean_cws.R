@@ -16,6 +16,10 @@ testthat::test_that("manage_na works well", {
   full_ts <- manage_na(data, na_thresh = 0.0)
   nb_stations <- length(unique(full_ts$site_id))
   expect_true(nrow(full_ts) == nb_stations * date_range)
+  expect_error(manage_na(data, na_thresh = 10))
+  expect_error(manage_na(data, na_thresh = -1))
+  expect_error(manage_na(data = "Je n'ai pas d'inspiration aujourd'hui"))
+  expect_error(manage_na(data = data[ , -which(colnames(data) == "temp")]))
 })
 
 testthat::test_that("clean_cws works well", {

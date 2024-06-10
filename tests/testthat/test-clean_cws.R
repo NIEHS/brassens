@@ -23,7 +23,17 @@ testthat::test_that("manage_na works well", {
 })
 
 testthat::test_that("clean_cws works well", {
-
+  x <- "../testdata/wu_raw_simulated_testdata.rds" |>
+    testthat::test_path() |>
+    readRDS() |>
+    format_wu()
+  expect_no_error(clean_cws(x))
+  cleaned <- clean_cws(x)
+  expect_error(clean_cws(x[ , -which(colnames(x) == "temp")]))
+  expect_true(inherits(cleaned, "sftime"))
+  cols <- c("site_id", "temp", "lat", "lon", "time")
+  expect_true(all(cols %in% colnames(cleaned)))
+  expect_error(clean_cws("Aboli bibelot d'inanite sonore"))
 })
 
 

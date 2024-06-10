@@ -1,6 +1,6 @@
 #' Remove NA and stations with too many NA
 #' @param data formatted sftime (with columns: site_id, temp, time)
-#' @param na_thresh threshold of NA to remove a station
+#' @param na_thresh threshold of NA to remove a station (0 <= na_tresh <= 1)
 #' @return cleaned data.frame
 #' @import dplyr
 manage_na <- function(data, na_thresh = 0.1) {
@@ -32,11 +32,17 @@ manage_na <- function(data, na_thresh = 0.1) {
   return(output)
 }
 
-#' Clean Weather Underground data with CrowdQC+
+#' Clean Weather Underground data with CrowdQC+. Keep only observations
+#' passing all tests (o3 level)
 #' @param x sftime with columns: site_id, temp, lat, lon, time
 #' @return cleaned data.frame
 #' @import sftime
 clean_cws <- function(x) {
+  stopifnot(
+    "site_id, temp, lat, lon, time missing or mispelled" =
+      all(c("site_id", "temp", "lat", "lon", "time") %in% colnames(x)),
+    "x must be a sftime" = inherits(x, "sftime")
+  )
   x_qcp <- x |>
     dplyr::rename("p_id" = "site_id") |>
     dplyr::rename("ta" = "temp") |>

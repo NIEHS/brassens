@@ -11,4 +11,5 @@ Imports: CrowdQCplus, data.table, dplyr, ggplot2, ggspatial, httr, jsonlite, sf,
 Remotes: dafenner/CrowdQCplus
 VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
+License: MIT + file LICENSE
 RoxygenNote: 7.3.1

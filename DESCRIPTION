@@ -5,7 +5,6 @@ Authors@R: c(
   person("Eva", "Marques", role = c("aut", "cre"), email = "eva.marques@nih.gov"),
   person("Kyle", "Messier", role = "ctb")
   )
-Maintainer: eva.marques@nih.gov
 Description: Citizen Weather Stations data access and cleaning toolbox.
 Depends: R (>= 4.1.0)
 Imports: CrowdQCplus, sf, sftime, terra, data.table, dplyr, testthat (>= 3.0.0), ggplot, ggpubr

@@ -8,7 +8,7 @@ Authors@R: c(
 Maintainer: eva.marques@nih.gov
 Description: Citizen Weather Stations data access and cleaning toolbox.
 Depends: R (>= 4.1.0)
-Imports: CrowdQCplus
+Imports: CrowdQCplus, sf, sftime, terra, data.table, dplyr, testthat (>= 3.0.0), ggplot, ggpubr
 Remotes: dafenner/CrowdQCplus
 VignetteBuilder: knitr, rmarkdown
 License: MIT + file LICENSE

@@ -22,7 +22,7 @@ testthat::test_that("find_closest_ref works well", {
 })
 
 
-testthat::test_that("calc_temp_error works well", {
+testthat::test_that("est_temp_error works well", {
   cws <- "../testdata/wu_raw_simulated_testdata.rds" |>
     testthat::test_path() |>
     readRDS() |>
@@ -30,8 +30,8 @@ testthat::test_that("calc_temp_error works well", {
   ref <- "../testdata/ghcnh_formatted_testdata.rds" |>
     testthat::test_path() |>
     readRDS()
-  expect_no_error(calc_temp_error(cws, ref))
-  r <- calc_temp_error(cws, ref)
+  expect_no_error(est_temp_error(cws, ref))
+  r <- est_temp_error(cws, ref)
   new_cols <- c("temp_err", "temp_ref", "ref_id", "dist_to_ref")
   expect_true(all(new_cols %in% colnames(r)))
   expect_true(all(colnames(cws) %in% colnames(r)))
@@ -44,42 +44,42 @@ testthat::test_that("calc_temp_error works well", {
   expect_equal(eg1$ref_id, eg2$ref_id)
   expect_false(eg1$temp_ref == eg2$temp_ref)
   expect_equal(eg2$temp_ref, 28.9)
-  expect_error(calc_temp_error(cws[, c("site_id", "temp", "geometry")], ref))
-  expect_error(calc_temp_error(cws, ref[, c("site_id", "temp", "geometry")]))
+  expect_error(est_temp_error(cws[, c("site_id", "temp", "geometry")], ref))
+  expect_error(est_temp_error(cws, ref[, c("site_id", "temp", "geometry")]))
   ref_date <- ref
   ref_date$time <- as.Date(ref_date$time)
-  expect_error(calc_temp_error(cws, ref_date),
+  expect_error(est_temp_error(cws, ref_date),
                "time should inherit from POSIXct in ref")
   cws_date <- cws
   cws_date$time <- as.Date(cws_date$time)
-  expect_error(calc_temp_error(cws_date, ref),
+  expect_error(est_temp_error(cws_date, ref),
                "time should inherit from POSIXct in cws")
   cws_wrong_crs <- cws |>
     sf::st_transform(32618)
-  expect_error(calc_temp_error(cws_wrong_crs, ref),
+  expect_error(est_temp_error(cws_wrong_crs, ref),
                "cws and ref have different crs")
   cws_with_sec <- cws
   lubridate::second(cws_with_sec$time) <- sample(x = 0:59,
                                                  size = nrow(cws),
                                                  replace = TRUE)
-  expect_error(calc_temp_error(cws_with_sec, ref))
+  expect_error(est_temp_error(cws_with_sec, ref))
 
   cws_with_min <- cws
   lubridate::minute(cws_with_min$time) <- sample(x = 0:59,
                                                  size = nrow(cws),
                                                  replace = TRUE)
-  expect_error(calc_temp_error(cws_with_min, ref))
+  expect_error(est_temp_error(cws_with_min, ref))
 
   ref_with_sec <- ref
   lubridate::second(ref_with_sec$time) <- sample(x = 0:59,
                                                  size = nrow(ref),
                                                  replace = TRUE)
-  expect_error(calc_temp_error(cws, ref_with_sec))
+  expect_error(est_temp_error(cws, ref_with_sec))
 
   ref_with_min <- ref
   lubridate::minute(ref_with_min$time) <- sample(x = 0:59,
                                                  size = nrow(ref),
                                                  replace = TRUE)
-  expect_error(calc_temp_error(cws, ref_with_min))
+  expect_error(est_temp_error(cws, ref_with_min))
 
 })

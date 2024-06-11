@@ -7,7 +7,8 @@
 format_pa(raw, raw_tz = "UTC", raw_temp_unit = "F", raw_crs = 4326)
 }
 \arguments{
-\item{raw}{a data.frame with the raw observations}
+\item{raw}{a data.frame, data.table, sf or sftime with the raw observations
+and columns "time_stamp", "latitude", "longitude", "temperature"}
 
 \item{raw_tz}{the initial timezone, see PurpleAir API documentation}
 

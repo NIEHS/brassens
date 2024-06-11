@@ -8,7 +8,9 @@ See function load_ghcnh_station.}
 format_ghcnh(raw)
 }
 \arguments{
-\item{raw}{a data.frame with the raw observations}
+\item{raw}{a data.frame, data.table, sf or sftime with the raw observations
+and columns "Year", "Month", "Day", "Hour", "temperature", "Latitude",
+"Longitude", "temperature_Source_Code"}
 }
 \value{
 sftime from hourly_temp class

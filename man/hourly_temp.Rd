@@ -16,6 +16,8 @@ hourly_temp(x, temp = "temp", lat = "lat", lon = "lon", time = "time", network)
 \item{lon}{the column name for the longitude}
 
 \item{time}{the column name for the time in UTC}
+
+\item{network}{the name of the network}
 }
 \value{
 a hourly_temp object

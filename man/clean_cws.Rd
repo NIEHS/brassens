@@ -2,16 +2,18 @@
 % Please edit documentation in R/clean_cws.R
 \name{clean_cws}
 \alias{clean_cws}
-\title{Clean Weather Underground data with CrowdQC+}
+\title{Clean Weather Underground data with CrowdQC+. Keep only observations
+passing all tests (o3 level)}
 \usage{
 clean_cws(x)
 }
 \arguments{
-\item{x}{data.frame with columns: site_id, temp, lat, lon, time}
+\item{x}{sftime with columns: site_id, temp, lat, lon, time}
 }
 \value{
 cleaned data.frame
 }
 \description{
-Clean Weather Underground data with CrowdQC+
+Clean Weather Underground data with CrowdQC+. Keep only observations
+passing all tests (o3 level)
 }

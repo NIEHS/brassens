@@ -16,11 +16,13 @@ open_hw_transects <- function(fpath) {
 
 load_rtp_observations <- function(ts, te) {
   # load RTP polygons
-  nc_shp <- paste0("NC_county_boundary/",
-                   "North_Carolina_State_and_County_Boundary_Polygons.shp")
+  nc_shp <- paste0(
+    "NC_county_boundary/",
+    "North_Carolina_State_and_County_Boundary_Polygons.shp"
+  )
   nc_borders <- terra::vect(paste0("../input/", nc_shp))
   counties <- c("Wake", "Orange", "Durham", "Chatham", "Granville")
-  rtp_poly <- nc_borders[which(nc_borders$County %in% counties),] |>
+  rtp_poly <- nc_borders[which(nc_borders$County %in% counties), ] |>
     terra::project("EPSG:4326") |>
     sf::st_as_sf()
 
@@ -47,41 +49,52 @@ load_rtp_observations <- function(ts, te) {
   eco3 <- read.csv("../input/econet/econet_20210601_20210831_NK5FS1N1_3.csv")
   eco4 <- read.csv("../input/econet/econet_20210601_20210831_NK5FS1N1_4.csv")
   eco <- rbind(eco1, eco2, eco3, eco4)
-  eco$time_est <- as.POSIXct(eco$time_est, tz = "EST", format = "%m/%d/%y %H:%M")
+  eco$time_est <- as.POSIXct(eco$time_est,
+                             tz = "EST",
+                             format = "%m/%d/%y %H:%M")
   eco$time <- lubridate::with_tz(eco$time_est, tzone = "UTC")
   eco$temp <- as.numeric(eco$temp)
   eco$lat <- as.numeric(eco$lat)
   eco$lon <- as.numeric(eco$lon)
   eco <- eco |>
     na.omit() |>
-    hourly_temp(temp = "temp",
-                lat = "lat",
-                lon = "lon",
-                time = "time",
-                network = "ECONET") |>
-    sftime::st_as_sftime(coords = c("lon", "lat"),
-                         time_column_name = "time",
-                         crs = 4326,
-                         remove = FALSE)
+    hourly_temp(
+      temp = "temp",
+      lat = "lat",
+      lon = "lon",
+      time = "time",
+      network = "ECONET"
+    ) |>
+    sftime::st_as_sftime(
+      coords = c("lon", "lat"),
+      time_column_name = "time",
+      crs = 4326,
+      remove = FALSE
+    )
 
   # merge all observations
   var_list <- c("site_id", "time", "temp", "lat", "lon", "geometry", "network")
-  cws <- rbind(wu[, var_list],
-               pa[, var_list])
-  #remove observations with high latitude
-  cws <- cws[which(cws$lat < 38),]
-  ref <- rbind(eco[, var_list],
-               ghcnh[, var_list],
-               hw_pt_am[, var_list],
-               hw_pt_af[, var_list],
-               hw_pt_pm[, var_list])
+  cws <- rbind(
+    wu[, var_list],
+    pa[, var_list]
+  )
+  # remove observations with high latitude
+  cws <- cws[which(cws$lat < 38), ]
+  ref <- rbind(
+    eco[, var_list],
+    ghcnh[, var_list],
+    hw_pt_am[, var_list],
+    hw_pt_af[, var_list],
+    hw_pt_pm[, var_list]
+  )
   # select only the period of interest
   cws <- cws[which(between(cws$time, ts, te)), ]
   ref <- ref[which(between(ref$time, ts, te)), ]
   # return
-  r <- list("poly" = rtp_poly,
-            "cws" = cws,
-            "ref" = ref)
+  r <- list(
+    "poly" = rtp_poly,
+    "cws" = cws,
+    "ref" = ref
+  )
   return(r)
-
 }

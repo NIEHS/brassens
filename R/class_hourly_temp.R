@@ -1,6 +1,7 @@
 #' S4 constructor for weather station hourly observations
 setClass("hourly_temp",
-         contains = c("data.frame"))
+  contains = c("data.frame")
+)
 
 setValidity("hourly_temp", function(object) {
   stopifnot(
@@ -23,8 +24,10 @@ setValidity("hourly_temp", function(object) {
   )
   obs_id <- object[, c("lon", "lat", "time")]
   obs_id$time <- lubridate::floor_date(obs_id$time, "hour")
-  stopifnot("duplicates found (more than 1 observation per hour?)" =
-              !any(duplicated(obs_id)))
+  stopifnot(
+    "duplicates found (more than 1 observation per hour?)" =
+      !any(duplicated(obs_id))
+  )
   return(TRUE)
 })
 

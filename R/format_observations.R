@@ -10,15 +10,17 @@
 #' @author Eva Marques
 #' @export
 summarize_hourly_temp <- function(x, time, temp, lat, lon) {
-  stopifnot("x is not a data.frame, data.table, sf or sftime" =
-              inherits(x, c("sf", "sftime", "data.table", "data.frame")),
-            "time, temp, lat, lon are not all characters" =
-              is.character(time) &
-              is.character(temp) &
-              is.character(lat) &
-              is.character(lon),
-            "time, temp, lat, lon columns missing or mispelled" =
-              all(c(time, temp, lat, lon) %in% colnames(x)))
+  stopifnot(
+    "x is not a data.frame, data.table, sf or sftime" =
+      inherits(x, c("sf", "sftime", "data.table", "data.frame")),
+    "time, temp, lat, lon are not all characters" =
+      is.character(time) &
+      is.character(temp) &
+      is.character(lat) &
+      is.character(lon),
+    "time, temp, lat, lon columns missing or mispelled" =
+      all(c(time, temp, lat, lon) %in% colnames(x))
+  )
   hourly_avg <- x |>
     data.table::as.data.table() |>
     dplyr::rename("lat" = lat) |>
@@ -50,10 +52,12 @@ format_pa <- function(raw,
                       raw_temp_unit = "F",
                       raw_crs = 4326) {
   pa_cols <- c("time_stamp", "latitude", "longitude", "temperature")
-  stopifnot("raw is not a data.frame, data.table, sf or sftime" =
-              inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
-            "Some columns missing or mispelled" =
-              all(pa_cols %in% colnames(raw)))
+  stopifnot(
+    "raw is not a data.frame, data.table, sf or sftime" =
+      inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+    "Some columns missing or mispelled" =
+      all(pa_cols %in% colnames(raw))
+  )
   x <- raw
   x$time_stamp <- as.POSIXct(x$time_stamp, tz = raw_tz)
   x$time_utc <- lubridate::with_tz(x$time_stamp, tzone = "UTC")
@@ -63,15 +67,18 @@ format_pa <- function(raw,
     x$temperature <- convert_temp(as.numeric(x$temperature), raw_temp_unit, "C")
   }
   x <- hourly_temp(x,
-                   temp = "temperature",
-                   lat = "latitude",
-                   lon = "longitude",
-                   time = "time_utc",
-                   network = "PA") |>
-    sftime::st_as_sftime(coords = c("lon", "lat"),
-                         time_column_name = "time",
-                         crs = raw_crs,
-                         remove = FALSE)
+    temp = "temperature",
+    lat = "latitude",
+    lon = "longitude",
+    time = "time_utc",
+    network = "PA"
+  ) |>
+    sftime::st_as_sftime(
+      coords = c("lon", "lat"),
+      time_column_name = "time",
+      crs = raw_crs,
+      remove = FALSE
+    )
   cat("format_pa() done\n")
   return(x)
 }
@@ -90,30 +97,38 @@ format_wu <- function(raw,
                       raw_temp_unit = "F",
                       raw_crs = 4326) {
   wu_cols <- c("obsTimeUtc", "lat", "lon", "tempAvg")
-  stopifnot("raw is not a data.frame, data.table, sf or sftime" =
-              inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
-            "Some columns missing or mispelled" =
-              all(wu_cols %in% colnames(raw)))
+  stopifnot(
+    "raw is not a data.frame, data.table, sf or sftime" =
+      inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+    "Some columns missing or mispelled" =
+      all(wu_cols %in% colnames(raw))
+  )
   x <- raw
   if (raw_temp_unit != "C") {
     x$tempAvg_c <- convert_temp(x$tempAvg, from = raw_temp_unit, to = "C")
   }
   x$obsTimeUtc <- as.POSIXct(x$obsTimeUtc, tz = "UTC") |>
     lubridate::floor_date(unit = "hours")
-  x <- summarize_hourly_temp(x,
-                             "obsTimeUtc",
-                             "tempAvg_c",
-                             "lat",
-                             "lon") |>
-        hourly_temp(temp = "temp",
-                    lat = "lat",
-                    lon = "lon",
-                    time = "time",
-                    network = "WU") |>
-    sftime::st_as_sftime(coords = c("lon", "lat"),
-                         time_column_name = "time",
-                         crs = raw_crs,
-                         remove = FALSE)
+  x <- summarize_hourly_temp(
+    x,
+    "obsTimeUtc",
+    "tempAvg_c",
+    "lat",
+    "lon"
+  ) |>
+    hourly_temp(
+      temp = "temp",
+      lat = "lat",
+      lon = "lon",
+      time = "time",
+      network = "WU"
+    ) |>
+    sftime::st_as_sftime(
+      coords = c("lon", "lat"),
+      time_column_name = "time",
+      crs = raw_crs,
+      remove = FALSE
+    )
   cat("format_wu() done\n")
   return(x)
 }
@@ -127,32 +142,40 @@ format_wu <- function(raw,
 #' @author Eva Marques
 #' @export
 format_ghcnh <- function(raw) {
-  ghcnh_cols <- c("Year",
-                  "Month",
-                  "Day",
-                  "Hour",
-                  "temperature",
-                  "Latitude",
-                  "Longitude",
-                  "temperature_Source_Code")
-  stopifnot("raw is not a data.frame, data.table, sf or sftime" =
-              inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
-            "Some columns missing or mispelled" =
-              all(ghcnh_cols %in% colnames(raw)))
+  ghcnh_cols <- c(
+    "Year",
+    "Month",
+    "Day",
+    "Hour",
+    "temperature",
+    "Latitude",
+    "Longitude",
+    "temperature_Source_Code"
+  )
+  stopifnot(
+    "raw is not a data.frame, data.table, sf or sftime" =
+      inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+    "Some columns missing or mispelled" =
+      all(ghcnh_cols %in% colnames(raw))
+  )
   x <- raw
   # note: as.POSIXct return a double when called through apply.
   # this is why it is called after the apply
-  x$time <- apply(x[, c("Year", "Month", "Day", "Hour")],
-                  1,
-                  function(x) {paste0(x[1],
-                                      "-",
-                                      x[2],
-                                      "-",
-                                      x[3],
-                                      " ",
-                                      x[4],
-                                      ":00:00")
-                  }
+  x$time <- apply(
+    x[, c("Year", "Month", "Day", "Hour")],
+    1,
+    function(x) {
+      paste0(
+        x[1],
+        "-",
+        x[2],
+        "-",
+        x[3],
+        " ",
+        x[4],
+        ":00:00"
+      )
+    }
   ) |>
     as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
   x <- x |>
@@ -162,11 +185,13 @@ format_ghcnh <- function(raw) {
       "Latitude",
       "Longitude"
     ) |>
-    hourly_temp(temp = "temp",
-                lat = "lat",
-                lon = "lon",
-                time = "time",
-                network = "GHCNh")
+    hourly_temp(
+      temp = "temp",
+      lat = "lat",
+      lon = "lon",
+      time = "time",
+      network = "GHCNh"
+    )
   network <- raw[, c("Longitude", "Latitude", "temperature_Source_Code")] |>
     dplyr::rename("lon" = "Longitude") |>
     dplyr::rename("lat" = "Latitude") |>
@@ -177,13 +202,16 @@ format_ghcnh <- function(raw) {
   # only keep observations from ASOS/AWOS and US CRN networks
   x <- x[which(x$network %in% c(343, 345)), ]
   x$network <- factor(x$network,
-                      levels = c(343, 345),
-                      labels = c("NCEI/ASOS/AWOS", "NCEI/US CRN"))
+    levels = c(343, 345),
+    labels = c("NCEI/ASOS/AWOS", "NCEI/US CRN")
+  )
   x <- x |>
-    sftime::st_as_sftime(coords = c("lon", "lat"),
-                         time_column_name = "time",
-                         crs = 4326,
-                         remove = FALSE)
+    sftime::st_as_sftime(
+      coords = c("lon", "lat"),
+      time_column_name = "time",
+      crs = 4326,
+      remove = FALSE
+    )
   cat("format_ghcnh() done\n")
   return(x)
 }

@@ -40,7 +40,7 @@ my_pal <- function(name) {
   stopifnot(
     "name should be one of \"temp\", \"sw\", \"reds\", \"prior\", or \"uhi\"" =
       name %in% c("temp", "sw", "reds", "prior", "uhi")
-    )
+  )
   # -- define palettes
   if (name == "temp") {
     return(fields::tim.colors(n = 64, alpha = 1.0))

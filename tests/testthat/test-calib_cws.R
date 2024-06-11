@@ -24,6 +24,3 @@ testthat::test_that("calib_cws works well", {
   expect_error(calib_cws(x, ref, max_dist = 20001))
   expect_true(abs(median(out$obs$bias)) < 7)
 })
-
-
-

@@ -22,17 +22,21 @@ start_ts <- as.POSIXct("2024-01-21 00:00:00", tz = "UTC")
 end_ts <- as.POSIXct("2024-01-22 00:00:00", tz = "UTC")
 api_key <- "F44618DC-D5AF-11EE-A056-42010A80000C"
 sensor_index <- 47493
-query_list <- list(start_timestamp = as.character(as.integer(start_ts)),
-                   end_timestamp = as.character(as.integer(end_ts)),
-                   average = "60",
-                   fields = "temperature, humidity, pm2.5_alt")
-url_base <- paste0('https://api.purpleair.com/v1/sensors/', sensor_index, "/history") 
+query_list <- list(
+  start_timestamp = as.character(as.integer(start_ts)),
+  end_timestamp = as.character(as.integer(end_ts)),
+  average = "60",
+  fields = "temperature, humidity, pm2.5_alt"
+)
+url_base <- paste0("https://api.purpleair.com/v1/sensors/",
+                   sensor_index,
+                   "/history")
 
 # GET PurpleAir sensor history data
 r_temp <- httr::GET(
-url = url_base,
-query = query_list,
-config = add_headers("X-API-Key" = api_key)
+  url = url_base,
+  query = query_list,
+  config = add_headers("X-API-Key" = api_key)
 )
 r_temp
 # Structurized data in form of R vectors and lists
@@ -41,11 +45,13 @@ r_parsed <- fromJSON(content(r_temp, as = "text"))
 r_dataframe <- as.data.frame(r_parsed$data)
 colnames(r_dataframe) <- r_parsed$fields
 r_dataframe$time_stamp <- as.POSIXct(r_dataframe$time_stamp,
-                                     origin = "1970-01-01",
-                                     tz = "UTC")
+  origin = "1970-01-01",
+  tz = "UTC"
+)
 r_dataframe$data_time_stamp <- as.POSIXct(r_dataframe$data_time_stamp,
-                                     origin = "1970-01-01",
-                                     tz = "UTC")
+  origin = "1970-01-01",
+  tz = "UTC"
+)
 r_dataframe
 ```
 
@@ -56,20 +62,23 @@ nwlng <- -79.19
 selng <- -78.3
 api_key <- "F44618DC-D5AF-11EE-A056-42010A80000C"
 
-query_list <- list(nwlng = nwlng,
-                   nwlat = nwlat, 
-                   selng = selng,
-                   selat = selat, 
-                   max_age = 0,
-                   location_type = 0, # 0 = outside, 1 = inside
-                   fields = "sensor_index,latitude, longitude, temperature, humidity")
-url_base <- paste0('https://api.purpleair.com/v1/sensors/') 
+query_list <- list(
+  nwlng = nwlng,
+  nwlat = nwlat,
+  selng = selng,
+  selat = selat,
+  max_age = 0,
+  location_type = 0, # 0 = outside, 1 = inside
+  fields = "sensor_index,latitude, longitude, temperature, humidity"
+)
+url_base <- paste0("https://api.purpleair.com/v1/sensors/")
 
 # GET PurpleAir sensor history data
-r_temp <- httr::GET(url = url_base,
-                    query = query_list,
-                    config = add_headers("X-API-Key" = api_key)
-                    )
+r_temp <- httr::GET(
+  url = url_base,
+  query = query_list,
+  config = add_headers("X-API-Key" = api_key)
+)
 # Structurized data in form of R vectors and lists
 r_parsed <- fromJSON(content(r_temp, as = "text"))
 # Data frame from JSON data
@@ -86,38 +95,39 @@ In this section, you will use functions developed in this R library.
 
 ```{r}
 api_key <- "F44618DC-D5AF-11EE-A056-42010A80000C"
-nwlat <-  36.11
+nwlat <- 36.11
 selat <- 35.6
 nwlng <- -79.19
 selng <- -78.3
 my_sensors <- find_sensors(nwlat,
-                           selat,
-                           nwlng,
-                           selng,
-                           api_key,
-                           location_type = 0)
+  selat,
+  nwlng,
+  selng,
+  api_key,
+  location_type = 0
+)
 ```
 
 ### Example #2: download history data of sensors in an area
 
 ```{r}
-nwlat <-  36.11
+nwlat <- 36.11
 selat <- 35.6
 nwlng <- -79.19
 selng <- -78.3
 start_ts <- as.POSIXct("2021-06-01 00:00:00", tz = "EST")
 end_ts <- as.POSIXct("2021-08-31 00:00:00", tz = "EST")
 my_sensors_hist <- request_sensors_history(nwlat,
-                                          selat,
-                                          nwlng,
-                                          selng,
-                                          location_type = 0,
-                                          start_ts,
-                                          end_ts,
-                                          api_key,
-                                          average = "60",
-                                          fields = "temperature, humidity")
-
+  selat,
+  nwlng,
+  selng,
+  location_type = 0,
+  start_ts,
+  end_ts,
+  api_key,
+  average = "60",
+  fields = "temperature, humidity"
+)
 ```
 
 Save data in a file

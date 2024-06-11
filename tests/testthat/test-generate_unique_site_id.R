@@ -7,10 +7,12 @@ testthat::test_that("generate_unique_site_id works well", {
   expect_no_error(generate_site_id(x_sf))
   # convert to sftime:
   x_sftime <- x |>
-    sftime::st_as_sftime(coords = c("lon", "lat"),
-                         time_column_name = "obsTimeUtc",
-                         crs = 4326,
-                         remove = FALSE)
+    sftime::st_as_sftime(
+      coords = c("lon", "lat"),
+      time_column_name = "obsTimeUtc",
+      crs = 4326,
+      remove = FALSE
+    )
   expect_no_error(generate_site_id(x_sftime))
   # lat and lon missing:
   expect_error(generate_site_id(x[, c("stationID", "obsTimeUtc")]))

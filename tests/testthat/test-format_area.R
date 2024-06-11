@@ -10,13 +10,14 @@ testthat::test_that("format_area works well", {
   expect_no_error(format_area(triangle))
   expect_no_error(inherits(format_area(triangle), c("sf", "sfc")))
   expect_no_error(format_area(format_area(triangle)))
-  x <- terra::rast(nrows = 10,
-            ncols = 10,
-            xmin = -79.19,
-            xmax = -78.39,
-            ymin = 35.6,
-            ymax = 36.11)
+  x <- terra::rast(
+    nrows = 10,
+    ncols = 10,
+    xmin = -79.19,
+    xmax = -78.39,
+    ymin = 35.6,
+    ymax = 36.11
+  )
   terra::values(x) <- 1:100
   expect_no_error(format_area(x))
 })
-

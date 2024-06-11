@@ -40,28 +40,31 @@ Map
 ```{r}
 imp <- terra::rast("../input/rtp_imp.tif") |>
   terra::project("EPSG:4326")
-date <- as.POSIXct("2021-07-01 02:00:00", tz = "EST")}
+date <- as.POSIXct("2021-07-01 02:00:00", tz = "EST")
 map_observations_imp(wu_qc,
-                 var = temp,
-                 imp = imp,
-                 date = date,
-                 shape_values = c("WU" = 17),
-                 title = "Networks comparison")
+  var = temp,
+  imp = imp,
+  date = date,
+  shape_values = c("WU" = 17),
+  title = "Networks comparison"
+)
 
 map_observations_imp(pa_qc,
-                 var = temp,
-                 imp = imp,
-                 date = date,
-                 shape_values = c("PA" = 18),
-                 title = "Networks comparison")
+  var = temp,
+  imp = imp,
+  date = date,
+  shape_values = c("PA" = 18),
+  title = "Networks comparison"
+)
 
 pa_qc_corr <- pa_qc
 pa_qc_corr$temp <- pa_qc_corr$temp - 5
 obs_qc <- rbind(pa_qc_corr, wu_qc)
 map_observations_imp(obs_qc,
-                 var = temp,
-                 imp = imp,
-                 date = date,
-                 shape_values = c("WU" = 17, "PA" = 18),
-                 title = "Networks comparison")
+  var = temp,
+  imp = imp,
+  date = date,
+  shape_values = c("WU" = 17, "PA" = 18),
+  title = "Networks comparison"
+)
 ```

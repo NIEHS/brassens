@@ -48,8 +48,8 @@ testthat::test_that("download_ghcnh_station works well", {
 
 
 testthat::test_that("download_ghcnh works well", {
-  ts = as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
-  te = as.POSIXct("2021-07-02 23:59:59", tz = "UTC")
+  ts <- as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
+  te <- as.POSIXct("2021-07-02 23:59:59", tz = "UTC")
   area <- rbind(
     c(-78.79, 35.8),
     c(-78.79, 36),
@@ -58,8 +58,9 @@ testthat::test_that("download_ghcnh works well", {
   ) |>
     terra::vect("polygons", crs = "epsg:4326")
   expect_no_error(download_ghcnh(ts, te, area))
-  expect_error(download_ghcnh(as.Date("2021-07-22"),
-                              as.Date("2021-07-24"),
-                              area))
+  expect_error(download_ghcnh(
+    as.Date("2021-07-22"),
+    as.Date("2021-07-24"),
+    area
+  ))
 })
-

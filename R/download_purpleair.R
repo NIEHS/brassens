@@ -179,28 +179,33 @@ load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   if (is.null(storage_file)) {
     pa <- download_pa(ts, te, area, api_key)
   } else {
-    extension <- substr(storage_file,
-                        nchar(storage_file) - 2,
-                        nchar(storage_file))
+    extension <- substr(
+      storage_file,
+      nchar(storage_file) - 2,
+      nchar(storage_file)
+    )
     if (extension == "rds") {
       pa <- readRDS(storage_file)
     } else if (extension == "csv") {
       pa <- read.csv(storage_file)
     }
     pa$time_stamp <- as.POSIXct(pa$time_stamp,
-                                tz = "UTC",
-                                format = "%Y-%m-%d %H:%M:%S")
+      tz = "UTC",
+      format = "%Y-%m-%d %H:%M:%S"
+    )
     pa$latitude <- as.numeric(pa$latitude)
     pa$longitude <- as.numeric(pa$longitude)
     pa <- pa |>
-      sf::st_as_sf(coords = c("longitude", "latitude"),
-                   crs = 4326,
-                   remove = FALSE)
+      sf::st_as_sf(
+        coords = c("longitude", "latitude"),
+        crs = 4326,
+        remove = FALSE
+      )
     area <- area |>
       format_area() |>
       sf::st_transform(crs = 4326)
     pa <- sf::st_filter(pa, area)
-    pa <- pa[which(dplyr::between(pa$time_stamp, ts, te)),]
+    pa <- pa[which(dplyr::between(pa$time_stamp, ts, te)), ]
   }
   # back to dataframe class
   pa$geometry <- NULL

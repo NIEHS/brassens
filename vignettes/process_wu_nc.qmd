@@ -15,22 +15,31 @@ devtools::load_all()
 ### Open NC data
 
 ```{r}
-nc_shp <- paste0("../input/NC_county_boundary/",
-                 "North_Carolina_State_and_County_Boundary_Polygons.shp") |>
-  terra::vect() 
+nc_shp <- paste0(
+  "../input/NC_county_boundary/",
+  "North_Carolina_State_and_County_Boundary_Polygons.shp"
+) |>
+  terra::vect()
 nc_inv <- read.csv("../input/weatherunderground/Summer2021_inventory.csv") |>
   sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, remove = FALSE) |>
   sf::st_transform(terra::crs(nc_shp))
 
-nc_inv$ts_utc <- as.POSIXct(nc_inv$ts_utc, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
-nc_inv$te_utc <- as.POSIXct(nc_inv$te_utc, format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+nc_inv$ts_utc <- as.POSIXct(nc_inv$ts_utc,
+                            format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+nc_inv$te_utc <- as.POSIXct(nc_inv$te_utc,
+                            format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
 
-imp_path <- "../input/US_2019_imperviousness/nlcd_2019_impervious_l48_20210604.img"
+imp_path <- paste0("../input/US_2019_imperviousness/",
+                   "nlcd_2019_impervious_l48_20210604.img")
 imp_us <- terra::rast(imp_path) |>
   terra::aggregate(fact = 20, fun = "mean", na.rm = TRUE) |>
-  terra::project("epsg:4326") 
-nc_shp_proj <- terra::project(nc_shp, "epsg:4326") 
-imp_nc <- terra::crop(imp_us, nc_shp_proj, overwrite = TRUE, mask = TRUE, snap = "out") 
+  terra::project("epsg:4326")
+nc_shp_proj <- terra::project(nc_shp, "epsg:4326")
+imp_nc <- terra::crop(imp_us,
+                      nc_shp_proj,
+                      overwrite = TRUE,
+                      mask = TRUE,
+                      snap = "out")
 ```
 
 ### Create configuration list for the pipeline
@@ -50,26 +59,33 @@ config <- list(
 setwd("../")
 start_time <- Sys.time()
 ghcnh <- download_ghcnh(config$ts, config$te, config$area)
-saveRDS(ghcnh,
-        paste0("./output/case_study_nc_jja2021/ghcnh_nc_",
-               lubridate::date(config$ts),
-               "_",
-               lubridate::date(config$te),
-               ".rds")
-        )
+saveRDS(
+  ghcnh,
+  paste0(
+    "./output/case_study_nc_jja2021/ghcnh_nc_",
+    lubridate::date(config$ts),
+    "_",
+    lubridate::date(config$te),
+    ".rds"
+  )
+)
 end_time <- Sys.time()
 end_time - start_time
-cat("There are ",
-    length(unique(ghcnh$site_id)),
-    " GHCNh stations in NC for these dates.")
+cat(
+  "There are ",
+  length(unique(ghcnh$site_id)),
+  " GHCNh stations in NC for these dates."
+)
 ```
 
 ```{r}
-ghcnh <- readRDS(paste0("../output/case_study_nc_jja2021/ghcnh_nc_",
-               lubridate::date(config$ts),
-               "_",
-               lubridate::date(config$te),
-               ".rds"))
+ghcnh <- readRDS(paste0(
+  "../output/case_study_nc_jja2021/ghcnh_nc_",
+  lubridate::date(config$ts),
+  "_",
+  lubridate::date(config$te),
+  ".rds"
+))
 ```
 
 ### Pipeline
@@ -83,24 +99,28 @@ batches <- seq(config$ts, config$te, by = "2 weeks")
 for (i in 1:(length(batches) - 1)) {
   wu_list_cc <- NULL
   ts <- batches[i]
-  te <- batches[i+1]
-  cat("Process cleaning for ",
+  te <- batches[i + 1]
+  cat(
+    "Process cleaning for ",
     strftime(ts, format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
-      " - ",
+    " - ",
     strftime(te, format = "%Y-%m-%d %H:%M:%S", tz = "UTC"),
-     "\n")
+    "\n"
+  )
   # run brassens pipeline on WeatherUnderground between ts and te
   ghcnh_week <- ghcnh[which(dplyr::between(ghcnh$time, ts, te)), ]
   wu_list_cc <- load_wu(ts, te, config$area, config$wu_inv) |>
     format_wu() |>
     clean_cws_large(config$area, epsg_m = "epsg:32119") |>
-    calib_cws(ref = ghcnh_week, max_dist = 10000) 
+    calib_cws(ref = ghcnh_week, max_dist = 10000)
   # save result
-  saveRDS(wu_list_cc, paste0("./output/case_study_nc_jja2021/wu_nc_cleaned_and_calibrated_",
-               lubridate::date(ts),
-               "_",
-               lubridate::date(te),
-               ".rds"))
+  saveRDS(wu_list_cc, paste0(
+    "./output/case_study_nc_jja2021/wu_nc_cleaned_and_calibrated_",
+    lubridate::date(ts),
+    "_",
+    lubridate::date(te),
+    ".rds"
+  ))
 }
 end_time <- Sys.time()
 end_time - start_time
@@ -141,7 +161,7 @@ saveRDS(wu_list_cc, paste0(
 Squares of 100km\*100km to apply CrowdQC+
 
 ```{r}
-nc <- nc_shp |> terra::project(y = "epsg:32119") # linear unit of nc_shp in meters
+nc <- nc_shp |> terra::project(y = "epsg:32119") # linear unit of nc_shp in m
 r <- terra::rast(nc, res = 100000)
 terra::values(r) <- 1:terra::ncell(r)
 v <- terra::mask(r, nc) |>
@@ -154,44 +174,58 @@ Plot polygons with imperviousness
 imp_nc_proj <- terra::project(x = imp_nc, y = "epsg:32119")
 
 ggplot2::ggplot() +
-  tidyterra::geom_spatraster(data = imp_nc_proj) + 
-  tidyterra::geom_spatvector(data = nc, color = "white", linewidth = .5, fill = NA) +
-  tidyterra::geom_spatvector(data = v, color = "red", linewidth = .5, fill = NA) + 
-  scale_fill_gradientn(colours = c("black", "floralwhite", "lightpink", "deeppink1","darkorchid1"),
-                         na.value = NA,
-                         breaks = seq(0, 100, 10),
-                         limits = c(0, 100)) +
+  tidyterra::geom_spatraster(data = imp_nc_proj) +
+  tidyterra::geom_spatvector(data = nc,
+                             color = "white",
+                             linewidth = .5,
+                             fill = NA) +
+  tidyterra::geom_spatvector(data = v,
+                             color = "red",
+                             linewidth = .5,
+                             fill = NA) +
+  scale_fill_gradientn(
+    colours = c("black",
+                "floralwhite",
+                "lightpink",
+                "deeppink1",
+                "darkorchid1"),
+    na.value = NA,
+    breaks = seq(0, 100, 10),
+    limits = c(0, 100)
+  ) +
   labs(fill = "imperviousness (%)") +
   ggspatial::annotation_scale(
-      location = "bl",
-      pad_x = grid::unit(1, "cm"),
-      pad_y = grid::unit(1, "cm"),
-      height = grid::unit(0.30, "cm"),
-      text_cex = 1
-    ) +
-    ggspatial::annotation_north_arrow(
-      location = "br",
-      which_north = "true",
-      pad_x = grid::unit(0.2, "cm"),
-      pad_y = grid::unit(0.2, "cm")
-    ) +
-    ggplot2::theme(
-      axis.text = ggplot2::element_text(size = 12),
-      plot.caption = ggplot2::element_text(size = 10),
-      legend.text = ggplot2::element_text(size = 12),
-      legend.title = ggplot2::element_text(size = 12),
-      panel.background = ggplot2::element_rect(fill = "white"),
-      panel.grid.major = ggplot2::element_line(colour = "grey")
-    )
+    location = "bl",
+    pad_x = grid::unit(1, "cm"),
+    pad_y = grid::unit(1, "cm"),
+    height = grid::unit(0.30, "cm"),
+    text_cex = 1
+  ) +
+  ggspatial::annotation_north_arrow(
+    location = "br",
+    which_north = "true",
+    pad_x = grid::unit(0.2, "cm"),
+    pad_y = grid::unit(0.2, "cm")
+  ) +
+  ggplot2::theme(
+    axis.text = ggplot2::element_text(size = 12),
+    plot.caption = ggplot2::element_text(size = 10),
+    legend.text = ggplot2::element_text(size = 12),
+    legend.title = ggplot2::element_text(size = 12),
+    panel.background = ggplot2::element_rect(fill = "white"),
+    panel.grid.major = ggplot2::element_line(colour = "grey")
+  )
 ggsave("../graphs/map_nc_cut_80kmx80km_squares.png",
-       width = 7,
-       height = 3)
+  width = 7,
+  height = 3
+)
 ```
 
 Open one period
 
 ```{r}
-f <- "../output/case_study_nc_jja2021/wu_nc_cleaned_and_calibrated_2021-06-01_2021-06-15.rds"
+f <- paste0("../output/case_study_nc_jja2021/",
+            "wu_nc_cleaned_and_calibrated_2021-06-01_2021-06-15.rds")
 wu_list_cc <- readRDS(f)
 wu_cc <- wu_list_cc$obs
 ```
@@ -203,43 +237,52 @@ ts <- range(wu_cc$time)[1]
 te <- range(wu_cc$time)[2]
 period <- seq(ts, te, by = "1 hour")
 period <- lubridate::with_tz(period,
-                             "America/New_York",
-                             format = "%Y-%m-%d %H:%M:%S")
+  "America/New_York",
+  format = "%Y-%m-%d %H:%M:%S"
+)
 mint <- floor(min(wu_cc$temp_cal, na.rm = TRUE))
 maxt <- ceiling(max(wu_cc$temp_cal, na.rm = TRUE))
 for (p in period) {
   cat(strftime(p, format = "%Y-%m-%d %H:%M:%S"), "\n")
-  
- plot <- ggplot() + 
+
+  plot <- ggplot() +
     tidyterra::geom_spatraster(data = imp_nc) +
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
-    geom_sf(data = wu_cc[which(wu_cc$time == p), ],
-            aes(geometry = geometry, color = temp_cal)) +
-   ggtitle(strftime(p, format = "%Y-%m-%d %H:%M:%S")) + 
-   labs(fill = "imp (%)", color = "T (°C)") +
+    geom_sf(
+      data = wu_cc[which(wu_cc$time == p), ],
+      aes(geometry = geometry, color = temp_cal)
+    ) +
+    ggtitle(strftime(p, format = "%Y-%m-%d %H:%M:%S")) +
+    labs(fill = "imp (%)", color = "T (°C)") +
     tidyterra::scale_color_whitebox_c(
-        palette = "bl_yl_rd",
-        n.breaks = 12,
-        limits = c(mint, maxt),
-        guide = guide_legend(reverse = TRUE)
+      palette = "bl_yl_rd",
+      n.breaks = 12,
+      limits = c(mint, maxt),
+      guide = guide_legend(reverse = TRUE)
     )
- ggsave(plot = plot,
-        filename = paste0("../output/case_study_nc_jja2021/graphs/pmap_", 
-                          strftime(p, format = "%Y-%m-%d %H:%M:%S"),
-                          ".png"),
-        width = 12,
-        height = 5,
-        dpi = 300)
- plot
+  ggsave(
+    plot = plot,
+    filename = paste0(
+      "../output/case_study_nc_jja2021/graphs/pmap_",
+      strftime(p, format = "%Y-%m-%d %H:%M:%S"),
+      ".png"
+    ),
+    width = 12,
+    height = 5,
+    dpi = 300
+  )
+  plot
 }
 ```
 
 Save cleaned and calibrated cws data in .rds file for mercury analysis
 
 ```{r}
-saveRDS(wu_list_cc, file = paste0("../output/wu_nc_cleaned_calibrated_",
-                           lubridate::date(config$ts),
-                           "_",
-                           lubridate::date(config$te),
-                           ".rds"))
+saveRDS(wu_list_cc, file = paste0(
+  "../output/wu_nc_cleaned_calibrated_",
+  lubridate::date(config$ts),
+  "_",
+  lubridate::date(config$te),
+  ".rds"
+))
 ```

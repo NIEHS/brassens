@@ -5,19 +5,23 @@
 #' @export
 find_ghcnh_polygon <- function(polygon) {
   poly <- format_area(polygon)
-  url <- paste0("https://www.ncei.noaa.gov/oa/",
-                "global-historical-climatology-network/hourly/doc/",
-                "ghcnh-station-list.csv")
+  url <- paste0(
+    "https://www.ncei.noaa.gov/oa/",
+    "global-historical-climatology-network/hourly/doc/",
+    "ghcnh-station-list.csv"
+  )
   inv <- read.csv(url, sep = ",", header = FALSE)
-  colnames(inv) <- c("site_id",
-                     "lat",
-                     "lon",
-                     "elevation",
-                     "state",
-                     "name",
-                     "gsnflag",
-                     "hcnflag",
-                     "wmoid")
+  colnames(inv) <- c(
+    "site_id",
+    "lat",
+    "lon",
+    "elevation",
+    "state",
+    "name",
+    "gsnflag",
+    "hcnflag",
+    "wmoid"
+  )
   inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
   inv_in_poly <- sf::st_filter(inv, poly)
   return(inv_in_poly)
@@ -30,27 +34,33 @@ find_ghcnh_polygon <- function(polygon) {
 #' @author Eva Marques
 #' @export
 find_nearest_ghcnh <- function(lat, lon) {
-  stopifnot("lat and lon should be numeric" =
-              is.numeric(lat) & is.numeric(lon))
+  stopifnot(
+    "lat and lon should be numeric" =
+      is.numeric(lat) & is.numeric(lon)
+  )
   my_point <- sf::st_point(c(lon, lat)) |>
     sf::st_sfc(crs = 4326) |>
     sf::st_sf()
-  url <- paste0("https://www.ncei.noaa.gov/oa/",
-                "global-historical-climatology-network/hourly/doc/",
-                "ghcnh-station-list.csv")
+  url <- paste0(
+    "https://www.ncei.noaa.gov/oa/",
+    "global-historical-climatology-network/hourly/doc/",
+    "ghcnh-station-list.csv"
+  )
   inv <- read.csv(url, sep = ",", header = FALSE)
-  colnames(inv) <- c("site_id",
-                     "lat",
-                     "lon",
-                     "elevation",
-                     "state",
-                     "name",
-                     "gsnflag",
-                     "hcnflag",
-                     "wmoid")
+  colnames(inv) <- c(
+    "site_id",
+    "lat",
+    "lon",
+    "elevation",
+    "state",
+    "name",
+    "gsnflag",
+    "hcnflag",
+    "wmoid"
+  )
   inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
   nearest <- sf::st_nearest_feature(my_point, inv)
-  return(inv[nearest,])
+  return(inv[nearest, ])
 }
 
 #' Download GHCN-H station data of a given year
@@ -63,20 +73,25 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @import tidyr
 #' @import dplyr
 download_ghcnh_station <- function(site_id, year) {
+  temperature <- NULL
   stopifnot("site_id should be a character" = is.character(site_id))
-  url <- paste0("https://www.ncei.noaa.gov/oa/",
-                "global-historical-climatology-network/hourly/access/by-year/",
-                as.character(year),
-                "/psv/GHCNh_",
-                site_id,
-                "_",
-                as.character(year),
-                ".psv")
-  if (RCurl::url.exists(url)){
-    x <- read.table(url, sep = "|",
-                    header = TRUE,
-                    stringsAsFactors = FALSE,
-                    fill = TRUE) |>
+  url <- paste0(
+    "https://www.ncei.noaa.gov/oa/",
+    "global-historical-climatology-network/hourly/access/by-year/",
+    as.character(year),
+    "/psv/GHCNh_",
+    site_id,
+    "_",
+    as.character(year),
+    ".psv"
+  )
+  if (RCurl::url.exists(url)) {
+    x <- read.table(url,
+      sep = "|",
+      header = TRUE,
+      stringsAsFactors = FALSE,
+      fill = TRUE
+    ) |>
       tidyr::drop_na(temperature)
     if (nrow(x) == 0) {
       message("No data found for station ", site_id, " in year ", year, ".")
@@ -96,21 +111,25 @@ download_ghcnh_station <- function(site_id, year) {
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @return a data.frame with the GHCN-H stations observations in the area
 download_ghcnh <- function(ts, te, area) {
-  stopifnot("ts and te should be POSIXct objects" =
-              inherits(ts, "POSIXct") & inherits(te, "POSIXct"))
+  stopifnot(
+    "ts and te should be POSIXct objects" =
+      inherits(ts, "POSIXct") & inherits(te, "POSIXct")
+  )
   ghcnh <- NULL
   year_ts <- lubridate::year(ts)
   year_te <- lubridate::year(te)
   bounds <- area |>
     format_area()
   area_inv <- find_ghcnh_polygon(bounds)
-  for (i in 1:nrow(area_inv)) {
+  for (i in seq_len(nrow(area_inv))) {
     site_id <- area_inv[i, ]$site_id
     for (y in year_ts:year_te) {
       if (exists("ghcnh")) {
         cat("Downloading data for station ", site_id, " in year ", y, "\n")
-        ghcnh <- rbind(ghcnh,
-                       download_ghcnh_station(site_id, year = y))
+        ghcnh <- rbind(
+          ghcnh,
+          download_ghcnh_station(site_id, year = y)
+        )
       } else {
         ghcnh <- download_ghcnh_station(site_id, year = y)
       }
@@ -125,4 +144,3 @@ download_ghcnh <- function(ts, te, area) {
     return(ghcnh)
   }
 }
-

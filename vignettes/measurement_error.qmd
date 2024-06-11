@@ -25,7 +25,8 @@ poly <- rtp$poly
 ```{r}
 cws_err <- calc_temp_error(cws, ref)
 hist(cws_err$dist_to_ref)
-hist(cws_err[which(cws_err$network == "WU" & cws_err$temp_err > -10), ]$temp_err)
+hist(cws_err[which(cws_err$network == "WU" &
+                     cws_err$temp_err > -10), ]$temp_err)
 hist(cws_err[which(cws_err$network == "PA"), ]$temp_err)
 ```
 
@@ -34,11 +35,12 @@ imp <- terra::rast("../input/rtp_imp.tif") |>
   terra::project("EPSG:4326")
 date <- as.POSIXct("2021-07-21 00:00:00", tz = "EST")
 map_observations_imp(cws_err,
-                     dist_to_ref,
-                     imp,
-                     date,
-                     shape_values = c("PA" = 16, "WU" = 17),
-                     "Distance to reference station") 
+  dist_to_ref,
+  imp,
+  date,
+  shape_values = c("PA" = 16, "WU" = 17),
+  "Distance to reference station"
+)
 ```
 
 ## Measurement error per hour of the day
@@ -46,28 +48,31 @@ map_observations_imp(cws_err,
 Compute summary per hour of the day
 
 ```{r}
-h_summary <- cws_err 
+h_summary <- cws_err
 h_summary$hour <- lubridate::hour(h_summary$time)
 h_summary <- h_summary |>
-    dplyr::group_by(site_id, geometry, network, hour, dist_to_ref) |>
-    dplyr::summarise(temp_err = median(temp_err, na.rm = TRUE),
-                     temp = median(temp, na.rm = TRUE)) |>
-    dplyr::ungroup() |>
-    as.data.frame()
+  dplyr::group_by(site_id, geometry, network, hour, dist_to_ref) |>
+  dplyr::summarise(
+    temp_err = median(temp_err, na.rm = TRUE),
+    temp = median(temp, na.rm = TRUE)
+  ) |>
+  dplyr::ungroup() |>
+  as.data.frame()
 
 h_summary_ref <- ref
 h_summary_ref$hour <- lubridate::hour(h_summary_ref$time)
 h_summary_ref <- h_summary_ref |>
-    dplyr::group_by(site_id, geometry, network, hour) |>
-    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
-    dplyr::ungroup() |>
-    as.data.frame()
+  dplyr::group_by(site_id, geometry, network, hour) |>
+  dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
+  dplyr::ungroup() |>
+  as.data.frame()
 ```
 
 Function to create hourly boxplots
 
 ```{r}
 hourly_summary_boxplots <- function(data, var) {
+  network <- NULL
   min <- floor(quantile(data[[deparse(substitute(var))]],
     na.rm = TRUE,
     probs = 0.01
@@ -89,7 +94,7 @@ hourly_summary_boxplots <- function(data, var) {
     geom_hline(yintercept = -1, color = "blue", linetype = "dashed") +
     geom_hline(yintercept = 1, color = "blue", linetype = "dashed") +
     geom_boxplot(outlier.shape = 3, fill = "white", width = .8) +
-    facet_wrap(~ hour, ncol = 12) +
+    facet_wrap(~hour, ncol = 12) +
     scale_y_continuous(
       breaks = seq(min, max, by = 5),
       minor_breaks = seq(min, max, by = 1),
@@ -112,13 +117,16 @@ hourly_summary_boxplots <- function(data, var) {
 Plot error boxplots per hour
 
 ```{r}
-p <- hourly_summary_boxplots(h_summary[which(h_summary$dist_to_ref <= 10000),], temp_err)
+p <- hourly_summary_boxplots(h_summary[which(h_summary$dist_to_ref <= 10000), ],
+                             temp_err)
 p
-ggsave(plot = p,
-       filename = "../graphs/boxplot_hourly_summary_error.png",
-       width = 10,
-       height = 6,
-       dpi = 300)
+ggsave(
+  plot = p,
+  filename = "../graphs/boxplot_hourly_summary_error.png",
+  width = 10,
+  height = 6,
+  dpi = 300
+)
 ```
 
 ## Error maps
@@ -132,8 +140,8 @@ map_error_hour <- function(data,
                            hour,
                            shape_values,
                            title) {
+  geometry <- network <- NULL
   pal <- c("blue", "white", "red")
-
   ggplot() +
     tidyterra::geom_spatraster(data = imp) +
     geom_sf(
@@ -142,7 +150,7 @@ map_error_hour <- function(data,
       size = 3,
     ) +
     scale_shape_manual(values = shape_values) +
-    scale_color_gradientn(colours = pal, na.value = NA, limits = c(-8,8)) +
+    scale_color_gradientn(colours = pal, na.value = NA, limits = c(-8, 8)) +
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
     guides(fill = guide_legend(title = "Imperviousness (%)")) +
     labs(
@@ -171,13 +179,13 @@ map_error_hour <- function(data,
 }
 
 map_temp_hour <- function(data,
-                           error_var,
-                           imp,
-                           hour,
-                           shape_values,
-                           title) {
+                          error_var,
+                          imp,
+                          hour,
+                          shape_values,
+                          title) {
+  geometry <- network <- NULL
   pal <- c("blue", "white", "red")
-
   ggplot() +
     tidyterra::geom_spatraster(data = imp) +
     geom_sf(
@@ -213,29 +221,32 @@ map_temp_hour <- function(data,
       panel.grid.major = element_line(colour = "grey")
     )
 }
-
 ```
 
 ```{r}
 for (utc in seq(0, 23, 1)) {
-  m <- map_error_hour(h_summary[which(h_summary$network == "WU"),],
-               temp_err,
-               imp,
-               utc,
-               c("PA" = 16, "WU" = 17),
-               paste0("Median error at ", utc,"UTC"))
+  m <- map_error_hour(
+    h_summary[which(h_summary$network == "WU"), ],
+    temp_err,
+    imp,
+    utc,
+    c("PA" = 16, "WU" = 17),
+    paste0("Median error at ", utc, "UTC")
+  )
   print(m)
 }
 ```
 
 ```{r}
 for (utc in seq(0, 3, 1)) {
-  m <- map_temp_hour(h_summary_ref,
-               temp,
-               imp,
-               utc,
-               c("ECONET" = 16, "GHCNh" = 17),
-               paste0("Median error at ", utc,"UTC"))
+  m <- map_temp_hour(
+    h_summary_ref,
+    temp,
+    imp,
+    utc,
+    c("ECONET" = 16, "GHCNh" = 17),
+    paste0("Median error at ", utc, "UTC")
+  )
   print(m)
 }
 ```
@@ -245,24 +256,27 @@ Plot ts for ref stations (to check if they are all correct)
 ```{r}
 ts <- as.POSIXct("2021-07-01 00:00:00", tz = "UTC")
 te <- as.POSIXct("2021-07-08 00:00:00", tz = "UTC")
-ref[which(between(ref$time, ts, te)), ] |> plot_ts_net(ts, te) 
+ref[which(between(ref$time, ts, te)), ] |> plot_ts_net(ts, te)
 ```
 
 ```{r}
 h_summary$temp_err_corr <- h_summary$temp_err - 5
 for (utc in seq(0, 23, 1)) {
-  m <- map_error_hour(h_summary[which(h_summary$network == "PA"),],
-               temp_err_corr,
-               imp,
-               utc,
-               c("PA" = 16),
-               paste0("Median error at ", utc,"UTC"))
+  m <- map_error_hour(
+    h_summary[which(h_summary$network == "PA"), ],
+    temp_err_corr,
+    imp,
+    utc,
+    c("PA" = 16),
+    paste0("Median error at ", utc, "UTC")
+  )
   print(m)
 }
 ```
 
 ```{r}
 plot_ts_err <- function(data, ts, te) {
+  temp_err <- time <- site_id <- NULL
   p <- ggplot(data) +
     geom_line(aes(
       x = time,
@@ -289,7 +303,6 @@ plot_ts_err <- function(data, ts, te) {
     )
   return(p)
 }
-
 ```
 
 ```{r}
@@ -301,6 +314,7 @@ plot_ts_err(cws_err, ts, te) +
 
 ```{r}
 ts_err <- function(data) {
+  temp_err <- hour <- site_id <- network <- NULL
   p <- ggplot(data) +
     geom_line(aes(
       x = hour,
@@ -325,9 +339,11 @@ ts_err <- function(data) {
 
 p <- ts_err(h_summary)
 p
-ggsave(plot = p,
-       filename = "../graphs/ts_temperature_error_day.png",
-       width = 10,
-       height = 6,
-       dpi = 300)
+ggsave(
+  plot = p,
+  filename = "../graphs/ts_temperature_error_day.png",
+  width = 10,
+  height = 6,
+  dpi = 300
+)
 ```

@@ -7,6 +7,7 @@
 #' @export
 #' @author Eva Marques
 plot_ts <- function(data, ts, te) {
+  time <- temp <- site_id <- NULL
   p <- ggplot2::ggplot(data) +
     geom_line(aes(
       x = time,
@@ -36,6 +37,7 @@ plot_ts <- function(data, ts, te) {
 
 #' @import ggplot2
 plot_ts_net <- function(data, ts, te) {
+  time <- temp <- site_id <- network <- NULL
   min <- floor(quantile(data$temp,
     na.rm = TRUE,
     probs = 0.01
@@ -90,6 +92,7 @@ plot_ts_net <- function(data, ts, te) {
 #' @export
 #' @author Eva Marques
 plot_ts_ref <- function(data, ref, ts, te) {
+  time <- temp <- site_id <- NULL
   p <- ggplot2::ggplot(
     data,
     aes(
@@ -128,6 +131,7 @@ plot_ts_ref <- function(data, ref, ts, te) {
 #' @import ggplot2
 #' @author Eva Marques
 tile_ts <- function(data) {
+  time <- temp <- site_id <- NULL
   plot <- ggplot2::ggplot(
     data,
     aes(
@@ -178,6 +182,7 @@ tile_ts <- function(data) {
 #' @import ggplot2
 #' @author Eva Marques
 hourly_boxplot_networks <- function(data, var) {
+  network <- NULL
   min <- floor(quantile(data[[deparse(substitute(var))]],
     na.rm = TRUE,
     probs = 0.01
@@ -222,8 +227,8 @@ map_observations <- function(data,
                              date,
                              shape_values,
                              title) {
+  geometry <- network <- NULL
   pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
-
   ggplot2::ggplot() +
     tidyterra::geom_spatvector(data = background) +
     ggplot2::geom_sf(
@@ -275,8 +280,7 @@ map_observations_imp <- function(data,
                                  date,
                                  shape_values,
                                  title) {
-  #pal <- c("cyan4", "yellow", "orange", "red", "firebrick")
-
+  geometry <- network <- NULL
   ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = imp) +
     ggplot2::geom_sf(
@@ -291,10 +295,8 @@ map_observations_imp <- function(data,
     xlim(min(data$lon), max(data$lon)) +
     ylim(min(data$lat), max(data$lat)) +
     scale_shape_manual(values = shape_values) +
-    #scale_color_gradientn(colours = pal, na.value = NA) +
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
     tidyterra::scale_color_whitebox_c(
-      #palette = "muted",
       palette = "bl_yl_rd",
       labels = scales::label_number(suffix = paste0("ºC")),
       n.breaks = 12,
@@ -336,6 +338,7 @@ map_observations_hw <- function(data,
                                 date,
                                 shape_values,
                                 title) {
+  geometry <- network <- NULL
   pal <- c(
     "blue",
     "cyan",

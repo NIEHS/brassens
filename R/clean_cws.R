@@ -19,8 +19,8 @@ manage_na <- function(data, na_thresh = 0.1) {
       max(output$time),
       min(output$time),
       unit = "hour"
-      )
-    ) + 1
+    )
+  ) + 1
   n_thresh <- n_tot * (1 - na_thresh)
   # remove stations with more than na_tresh % of na
   n <- output |>
@@ -53,24 +53,26 @@ clean_cws <- function(x) {
   data <- CrowdQCplus::cqcp_padding(x_qcp)
   ok <- CrowdQCplus::cqcp_check_input(x_qcp)
   if (ok) {
-    data_qc <- CrowdQCplus::cqcp_qcCWS(data,
-                                       m5_radius = 10000,
-                                       m5_n_buddies = 5,
-                                       m5_keep_isolated = T
+    data_qc <- CrowdQCplus::cqcp_qcCWS(
+      data,
+      m5_radius = 10000,
+      m5_n_buddies = 5,
+      m5_keep_isolated = TRUE
     )
-    stats <- CrowdQCplus::cqcp_output_statistics(data_qc)
   }
-  col_rm <- c("m1",
-              "m2",
-              "m3",
-              "m4",
-              "m5",
-              "z",
-              "isolated",
-              "ta_int",
-              "o1",
-              "o2",
-              "o3")
+  col_rm <- c(
+    "m1",
+    "m2",
+    "m3",
+    "m4",
+    "m5",
+    "z",
+    "isolated",
+    "ta_int",
+    "o1",
+    "o2",
+    "o3"
+  )
   data_qc <- data_qc |>
     as.data.frame()
   x_qc <- data_qc[which(data_qc$o3), !(colnames(data_qc) %in% col_rm)] |>
@@ -120,7 +122,7 @@ clean_cws_large <- function(x, area, epsg_m = "epsg:32119", res = 100000) {
   v <- cut_area(area, epsg_m, res)
   # apply crowcQC+ on each square
   x_clean <- list()
-  for (sq in 1:nrow(v)) {
+  for (sq in seq_len(nrow(v))) {
     # select stations in square
     x_in_sq <- sf::st_filter(x, v[sq, ])
     cat("Square ", sq, " has ", length(unique(x_in_sq$site_id)), " stations\n")

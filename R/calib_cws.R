@@ -9,24 +9,26 @@
 #' the number of reference stations used to compute the bias, and the
 #' start and end time of the observations.
 calib_cws <- function(x, ref, max_dist = 10000) {
-  stopifnot("max_dist must be between 0 and 20000" =
-              max_dist > 0 & max_dist <= 20000)
+  temp_err <- site_id <- geometry <- network <- temp <- dist_to_ref <- NULL
+  stopifnot(
+    "max_dist must be between 0 and 20000" =
+      max_dist > 0 & max_dist <= 20000
+  )
   # Estimate measurement error and select observations within
   # x meters from reference stations
-  n_x <- length(unique(x$site_id))
   n_ref <- length(unique(ref$site_id))
   n_days <- round(
     difftime(max(x$time, na.rm = TRUE),
-             min(x$time, na.rm = TRUE),
-             units = "days"
-             )
+      min(x$time, na.rm = TRUE),
+      units = "days"
     )
+  )
   if (n_days < 14) {
-    warning(paste0("calibration on a short period (", n_days," days)"))
-    }
+    warning(paste0("calibration on a short period (", n_days, " days)"))
+  }
   if (n_ref < 3) {
     warning(paste0("calibration with only ", n_ref, " ref stations"))
-    }
+  }
   x_err <- est_temp_error(x, ref)
   x_err <- x_err[which(x_err$dist_to_ref <= max_dist), ]
   n <- length(unique(x_err$site_id))
@@ -47,9 +49,11 @@ calib_cws <- function(x, ref, max_dist = 10000) {
   median_err <- x_err |>
     dplyr::filter(!is.na(temp_err)) |>
     dplyr::group_by(hour) |>
-    dplyr::summarise(bias = median(temp_err, na.rm = TRUE),
-                     med_dist_to_ref = median(dist_to_ref),
-                     n_pairs_x_days = sum(n_days, na.rm = TRUE)) |>
+    dplyr::summarise(
+      bias = median(temp_err, na.rm = TRUE),
+      med_dist_to_ref = median(dist_to_ref),
+      n_pairs_x_days = sum(n_days, na.rm = TRUE)
+    ) |>
     dplyr::ungroup() |>
     as.data.frame()
 
@@ -62,5 +66,11 @@ calib_cws <- function(x, ref, max_dist = 10000) {
   # 5 - Return obs corrected and the average bias, the number of cws used to
   # compute the bias, ts and te
   cat("calib_cws() done\n")
-  return(list(obs = y, bias = median_err, n_ref_cws_pairs = n, ts = ts, te = te))
+  return(list(
+    obs = y,
+    bias = median_err,
+    n_ref_cws_pairs = n,
+    ts = ts,
+    te = te
+  ))
 }

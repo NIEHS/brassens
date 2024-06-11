@@ -16,7 +16,7 @@ Create curves
 curves <- pa_p |>
   manage_na() |>
   compute_daily_trend() |>
-  create_curves(seed = 50, type = "raw") 
+  create_curves(seed = 50, type = "raw")
 ```
 
 Curve clustering
@@ -49,9 +49,10 @@ Map Purple Air and Weather Underground locations
 
 ```{r}
 eco_p <- sftime::st_as_sftime(eco,
-                      coords = c("lon", "lat"),
-                      crs = 4326,
-                      time_column_name = "time_est")
+  coords = c("lon", "lat"),
+  crs = 4326,
+  time_column_name = "time_est"
+)
 wu_sensors <- unique(as.data.frame(wu_hw[, c("stationID")]))
 
 ggplot() +

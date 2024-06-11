@@ -19,7 +19,7 @@ testthat::test_that("manage_na works well", {
   expect_error(manage_na(data, na_thresh = 10))
   expect_error(manage_na(data, na_thresh = -1))
   expect_error(manage_na(data = "Je n'ai pas d'inspiration aujourd'hui"))
-  expect_error(manage_na(data = data[ , -which(colnames(data) == "temp")]))
+  expect_error(manage_na(data = data[, -which(colnames(data) == "temp")]))
 })
 
 testthat::test_that("clean_cws works well", {
@@ -29,7 +29,7 @@ testthat::test_that("clean_cws works well", {
     format_wu()
   expect_no_error(clean_cws(x))
   cleaned <- clean_cws(x)
-  expect_error(clean_cws(x[ , -which(colnames(x) == "temp")]))
+  expect_error(clean_cws(x[, -which(colnames(x) == "temp")]))
   expect_true(inherits(cleaned, "sftime"))
   cols <- c("site_id", "temp", "lat", "lon", "time")
   expect_true(all(cols %in% colnames(cleaned)))
@@ -38,9 +38,11 @@ testthat::test_that("clean_cws works well", {
 
 
 testthat::test_that("cut_area works well", {
-  nc_url <- paste0("https://services1.arcgis.com/YBWrN5qiESVpqi92/arcgis/rest/",
-                   "services/ncgs_state_county_boundary/FeatureServer/0/",
-                   "query?outFields=*&where=1%3D1&f=geojson")
+  nc_url <- paste0(
+    "https://services1.arcgis.com/YBWrN5qiESVpqi92/arcgis/rest/",
+    "services/ncgs_state_county_boundary/FeatureServer/0/",
+    "query?outFields=*&where=1%3D1&f=geojson"
+  )
   nc <- terra::vect(nc_url)
   expect_no_error(cut_area(nc))
   nc_squared <- cut_area(nc)

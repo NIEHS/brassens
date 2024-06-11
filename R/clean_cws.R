@@ -18,7 +18,7 @@ manage_na <- function(data, na_thresh = 0.1) {
     difftime(
       max(output$time),
       min(output$time),
-      unit = "hour"
+      units = "hour"
     )
   ) + 1
   n_thresh <- n_tot * (1 - na_thresh)

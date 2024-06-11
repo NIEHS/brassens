@@ -2,6 +2,7 @@
 #' @param polygon a sf object with a POLYGON geometry
 #' @return a sf object with the GHCN-H stations within the polygon
 #' @author Eva Marques
+#' @import utils
 #' @export
 find_ghcnh_polygon <- function(polygon) {
   poly <- format_area(polygon)
@@ -32,6 +33,7 @@ find_ghcnh_polygon <- function(polygon) {
 #' @param lon longitude of the point (in WGS84)
 #' @return a sf object with the nearest GHCN-H station
 #' @author Eva Marques
+#' @import utils
 #' @export
 find_nearest_ghcnh <- function(lat, lon) {
   stopifnot(
@@ -72,6 +74,7 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @import RCurl
 #' @import tidyr
 #' @import dplyr
+#' @import utils
 download_ghcnh_station <- function(site_id, year) {
   temperature <- NULL
   stopifnot("site_id should be a character" = is.character(site_id))

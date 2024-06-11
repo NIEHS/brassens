@@ -176,6 +176,7 @@ download_pa <- function(ts, te, area, api_key) {
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @param storage_file file path where PurpleAir data is stored
 #' @param api_key API key for PurpleAir
+#' @import utils
 load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   if (is.null(storage_file)) {
     pa <- download_pa(ts, te, area, api_key)

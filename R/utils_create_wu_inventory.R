@@ -4,6 +4,7 @@
 #' @param fpath the path to the Weather Underground data files
 #' @param invpath the path to the output inventory file
 #' @return a data.frame with the inventory
+#' @import utils
 create_wu_inventory <- function(fpath, invpath) {
   flist <- list.files(fpath, full.names = TRUE, recursive = TRUE)
   inventory <- NULL

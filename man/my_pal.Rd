@@ -4,10 +4,10 @@
 \alias{my_pal}
 \title{Find my home-made palettes}
 \usage{
-my_pal(pal_name)
+my_pal(name)
 }
 \arguments{
-\item{pal_name}{Name of the palette}
+\item{name}{Name of the palette}
 }
 \value{
 A vector with colors

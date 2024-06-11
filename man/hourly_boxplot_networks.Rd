@@ -2,12 +2,12 @@
 % Please edit documentation in R/plot_cws.R
 \name{hourly_boxplot_networks}
 \alias{hourly_boxplot_networks}
-\title{Hourly boxplot of temperature for per network (source)}
+\title{Hourly boxplot of temperature for per network (network)}
 \usage{
 hourly_boxplot_networks(data, var)
 }
 \arguments{
-\item{data}{data frame or sftime with all the network, contains "source"
+\item{data}{data frame or sftime with all the network, contains "network"
 column}
 
 \item{var}{continuous variable to boxplot (in general: temp)}
@@ -16,7 +16,7 @@ column}
 A ggplo2 object with the boxplots
 }
 \description{
-Hourly boxplot of temperature for per network (source)
+Hourly boxplot of temperature for per network (network)
 }
 \author{
 Eva Marques

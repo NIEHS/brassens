@@ -5,10 +5,11 @@ Authors@R: c(
   person("Eva", "Marques", role = c("aut", "cre"), email = "eva.marques@nih.gov"),
   person("Kyle", "Messier", role = "ctb")
   )
-Maintainer: eva.marques@nih.gov
 Description: Citizen Weather Stations data access and cleaning toolbox.
 Depends: R (>= 4.1.0)
+Imports: CrowdQCplus, data.table, dplyr, ggplot2, ggspatial, httr, jsonlite, sf, sftime, stats, terra, RCurl, tidyr, tidyterra, tidyverse, fields, lubridate, methods, RColorBrewer, scales, utils, knitr, rmarkdown
+Remotes: dafenner/CrowdQCplus
 VignetteBuilder: knitr, rmarkdown
-License: MIT + file LICENSE
 Encoding: UTF-8
+License: MIT + file LICENSE
 RoxygenNote: 7.3.1

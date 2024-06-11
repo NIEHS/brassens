@@ -40,6 +40,7 @@ setValidity("hourly_temp", function(object) {
 #' @param time the column name for the time in UTC
 #' @param network the name of the network
 #' @return a hourly_temp object
+#' @importFrom methods new
 #' @author Eva Marques
 hourly_temp <- function(x,
                         temp = "temp",
@@ -67,6 +68,6 @@ hourly_temp <- function(x,
   y$network <- network
   y <- generate_site_id(y)
   y <- y[, c("site_id", "temp", "lat", "lon", "time", "network")] |>
-    new(Class = "hourly_temp")
+    methods::new(Class = "hourly_temp")
   return(y)
 }

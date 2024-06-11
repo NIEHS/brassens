@@ -12,6 +12,8 @@ download_pa(ts, te, area, api_key)
 \item{te}{end date}
 
 \item{area}{a sf, sfc, SpatRaster or SpatVector object}
+
+\item{api_key}{API key for PurpleAir}
 }
 \description{
 Download all PurpleAir stations data in area between two dates

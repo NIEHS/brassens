@@ -7,9 +7,8 @@ Authors@R: c(
   )
 Description: Citizen Weather Stations data access and cleaning toolbox.
 Depends: R (>= 4.1.0)
-Imports: CrowdQCplus, sf, sftime, terra, data.table, dplyr, testthat (>= 3.0.0), ggplot2, ggpubr, ggspatial, httr, jsonlite, RCurl, tidyr, tidyterra, knitr, rmarkdown
+Imports: CrowdQCplus, data.table, dplyr, ggplot2, ggspatial, httr, jsonlite, sf, sftime, stats, terra, RCurl, tidyr, tidyterra, tidyverse, fields, lubridate, methods, RColorBrewer, scales, utils
 Remotes: dafenner/CrowdQCplus
 VignetteBuilder: knitr, rmarkdown
-License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.1

@@ -152,6 +152,7 @@ request_sensors_history <- function(nwlat,
 #' @param ts start date
 #' @param te end date
 #' @param area a sf, sfc, SpatRaster or SpatVector object
+#' @param api_key API key for PurpleAir
 download_pa <- function(ts, te, area, api_key) {
   bounds <- area |>
     format_area() |>

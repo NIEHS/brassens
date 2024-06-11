@@ -8,6 +8,8 @@
 #' @param lon the column name for the longitude
 #' @return a data.frame of hourly average of temperature at each site
 #' @author Eva Marques
+#' @importFrom lubridate floor_date
+#' @importFrom stats median
 #' @export
 summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   stopifnot(

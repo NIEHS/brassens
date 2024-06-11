@@ -13,5 +13,21 @@ testthat::test_that("convert_temp works well", {
 
 
 testthat::test_that("my_pal works well", {
-
+  areColors <- function(x) {
+    sapply(x, function(X) {
+      tryCatch(is.matrix(col2rgb(X)),
+               error = function(e) FALSE)
+    })
+  }
+  expect_error(my_pal("fromage"))
+  expect_no_error(pal1 <- my_pal("temp"))
+  expect_no_error(pal2 <- my_pal("sw"))
+  expect_no_error(pal3 <- my_pal("reds"))
+  expect_no_error(pal4 <- my_pal("prior"))
+  expect_no_error(pal5 <- my_pal("uhi"))
+  expect_true(all(areColors(pal1)))
+  expect_true(all(areColors(pal2)))
+  expect_true(all(areColors(pal3)))
+  expect_true(all(areColors(pal4)))
+  expect_true(all(areColors(pal5)))
 })

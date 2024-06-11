@@ -32,21 +32,25 @@ convert_temp <- function(x, from, to) {
 }
 
 #' Find my home-made palettes
-#' @param pal_name Name of the palette
+#' @param name Name of the palette
 #' @return A vector with colors
 #' @export
 #' @author Eva Marques
-my_pal <- function(pal_name) {
+my_pal <- function(name) {
+  stopifnot(
+    "name should be one of \"temp\", \"sw\", \"reds\", \"prior\", or \"uhi\"" =
+      name %in% c("temp", "sw", "reds", "prior", "uhi")
+    )
   # -- define palettes
-  if (pal_name == "temp") {
+  if (name == "temp") {
     return(fields::tim.colors(n = 64, alpha = 1.0))
-  } else if (pal_name == "sw") {
+  } else if (name == "sw") {
     return(RColorBrewer::brewer.pal(10, "RdYlBu"))
-  } else if (pal_name == "reds") {
+  } else if (name == "reds") {
     return(c("white", "firebrick4"))
-  } else if (pal_name == "prior") {
+  } else if (name == "prior") {
     return(RColorBrewer::brewer.pal(10, "RdBu"))
-  } else if (pal_name == "uhi") {
+  } else if (name == "uhi") {
     return(c(
       "cyan4",
       "grey",

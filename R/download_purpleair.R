@@ -95,7 +95,18 @@ request_sensor_history <- function(start_ts,
   }
 }
 
-
+#' Load PurpleAir sensors history data
+#' @param nwlat North-west latitude
+#' @param selat South-east latitude
+#' @param nwlng North-west longitude
+#' @param selng South-east longitude
+#' @param location_type Location type
+#' @param start_ts Start timestamp
+#' @param end_ts End timestamp
+#' @param api_key API key for PurpleAir
+#' @param average Average time in minutes
+#' @param fields Fields to be included in the data
+#' @return A data frame with sensors history data
 request_sensors_history <- function(nwlat,
                                     selat,
                                     nwlng,
@@ -147,12 +158,12 @@ request_sensors_history <- function(nwlat,
   }
 }
 
-# to be tested
 #' Download all PurpleAir stations data in area between two dates
 #' @param ts start date
 #' @param te end date
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @param api_key API key for PurpleAir
+#' @importFrom sf st_bbox
 download_pa <- function(ts, te, area, api_key) {
   bounds <- area |>
     format_area() |>
@@ -177,6 +188,8 @@ download_pa <- function(ts, te, area, api_key) {
 #' @param storage_file file path where PurpleAir data is stored
 #' @param api_key API key for PurpleAir
 #' @import utils
+#' @importFrom data.table data.table
+#' @importFrom dplyr between
 load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   if (is.null(storage_file)) {
     pa <- download_pa(ts, te, area, api_key)

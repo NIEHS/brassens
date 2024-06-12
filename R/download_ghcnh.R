@@ -71,9 +71,8 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @return a data.frame with the GHCN-H station raw data
 #' @author Eva Marques
 #' @export
-#' @import RCurl
-#' @import tidyr
-#' @import dplyr
+#' @importFrom RCurl url.exists
+#' @importFrom tidyr drop_na
 #' @import utils
 download_ghcnh_station <- function(site_id, year) {
   temperature <- NULL
@@ -113,6 +112,7 @@ download_ghcnh_station <- function(site_id, year) {
 #' @param te end date
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @return a data.frame with the GHCN-H stations observations in the area
+#' @importFrom dplyr between
 download_ghcnh <- function(ts, te, area) {
   stopifnot(
     "ts and te should be POSIXct objects" =
@@ -143,7 +143,7 @@ download_ghcnh <- function(ts, te, area) {
     return(NULL)
   } else {
     ghcnh <- format_ghcnh(ghcnh)
-    ghcnh <- ghcnh[which(between(ghcnh$time, ts, te)), ]
+    ghcnh <- ghcnh[which(dplyr::between(ghcnh$time, ts, te)), ]
     return(ghcnh)
   }
 }

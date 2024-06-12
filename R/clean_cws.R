@@ -2,7 +2,7 @@
 #' @param data formatted sftime (with columns: site_id, temp, time)
 #' @param na_thresh threshold of NA to remove a station (0 <= na_tresh <= 1)
 #' @return cleaned data.frame
-#' @import dplyr
+#' @importFrom dplyr group_by n summarize
 manage_na <- function(data, na_thresh = 0.1) {
   stopifnot(
     "threshold must be between 0 and 1" =
@@ -93,6 +93,7 @@ clean_cws <- function(x) {
 #' @param epsg_m crs in meters (default: epsg:32119)
 #' @param res resolution of the squares in meters (default: 100km)
 #' @return sf of polygons
+#' @importFrom terra vect project mask as.polygons
 cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
   # project area with a crs in meters
   area_m <- area |>

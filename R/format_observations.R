@@ -10,6 +10,8 @@
 #' @author Eva Marques
 #' @importFrom lubridate floor_date
 #' @importFrom stats median
+#' @importFrom dplyr group_by summarise ungroup
+#' @importFrom data.table as.data.table
 #' @export
 summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   stopifnot(
@@ -47,6 +49,7 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
 #' @param raw_temp_unit the initial temperature unit
 #' @param raw_crs the initial coordinate reference system
 #' @return sftime from hourly_temp class
+#' @importFrom lubridate with_tz floor_date
 #' @author Eva Marques
 #' @export
 format_pa <- function(raw,
@@ -92,6 +95,7 @@ format_pa <- function(raw,
 #' @param raw_temp_unit the initial temperature unit
 #' @param raw_crs the initial coordinate reference system
 #' @return sftime from hourly_temp class
+#' @importFrom lubridate floor_date
 #' @author Eva Marques
 #' @export
 format_wu <- function(raw,
@@ -141,6 +145,7 @@ format_wu <- function(raw,
 #' and columns "Year", "Month", "Day", "Hour", "temperature", "Latitude",
 #' "Longitude", "temperature_Source_Code"
 #' @return sftime from hourly_temp class
+#' @importFrom dplyr rename
 #' @author Eva Marques
 #' @export
 format_ghcnh <- function(raw) {

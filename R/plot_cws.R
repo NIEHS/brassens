@@ -177,10 +177,10 @@ tile_ts <- function(data) {
 #' @param data data frame or sftime with all the network, contains "network"
 #' column
 #' @param var continuous variable to boxplot (in general: temp)
-#' @return A ggplo2 object with the boxplots
+#' @return A ggplot2 object with the boxplots
 #' @export
 #' @import ggplot2
-#' @import stats
+#' @importFrom stats quantile
 #' @author Eva Marques
 hourly_boxplot_networks <- function(data, var) {
   network <- NULL
@@ -223,7 +223,7 @@ hourly_boxplot_networks <- function(data, var) {
 
 #' @import ggplot2
 #' @import ggspatial
-#' @import tidyterra
+#' @importFrom tidyterra geom_spatvector
 map_observations <- function(data,
                              var,
                              background,
@@ -276,7 +276,7 @@ map_observations <- function(data,
 
 #' @import ggplot2
 #' @import ggspatial
-#' @import tidyterra
+#' @importFrom tidyterra geom_spatraster scale_color_whitebox_c
 map_observations_imp <- function(data,
                                  var,
                                  imp,
@@ -301,11 +301,11 @@ map_observations_imp <- function(data,
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
     tidyterra::scale_color_whitebox_c(
       palette = "bl_yl_rd",
-      labels = scales::label_number(suffix = paste0("ºC")),
+      labels = scales::label_number(suffix = paste0("C")),
       n.breaks = 12,
       guide = guide_legend(reverse = TRUE)
     ) +
-    guides(fill = guide_legend(title = "Imperviousness (%)")) +
+    guides(fill = guide_legend(title = "Imperviousness")) +
     labs(
       title = title,
       subtitle = date
@@ -335,8 +335,8 @@ map_observations_imp <- function(data,
 
 #' @import ggplot2
 #' @import ggspatial
-#' @import tidyterra
-#' @import stats
+#' @importFrom tidyterra geom_spatraster geom_spatraster_contour
+#' @importFrom stats quantile
 map_observations_hw <- function(data,
                                 var,
                                 imp,

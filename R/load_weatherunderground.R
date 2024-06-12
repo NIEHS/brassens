@@ -4,7 +4,7 @@
 #' @param area Area of interest
 #' @param inventory an sf object with inventory of
 #' @return a data.table with the raw WU data
-#' @import data.table
+#' @importFrom data.table fread
 #' @author Eva Marques
 #' Weather Underground stations (see create_wu_inventory function)
 load_wu <- function(ts, te, area, inventory) {

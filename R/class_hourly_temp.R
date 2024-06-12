@@ -3,6 +3,7 @@ setClass("hourly_temp",
   contains = c("data.frame")
 )
 
+
 setValidity("hourly_temp", function(object) {
   stopifnot(
     "object is not a data.frame" =
@@ -41,6 +42,7 @@ setValidity("hourly_temp", function(object) {
 #' @param network the name of the network
 #' @return a hourly_temp object
 #' @importFrom methods new
+#' @importFrom dplyr rename
 #' @author Eva Marques
 hourly_temp <- function(x,
                         temp = "temp",

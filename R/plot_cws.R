@@ -301,11 +301,11 @@ map_observations_imp <- function(data,
     scale_fill_gradientn(colours = c("white", "grey"), na.value = NA) +
     tidyterra::scale_color_whitebox_c(
       palette = "bl_yl_rd",
-      labels = scales::label_number(suffix = paste0("ºC")),
+      labels = scales::label_number(suffix = paste0("C")),
       n.breaks = 12,
       guide = guide_legend(reverse = TRUE)
     ) +
-    guides(fill = guide_legend(title = "Imperviousness (%)")) +
+    guides(fill = guide_legend(title = "Imperviousness")) +
     labs(
       title = title,
       subtitle = date

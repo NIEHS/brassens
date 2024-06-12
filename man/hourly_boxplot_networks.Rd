@@ -13,7 +13,7 @@ column}
 \item{var}{continuous variable to boxplot (in general: temp)}
 }
 \value{
-A ggplo2 object with the boxplots
+A ggplot2 object with the boxplots
 }
 \description{
 Hourly boxplot of temperature for per network (network)

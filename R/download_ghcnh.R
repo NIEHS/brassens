@@ -71,9 +71,8 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @return a data.frame with the GHCN-H station raw data
 #' @author Eva Marques
 #' @export
-#' @import RCurl
-#' @import tidyr
-#' @import dplyr
+#' @importFrom RCurl url.exists
+#' @importFrom tidyr drop_na
 #' @import utils
 download_ghcnh_station <- function(site_id, year) {
   temperature <- NULL

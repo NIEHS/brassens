@@ -43,6 +43,7 @@ find_closest_ref <- function(cws, ref) {
 #' with columns site_id and geometry
 #' @return sf (or inherited) object with additional columns temp_ref, temp_err,
 #' ref_id, dist_to_ref
+#' @importFrom dplyr rename
 est_temp_error <- function(cws, ref) {
   # check column names
   cols <- c("site_id", "temp", "geometry", "time")

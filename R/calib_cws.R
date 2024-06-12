@@ -8,6 +8,8 @@
 #' @return a list with the calibrated observations, the average bias,
 #' the number of reference stations used to compute the bias, and the
 #' start and end time of the observations.
+#' @importFrom dplyr filter group_by summarise ungroup
+#' @importFrom stats median
 calib_cws <- function(x, ref, max_dist = 10000) {
   temp_err <- site_id <- geometry <- network <- temp <- dist_to_ref <- NULL
   stopifnot(

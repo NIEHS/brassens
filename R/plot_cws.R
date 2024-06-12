@@ -177,10 +177,10 @@ tile_ts <- function(data) {
 #' @param data data frame or sftime with all the network, contains "network"
 #' column
 #' @param var continuous variable to boxplot (in general: temp)
-#' @return A ggplo2 object with the boxplots
+#' @return A ggplot2 object with the boxplots
 #' @export
 #' @import ggplot2
-#' @import stats
+#' @importFrom stats quantile
 #' @author Eva Marques
 hourly_boxplot_networks <- function(data, var) {
   network <- NULL
@@ -223,7 +223,7 @@ hourly_boxplot_networks <- function(data, var) {
 
 #' @import ggplot2
 #' @import ggspatial
-#' @import tidyterra
+#' @importFrom tidyterra geom_spatvector
 map_observations <- function(data,
                              var,
                              background,
@@ -276,7 +276,7 @@ map_observations <- function(data,
 
 #' @import ggplot2
 #' @import ggspatial
-#' @import tidyterra
+#' @importFrom tidyterra geom_spatraster scale_color_whitebox_c
 map_observations_imp <- function(data,
                                  var,
                                  imp,
@@ -335,8 +335,8 @@ map_observations_imp <- function(data,
 
 #' @import ggplot2
 #' @import ggspatial
-#' @import tidyterra
-#' @import stats
+#' @importFrom tidyterra geom_spatraster geom_spatraster_contour
+#' @importFrom stats quantile
 map_observations_hw <- function(data,
                                 var,
                                 imp,

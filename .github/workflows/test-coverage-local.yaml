@@ -62,6 +62,7 @@ jobs:
         shell: bash
         run: |
           cov_patch="${{ steps.get-values.outputs.coverage }}"
+          if ! test -f cov_current.Rout; then echo "0" > cov_current.Rout
           cov_current=$(cat cov_current.Rout)
           echo "Current coverage: $cov_current"
 
@@ -89,7 +90,7 @@ jobs:
           COLOR=$(node -p '+process.env.COV >= 95 ? `green` : `orange`')
           mkdir -p badges
           badgen -j coverage -s $COV% -c $COLOR > badges/coverage.svg
-  
+
       - name: Deploy Badges
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
@@ -97,11 +98,11 @@ jobs:
           branch: gh-pages
           skip_fetch: true
           skip_checkout: true
-  
+
       # Without this, will get Error:
       # Can't find 'action.yml', 'action.yaml' or 'Dockerfile' under '/home/runner/work/coverage-badge-action/coverage-badge-action/action.yml'.
       # Did you forget to run actions/checkout before running your local action?
       - name: Checkout Back
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }}  
+          ref: ${{ github.ref }}

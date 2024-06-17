@@ -64,7 +64,7 @@ calib_cws <- function(x, ref, max_dist = 10000) {
   y <- x
   y$hour <- lubridate::hour(y$time)
   y <- merge(y, median_err, by = "hour")
-  y$temp_cal <- y$temp - y$bias
+  y$temp <- y$temp - y$bias
 
   # 5 - Return obs corrected and the average bias, the number of cws used to
   # compute the bias, ts and te

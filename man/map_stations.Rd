@@ -26,6 +26,8 @@ map_stations(
 \item{palname}{name of the palette to use}
 
 \item{netw_shape}{shape values for the network}
+
+\item{title}{title of the plot}
 }
 \description{
 map observations with imperviousness

@@ -34,6 +34,7 @@ convert_temp <- function(x, from, to) {
 #' Find my home-made palettes
 #' @param name Name of the palette
 #' @return A vector with colors
+#' @importFrom grDevices rgb
 #' @export
 #' @author Eva Marques
 my_pal <- function(name) {

@@ -171,6 +171,7 @@ tile_ts <- function(data, ts, te, var, palname = "temp_ipcc") {
 #' @param imp imperviousness raster
 #' @param palname name of the palette to use
 #' @param netw_shape shape values for the network
+#' @param title title of the plot
 #' @import ggplot2
 #' @import ggspatial
 #' @importFrom tidyterra geom_spatraster scale_color_whitebox_c

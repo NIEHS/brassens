@@ -19,7 +19,7 @@ The development of this library is in progress.
 ## Pipeline tutorial
 
 #### Prepare all parameters
-`pa_file` parameter can be NULL:  in this case, you need to provide an API key to download data from PurpleAir API to `load_pa()`. 
+`pa_file` parameter can be NULL:  in this case, you need to provide an API key to download data from PurpleAir API to `load_pa()`. `wu_inv` refers to an inventory of WeatherUnderground files in your local machine. Once you have WU files, you can create this inventory by using `create_wu_inventory()` function. 
 ```
 > config <- list(
   ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),
@@ -31,7 +31,7 @@ The development of this library is in progress.
 ```
 
 #### Load GHCNh data 
-You can also use another reference network for calibration. 
+This reference dataset is used for calibration step. You can also use another reference network for calibration. 
 ```
 ghcnh <- download_ghcnh(config$ts, config$te, config$area)
 ```

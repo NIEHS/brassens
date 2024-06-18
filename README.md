@@ -29,7 +29,8 @@ The development of this library is in progress.
 )
 ```
 
-#### Load GHCNh data if you do not have your own reference
+#### Load GHCNh data 
+You can also use another reference network for calibration. 
 ```
 ghcnh <- download_ghcnh(config$ts, config$te, config$area)
 ```

@@ -16,6 +16,7 @@ The development of this library is in progress.
 - calibration with reference stations (GHCNh dataset used by default)
  
 ## Pipeline tutorial
+pa_file parameter can be NULL:  in this case, you need to provide an API key to download data from PurpleAir API to load_pa(). 
 
 #### Prepare all parameters
 ```
@@ -24,7 +25,6 @@ The development of this library is in progress.
   te = as.POSIXct("2021-07-23 23:59:59", tz = "UTC"),
   area = your_polygon,
   wu_inv = your_wu_inventory,
-  # following can be NULL ---> load_pa() calls to download_pa()
   pa_file = path_to_your_pa_file
 )
 ```

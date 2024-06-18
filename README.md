@@ -14,11 +14,47 @@ The development of this library is in progress.
 - formatting data
 - cleaning non-conventional measurements of temperature with statistical tools (CrowdQC+ library)
 - calibration with reference stations (GHCNh dataset used by default)
+
  
-## Directory structure
-- `./R`: R functions  
-- `./vignettes`: illustrative examples of milestone analyses  
-- `./tests/testthat`: testing routines for R code
+## Pipeline tutorial
+
+#### Prepare all parameters
+`pa_file` parameter can be `NULL`:  in this case, you need to provide an API key to download data from PurpleAir API to `load_pa()`. `wu_inv` refers to an inventory of WeatherUnderground files in your local machine. Once you have WU files, you can create this inventory by using `create_wu_inventory()` function. 
+```
+> config <- list(
+  ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),
+  te = as.POSIXct("2021-07-23 23:59:59", tz = "UTC"),
+  area = your_polygon,
+  wu_inv = your_wu_inventory,
+  pa_file = path_to_your_pa_file
+)
+```
+
+#### Load GHCNh data 
+This reference dataset is used for calibration step. You can also use another reference network for calibration. 
+```
+ghcnh <- download_ghcnh(config$ts, config$te, config$area)
+```
+
+#### Open and process citizen weather stations from WeatherUnderground and PurpleAir.
+You can tune maximum distance. 
+```
+wu_list <- load_wu(config$ts, config$te, config$area, config$wu_inv) |>
+  format_wu() |>
+  clean_cws() |>
+  calib_cws(ref = ghcnh, max_dist = 20000)
+
+pa_list <- load_pa(
+  ts = config$ts,
+  te = config$te,
+  area = config$area,
+  storage_file = config$pa_file
+) |>
+  format_pa() |>
+  clean_cws() |>
+  calib_cws(ref = ghcnh, max_dist = 20000)
+```
+
 
 ## References
 

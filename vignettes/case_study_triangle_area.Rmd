@@ -1,0 +1,95 @@
+
+---
+title: "CWS processing analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CWS processing analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+author: "Eva Marques"
+date: "2021-07-23"
+---
+
+```{r}
+library(devtools)
+devtools::load_all("../")
+```
+
+### Some configuration parameters
+
+```{r}
+ts <- as.POSIXct("2021-07-22 00:00:00", tz = "UTC")
+te <- as.POSIXct("2021-07-23 23:59:59", tz = "UTC")
+timestamp <- as.POSIXct("2021-07-23 06:00:00", tz = "America/New_York")
+imp <- terra::rast("../case_study_triangle/imp_triangle.tif") |>
+  terra::project("EPSG:4326")
+```
+
+
+## Open datasets in .rds file
+
+```{r}
+cws_raw <- readRDS(paste0(
+  "../case_study_triangle/cws_triangle_raw_",
+  lubridate::date(ts),
+  "_",
+  lubridate::date(te),
+  ".rds"
+))
+cws_qc <- readRDS(paste0(
+  "../case_study_triangle/cws_triangle_cleaned_",
+  lubridate::date(ts),
+  "_",
+  lubridate::date(te),
+  ".rds"
+))
+cws_final <- readRDS(paste0(
+  "../case_study_triangle/cws_triangle_cleaned_calibrated_",
+  lubridate::date(ts),
+  "_",
+  lubridate::date(te),
+  ".rds"
+))
+```
+
+## Analysis
+
+### Timeseries at each step of brassens pipeline
+
+```{r}
+timeseries(cws_raw, ts = ts, te = te, var = temp)
+timeseries(cws_qc, ts = ts, te = te, var = temp)
+timeseries(cws_final, ts = ts, te = te, var = temp)
+```
+
+### Hourly boxplots at each step of brassens pipeline
+
+```{r}
+hourly_boxplot(cws_raw, ts = ts, te = te, temp)
+hourly_boxplot(cws_qc, ts = ts, te = te, temp)
+hourly_boxplot(cws_final, ts = ts, te = te, temp)
+```
+
+### Tile plots of temperature through time ar each step of brassens pipeline
+
+```{r}
+tile_ts(cws_raw, ts = ts, te = te, var = temp)
+tile_ts(cws_qc, ts = ts, te = te, var = temp)
+tile_ts(cws_final, ts = ts, te = te, var = temp)
+```
+
+### Maps of stations at each step of brassens pipeline
+
+```{r}
+map_stations(cws_raw, timestamp, var = temp, imp, title = "Raw data")
+map_stations(cws_qc,
+             timestamp,
+             var = temp,
+             imp,
+             title = "Cleaned with CrowdQC+")
+map_stations(cws_final,
+             timestamp,
+             var = temp,
+             imp,
+             title = "Cleaned with CrowdQC+ and calibrated with GHCNh")
+```

@@ -7,9 +7,13 @@ Authors@R: c(
   )
 Description: Citizen Weather Stations data access and cleaning toolbox.
 Depends: R (>= 4.1.0)
-Imports: CrowdQCplus, testthat, data.table, dplyr, ggplot2, ggspatial, httr, jsonlite, sf, sftime, stats, terra, RCurl, tidyr, tidyterra, tidyverse, fields, lubridate, methods, RColorBrewer, scales, utils, knitr, rmarkdown
+Imports: CrowdQCplus, testthat, data.table, devtools, dplyr, ggplot2, ggspatial, httr, jsonlite, sf, sftime, stats, terra, RCurl, tidyr, tidyterra, tidyverse, fields, lubridate, methods, RColorBrewer, scales, utils, knitr, rmarkdown
 Remotes: dafenner/CrowdQCplus
-VignetteBuilder: knitr, rmarkdown
 Encoding: UTF-8
 License: MIT + file LICENSE
+VignetteBuilder: knitr, rmarkdown
+Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1
+Config/Needs/website: tidyverse/tidytemplate
+URL: https://github.com/NIEHS/brassens, 
+https://niehs.github.io/brassens/

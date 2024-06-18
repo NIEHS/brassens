@@ -10,6 +10,9 @@ author: "Eva Marques"
 date: "2021-07-23"
 ---
 
+```{r}
+library(brassens)
+```
 
 ### Some configuration parameters
 

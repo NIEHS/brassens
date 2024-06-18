@@ -7,6 +7,12 @@
     <loc>/LICENSE-text.html</loc>
   </url>
   <url>
+    <loc>/articles/case_study_triangle_area.html</loc>
+  </url>
+  <url>
+    <loc>/articles/index.html</loc>
+  </url>
+  <url>
     <loc>/authors.html</loc>
   </url>
   <url>
@@ -64,7 +70,10 @@
     <loc>/reference/format_wu.html</loc>
   </url>
   <url>
-    <loc>/reference/hourly_boxplot_networks.html</loc>
+    <loc>/reference/generate_site_id.html</loc>
+  </url>
+  <url>
+    <loc>/reference/hourly_boxplot.html</loc>
   </url>
   <url>
     <loc>/reference/hourly_temp-class.html</loc>
@@ -85,21 +94,24 @@
     <loc>/reference/manage_na.html</loc>
   </url>
   <url>
+    <loc>/reference/map_stations.html</loc>
+  </url>
+  <url>
     <loc>/reference/my_pal.html</loc>
   </url>
   <url>
-    <loc>/reference/plot_ts.html</loc>
-  </url>
-  <url>
-    <loc>/reference/plot_ts_ref.html</loc>
-  </url>
-  <url>
     <loc>/reference/request_sensor_history.html</loc>
+  </url>
+  <url>
+    <loc>/reference/request_sensors_history.html</loc>
   </url>
   <url>
     <loc>/reference/summarize_hourly_temp.html</loc>
   </url>
   <url>
     <loc>/reference/tile_ts.html</loc>
+  </url>
+  <url>
+    <loc>/reference/timeseries.html</loc>
   </url>
 </urlset>

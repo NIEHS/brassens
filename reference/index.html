@@ -25,7 +25,23 @@
       <ul class="nav navbar-nav"><li>
   <a href="../reference/index.html">Reference</a>
 </li>
-      </ul><ul class="nav navbar-nav navbar-right"></ul></div><!--/.nav-collapse -->
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu"><li>
+      <a href="../articles/case_study_triangle_area.html">CWS processing analysis</a>
+    </li>
+  </ul></li>
+      </ul><ul class="nav navbar-nav navbar-right"><li>
+  <a href="https://github.com/NIEHS/brassens/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul></div><!--/.nav-collapse -->
   </div><!--/.container -->
 </div><!--/.navbar -->
 
@@ -110,7 +126,11 @@
         </td>
         <td><p>Format observations sent by IBM.</p></td>
       </tr><tr><td>
-          <p><code><a href="hourly_boxplot_networks.html">hourly_boxplot_networks()</a></code> </p>
+          <p><code><a href="generate_site_id.html">generate_site_id()</a></code> </p>
+        </td>
+        <td><p>Generate unique sensor ID</p></td>
+      </tr><tr><td>
+          <p><code><a href="hourly_boxplot.html">hourly_boxplot()</a></code> </p>
         </td>
         <td><p>Hourly boxplot of temperature for per network (network)</p></td>
       </tr><tr><td>
@@ -134,21 +154,21 @@
         </td>
         <td><p>Remove NA and stations with too many NA</p></td>
       </tr><tr><td>
+          <p><code><a href="map_stations.html">map_stations()</a></code> </p>
+        </td>
+        <td><p>map observations with imperviousness</p></td>
+      </tr><tr><td>
           <p><code><a href="my_pal.html">my_pal()</a></code> </p>
         </td>
         <td><p>Find my home-made palettes</p></td>
       </tr><tr><td>
-          <p><code><a href="plot_ts.html">plot_ts()</a></code> </p>
-        </td>
-        <td><p>Timeseries plot of temperature</p></td>
-      </tr><tr><td>
-          <p><code><a href="plot_ts_ref.html">plot_ts_ref()</a></code> </p>
-        </td>
-        <td><p>Timeseries plot of temperature with reference network</p></td>
-      </tr><tr><td>
           <p><code><a href="request_sensor_history.html">request_sensor_history()</a></code> </p>
         </td>
         <td><p>Load PurpleAir sensor history data</p></td>
+      </tr><tr><td>
+          <p><code><a href="request_sensors_history.html">request_sensors_history()</a></code> </p>
+        </td>
+        <td><p>Load PurpleAir sensors history data</p></td>
       </tr><tr><td>
           <p><code><a href="summarize_hourly_temp.html">summarize_hourly_temp()</a></code> </p>
         </td>
@@ -157,6 +177,10 @@
           <p><code><a href="tile_ts.html">tile_ts()</a></code> </p>
         </td>
         <td><p>Tile plot with temperature through time for all cws</p></td>
+      </tr><tr><td>
+          <p><code><a href="timeseries.html">timeseries()</a></code> </p>
+        </td>
+        <td><p>Timeseries plot of temperature</p></td>
       </tr></tbody></table></div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

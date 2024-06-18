@@ -42,8 +42,27 @@
 <li>
   <a href="reference/index.html">Reference</a>
 </li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    Articles
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+<li>
+      <a href="articles/case_study_triangle_area.html">CWS processing analysis</a>
+    </li>
+  </ul>
+</li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/NIEHS/brassens/" class="external-link">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -72,18 +91,45 @@
 </ul>
 </div>
 <div class="section level2">
-<h2 id="directory-structure">Directory structure<a class="anchor" aria-label="anchor" href="#directory-structure"></a>
+<h2 id="pipeline-tutorial">Pipeline tutorial<a class="anchor" aria-label="anchor" href="#pipeline-tutorial"></a>
 </h2>
-<ul>
-<li>
-<code>./R</code>: R functions<br>
-</li>
-<li>
-<code>./vignettes</code>: illustrative examples of milestone analyses<br>
-</li>
-<li>
-<code>./tests/testthat</code>: testing routines for R code</li>
-</ul>
+<div class="section level4">
+<h4 id="prepare-all-parameters">Prepare all parameters<a class="anchor" aria-label="anchor" href="#prepare-all-parameters"></a>
+</h4>
+<p><code>pa_file</code> parameter can be <code>NULL</code>: in this case, you need to provide an API key to download data from PurpleAir API to <code><a href="reference/load_pa.html">load_pa()</a></code>. <code>wu_inv</code> refers to an inventory of WeatherUnderground files in your local machine. Once you have WU files, you can create this inventory by using <code>create_wu_inventory()</code> function.</p>
+<pre><code>&gt; config &lt;- list(
+  ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),
+  te = as.POSIXct("2021-07-23 23:59:59", tz = "UTC"),
+  area = your_polygon,
+  wu_inv = your_wu_inventory,
+  pa_file = path_to_your_pa_file
+)</code></pre>
+</div>
+<div class="section level4">
+<h4 id="load-ghcnh-data">Load GHCNh data<a class="anchor" aria-label="anchor" href="#load-ghcnh-data"></a>
+</h4>
+<p>This reference dataset is used for calibration step. You can also use another reference network for calibration.</p>
+<pre><code><span><span class="va">ghcnh</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/download_ghcnh.html">download_ghcnh</a></span><span class="op">(</span><span class="va">config</span><span class="op">$</span><span class="va">ts</span>, <span class="va">config</span><span class="op">$</span><span class="va">te</span>, <span class="va">config</span><span class="op">$</span><span class="va">area</span><span class="op">)</span></span></code></pre>
+</div>
+<div class="section level4">
+<h4 id="open-and-process-citizen-weather-stations-from-weatherunderground-and-purpleair">Open and process citizen weather stations from WeatherUnderground and PurpleAir.<a class="anchor" aria-label="anchor" href="#open-and-process-citizen-weather-stations-from-weatherunderground-and-purpleair"></a>
+</h4>
+<p>You can tune maximum distance.</p>
+<pre><code><span><span class="va">wu_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_wu.html">load_wu</a></span><span class="op">(</span><span class="va">config</span><span class="op">$</span><span class="va">ts</span>, <span class="va">config</span><span class="op">$</span><span class="va">te</span>, <span class="va">config</span><span class="op">$</span><span class="va">area</span>, <span class="va">config</span><span class="op">$</span><span class="va">wu_inv</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/format_wu.html">format_wu</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/clean_cws.html">clean_cws</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/calib_cws.html">calib_cws</a></span><span class="op">(</span>ref <span class="op">=</span> <span class="va">ghcnh</span>, max_dist <span class="op">=</span> <span class="fl">20000</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">pa_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/load_pa.html">load_pa</a></span><span class="op">(</span></span>
+<span>  ts <span class="op">=</span> <span class="va">config</span><span class="op">$</span><span class="va">ts</span>,</span>
+<span>  te <span class="op">=</span> <span class="va">config</span><span class="op">$</span><span class="va">te</span>,</span>
+<span>  area <span class="op">=</span> <span class="va">config</span><span class="op">$</span><span class="va">area</span>,</span>
+<span>  storage_file <span class="op">=</span> <span class="va">config</span><span class="op">$</span><span class="va">pa_file</span></span>
+<span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/format_pa.html">format_pa</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/clean_cws.html">clean_cws</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/calib_cws.html">calib_cws</a></span><span class="op">(</span>ref <span class="op">=</span> <span class="va">ghcnh</span>, max_dist <span class="op">=</span> <span class="fl">20000</span><span class="op">)</span></span></code></pre>
+</div>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -101,7 +147,14 @@ Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process an
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
-    <div class="license">
+    <div class="links">
+<h2 data-toc-skip>Links</h2>
+<ul class="list-unstyled">
+<li><a href="https://github.com/NIEHS/brassens/" class="external-link">Browse source code</a></li>
+</ul>
+</div>
+
+<div class="license">
 <h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
 <li>

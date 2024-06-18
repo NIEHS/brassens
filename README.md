@@ -19,7 +19,7 @@ The development of this library is in progress.
 ## Pipeline tutorial
 
 #### Prepare all parameters
-pa_file parameter can be NULL:  in this case, you need to provide an API key to download data from PurpleAir API to load_pa(). 
+`pa_file` parameter can be NULL:  in this case, you need to provide an API key to download data from PurpleAir API to `load_pa()`. 
 ```
 > config <- list(
   ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),

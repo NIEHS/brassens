@@ -1,15 +1,15 @@
 
 ---
-title: "Brassens output analysis"
-format: html
-editor: visual
+title: "CWS processing analysis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CWS processing analysis}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 author: "Eva Marques"
 date: "2021-07-23"
 ---
 
-```{r}
-devtools::load_all()
-```
 
 ### Some configuration parameters
 

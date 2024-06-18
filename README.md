@@ -17,14 +17,18 @@ The development of this library is in progress.
  
 ## Pipeline tutorial
 
-`> config <- list(
+Prepare all parameters
+
+```
+> config <- list(
   ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),
   te = as.POSIXct("2021-07-23 23:59:59", tz = "UTC"),
   area = your_polygon,
   wu_inv = your_wu_inventory,
   # following can be NULL ---> load_pa() calls to download_pa()
   pa_file = "./input/rtp/pa_20210720_20210727.csv"
-)`
+)
+```
 
 ## References
 

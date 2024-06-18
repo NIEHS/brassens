@@ -15,10 +15,16 @@ The development of this library is in progress.
 - cleaning non-conventional measurements of temperature with statistical tools (CrowdQC+ library)
 - calibration with reference stations (GHCNh dataset used by default)
  
-## Directory structure
-- `./R`: R functions  
-- `./vignettes`: illustrative examples of milestone analyses  
-- `./tests/testthat`: testing routines for R code
+## Pipeline tutorial
+
+`> config <- list(
+  ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),
+  te = as.POSIXct("2021-07-23 23:59:59", tz = "UTC"),
+  area = your_polygon,
+  wu_inv = your_wu_inventory,
+  # following can be NULL ---> load_pa() calls to download_pa()
+  pa_file = "./input/rtp/pa_20210720_20210727.csv"
+)`
 
 ## References
 

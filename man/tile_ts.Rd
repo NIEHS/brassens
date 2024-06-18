@@ -4,7 +4,7 @@
 \alias{tile_ts}
 \title{Tile plot with temperature through time for all cws}
 \usage{
-tile_ts(data, ts, te, var, palname = "temp")
+tile_ts(data, ts, te, var, palname = "temp_ipcc")
 }
 \arguments{
 \item{data}{data frame or sftime of cws observations}

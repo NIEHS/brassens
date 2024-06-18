@@ -11,12 +11,12 @@ timeseries <- function(data, ts, te, var) {
   time <- site_id <- network <- NULL
   data_p <- data[which(between(data$time, ts, te)), ]
   min <- floor(quantile(data_p[[deparse(substitute(var))]],
-                        na.rm = TRUE,
-                        probs = 0.01
+    na.rm = TRUE,
+    probs = 0.0
   ))
   max <- ceiling(quantile(data_p[[deparse(substitute(var))]],
-                          na.rm = TRUE,
-                          probs = 0.997
+    na.rm = TRUE,
+    probs = 1
   ))
   p <- ggplot2::ggplot(data_p) +
     geom_line(aes(
@@ -31,6 +31,7 @@ timeseries <- function(data, ts, te, var) {
       date_minor_breaks = "1 hour",
       limits = c(ts, te)
     ) +
+    xlab("time (UTC)") +
     scale_y_continuous(
       limits = c(min, max),
       breaks = seq(min, max, 1)
@@ -64,12 +65,12 @@ hourly_boxplot <- function(data, ts, te, var) {
   network <- NULL
   data_p <- data[which(between(data$time, ts, te)), ]
   min <- floor(quantile(data_p[[deparse(substitute(var))]],
-                        na.rm = TRUE,
-                        probs = 0.01
+    na.rm = TRUE,
+    probs = 0.0
   ))
   max <- ceiling(quantile(data_p[[deparse(substitute(var))]],
-                          na.rm = TRUE,
-                          probs = 0.997
+    na.rm = TRUE,
+    probs = 1
   ))
   p <- ggplot2::ggplot(
     data = data_p,
@@ -111,16 +112,16 @@ hourly_boxplot <- function(data, ts, te, var) {
 #' @export
 #' @import ggplot2
 #' @author Eva Marques
-tile_ts <- function(data, ts, te, var, palname = "temp") {
+tile_ts <- function(data, ts, te, var, palname = "temp_ipcc") {
   time <- site_id <- NULL
   data_p <- data[which(between(data$time, ts, te)), ]
   min <- floor(quantile(data_p[[deparse(substitute(var))]],
-                        na.rm = TRUE,
-                        probs = 0.01
+    na.rm = TRUE,
+    probs = 0.0
   ))
   max <- ceiling(quantile(data_p[[deparse(substitute(var))]],
-                          na.rm = TRUE,
-                          probs = 0.997
+    na.rm = TRUE,
+    probs = 1
   ))
   p <- ggplot2::ggplot(
     data_p,
@@ -177,7 +178,7 @@ map_stations <- function(data,
                          datetime,
                          var,
                          imp,
-                         palname = "temp",
+                         palname = "temp_ipcc",
                          netw_shape = c(
                            "WU" = 17,
                            "PA" = 18,
@@ -186,18 +187,13 @@ map_stations <- function(data,
                          ),
                          title) {
   geometry <- network <- NULL
-  data_p <- data[which(between(data$time,
-                               datetime,
-                               datetime + lubridate::hours(1))), ]
-  min <- floor(quantile(data_p[[deparse(substitute(var))]],
-                        na.rm = TRUE,
-                        probs = 0.01
+  data_p <- data[which(data$time == datetime), ]
+  min <- floor(min(data_p[[deparse(substitute(var))]],
+    na.rm = TRUE
   ))
-  max <- ceiling(quantile(data_p[[deparse(substitute(var))]],
-                          na.rm = TRUE,
-                          probs = 0.997
+  max <- ceiling(max(data_p[[deparse(substitute(var))]],
+    na.rm = TRUE
   ))
-  cat("min: ", min, "max: ", max, "\n")
   p <- ggplot2::ggplot() +
     tidyterra::geom_spatraster(data = imp) +
     ggplot2::geom_sf(

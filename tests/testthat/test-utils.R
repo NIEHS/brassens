@@ -26,6 +26,8 @@ testthat::test_that("my_pal works well", {
   expect_no_error(pal3 <- my_pal("reds"))
   expect_no_error(pal4 <- my_pal("prior"))
   expect_no_error(pal5 <- my_pal("uhi"))
+  expect_no_error(pal5 <- my_pal("rh_ipcc"))
+  expect_no_error(pal5 <- my_pal("temp_ipcc"))
   expect_true(all(are_colors(pal1)))
   expect_true(all(are_colors(pal2)))
   expect_true(all(are_colors(pal3)))

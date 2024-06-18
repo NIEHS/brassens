@@ -9,7 +9,7 @@ map_stations(
   datetime,
   var,
   imp,
-  palname = "temp",
+  palname = "temp_ipcc",
   netw_shape = c(WU = 17, PA = 18, `NCEI/ASOS/AWOS` = 16, `NCEI/US CRN` = 15),
   title
 )

@@ -10,7 +10,7 @@
 #' @author Eva Marques
 #' @importFrom lubridate floor_date
 #' @importFrom stats median
-#' @importFrom dplyr group_by summarise ungroup
+#' @importFrom dplyr group_by summarise ungroup rename
 #' @importFrom data.table as.data.table
 #' @export
 summarize_hourly_temp <- function(x, time, temp, lat, lon) {
@@ -27,15 +27,15 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   )
   hourly_avg <- x |>
     data.table::as.data.table() |>
-    dplyr::rename("lat" = lat) |>
-    dplyr::rename("lon" = lon) |>
-    dplyr::rename("time" = time) |>
-    dplyr::rename("temp" = temp)
+    rename("lat" = lat) |>
+    rename("lon" = lon) |>
+    rename("time" = time) |>
+    rename("temp" = temp)
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
   hourly_avg <- hourly_avg |>
-    dplyr::group_by(lat, lon, time) |>
-    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
-    dplyr::ungroup() |>
+    group_by(lat, lon, time) |>
+    summarise(temp = median(temp, na.rm = TRUE)) |>
+    ungroup() |>
     as.data.frame()
   # remove duplicates
   hourly_avg <- unique(hourly_avg)

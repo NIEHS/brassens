@@ -57,7 +57,6 @@ clean_cws <- function(x) {
       data,
       m5_radius = 10000,
       m5_n_buddies = 5,
-      m5_keep_isolated = TRUE
     )
   }
   col_rm <- c(

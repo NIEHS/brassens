@@ -11,7 +11,8 @@ date: "2021-07-23"
 ---
 
 ```{r}
-library(brassens)
+library(devtools)
+devtools::load_all("../")
 ```
 
 ### Some configuration parameters

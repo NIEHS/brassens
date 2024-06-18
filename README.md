@@ -17,8 +17,7 @@ The development of this library is in progress.
  
 ## Pipeline tutorial
 
-Prepare all parameters
-
+#### Prepare all parameters
 ```
 > config <- list(
   ts = as.POSIXct("2021-07-22 00:00:00", tz = "UTC"),
@@ -26,9 +25,34 @@ Prepare all parameters
   area = your_polygon,
   wu_inv = your_wu_inventory,
   # following can be NULL ---> load_pa() calls to download_pa()
-  pa_file = "./input/rtp/pa_20210720_20210727.csv"
+  pa_file = path_to_your_pa_file
 )
 ```
+
+#### Load GHCNh data if you do not have your own reference
+```
+ghcnh <- download_ghcnh(config$ts, config$te, config$area)
+```
+
+#### Open and process citizen weather stations from WeatherUnderground and PurpleAir.
+You can tune maximum distance. 
+```
+wu_list <- load_wu(config$ts, config$te, config$area, config$wu_inv) |>
+  format_wu() |>
+  clean_cws() |>
+  calib_cws(ref = ghcnh, max_dist = 20000)
+
+pa_list <- load_pa(
+  ts = config$ts,
+  te = config$te,
+  area = config$area,
+  storage_file = config$pa_file
+) |>
+  format_pa() |>
+  clean_cws() |>
+  calib_cws(ref = ghcnh, max_dist = 20000)
+```
+
 
 ## References
 

@@ -25,3 +25,6 @@ A data frame with sensors information
 \description{
 Find a list of sensors in a specific area
 }
+\references{
+Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+}

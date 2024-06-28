@@ -32,3 +32,6 @@ A data frame with sensor history data
 \description{
 Load PurpleAir sensor history data
 }
+\references{
+Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+}

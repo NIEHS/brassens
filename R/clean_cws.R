@@ -37,6 +37,9 @@ manage_na <- function(data, na_thresh = 0.1) {
 #' @param x sftime with columns: site_id, temp, lat, lon, time
 #' @return cleaned data.frame
 #' @import sftime
+# nolint start
+#' @references Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F. (2021): CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science 9: 720747. DOI: 10.3389/fenvs.2021.720747.
+# nolint end
 clean_cws <- function(x) {
   stopifnot(
     "site_id, temp, lat, lon, time missing or mispelled" =

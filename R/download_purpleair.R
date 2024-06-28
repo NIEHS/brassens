@@ -13,6 +13,9 @@
 #' @export
 #' @import httr
 #' @importFrom jsonlite fromJSON
+# nolint start
+#' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+# nolint end
 find_sensors <- function(nwlat,
                          selat,
                          nwlng,
@@ -56,6 +59,9 @@ find_sensors <- function(nwlat,
 #' @export
 #' @import httr
 #' @importFrom jsonlite fromJSON
+# nolint start
+#' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+# nolint end
 request_sensor_history <- function(start_ts,
                                    end_ts,
                                    sensor_index,
@@ -107,6 +113,9 @@ request_sensor_history <- function(start_ts,
 #' @param average Average time in minutes
 #' @param fields Fields to be included in the data
 #' @return A data frame with sensors history data
+# nolint start
+#' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+# nolint end
 request_sensors_history <- function(nwlat,
                                     selat,
                                     nwlng,

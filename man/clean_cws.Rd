@@ -17,3 +17,6 @@ cleaned data.frame
 Clean Weather Underground data with CrowdQC+. Keep only observations
 passing all tests (o3 level)
 }
+\references{
+Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F. (2021): CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science 9: 720747. DOI: 10.3389/fenvs.2021.720747.
+}

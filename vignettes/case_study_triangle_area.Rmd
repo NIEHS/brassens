@@ -57,7 +57,7 @@ cws_final <- readRDS(paste0(
 ### Timeseries at each step of brassens pipeline
 
 ```{r}
-timeseries(cws_raw2, ts = ts, te = te, var = temp)
+timeseries(cws_raw, ts = ts, te = te, var = temp)
 timeseries(cws_qc, ts = ts, te = te, var = temp)
 timeseries(cws_final, ts = ts, te = te, var = temp)
 ```

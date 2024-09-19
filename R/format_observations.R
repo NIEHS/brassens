@@ -150,10 +150,7 @@ format_wu <- function(raw,
 #' @export
 format_ghcnh <- function(raw) {
   ghcnh_cols <- c(
-    "Year",
-    "Month",
-    "Day",
-    "Hour",
+    "DATE",
     "temperature",
     "Latitude",
     "Longitude",
@@ -166,25 +163,7 @@ format_ghcnh <- function(raw) {
       all(ghcnh_cols %in% colnames(raw))
   )
   x <- raw
-  # note: as.POSIXct return a double when called through apply.
-  # this is why it is called after the apply
-  x$time <- apply(
-    x[, c("Year", "Month", "Day", "Hour")],
-    1,
-    function(x) {
-      paste0(
-        x[1],
-        "-",
-        x[2],
-        "-",
-        x[3],
-        " ",
-        x[4],
-        ":00:00"
-      )
-    }
-  ) |>
-    as.POSIXct(format = "%Y-%m-%d %H:%M:%S", tz = "UTC")
+  x$time <- as.POSIXct(x$DATE, format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")
   x <- x |>
     summarize_hourly_temp(
       "time",

@@ -26,7 +26,8 @@ find_ghcnh_polygon <- function(polygon) {
     "hcnflag",
     "wmoid"
   )
-  inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  inv <- inv |>
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, na.fail = FALSE)
   inv_in_poly <- sf::st_filter(inv, poly)
   return(inv_in_poly)
 }

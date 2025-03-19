@@ -8,7 +8,8 @@
 #' @author Eva Marques
 #' Weather Underground stations (see create_wu_inventory function)
 load_wu <- function(ts, te, area, inventory) {
-  datetime <- NULL
+  obsTimeUtc <- NULL
+  wu <- NULL
   stopifnot(
     "ts is not a POSIXct" = inherits(ts, "POSIXct"),
     "te is not a POSIXct" = inherits(te, "POSIXct"),
@@ -28,8 +29,12 @@ load_wu <- function(ts, te, area, inventory) {
                                          inv_selection$te_utc >= ts), ]
   for (f in inv_selection$fname) {
     aws <- data.table::fread(f)
-    aws$datetime <- as.POSIXct(aws$obsTimeUtc, tz = "UTC")
-    aws <- aws[datetime >= ts & datetime <= te, ]
+    aws <- aws[as.character(obsTimeUtc) != "unavailable"]
+    aws$obsTimeUtc <- as.POSIXct(aws$obsTimeUtc, tz = "UTC")
+    aws <- aws[obsTimeUtc >= ts & obsTimeUtc <= te, ]
+    # datetime type problem (character if "unavailable" or double)
+    # and not useful, so set to NULL:
+    aws$datetime <- NULL
     if (exists("wu")) {
       wu <- rbind(wu, aws)
     } else {
@@ -41,6 +46,9 @@ load_wu <- function(ts, te, area, inventory) {
     message("No data found for the given period")
   }
   wu <- unique(wu)
+  wu$tempAvg <- as.numeric(wu$tempAvg)
+  wu$lon <- as.numeric(wu$lon)
+  wu$lat <- as.numeric(wu$lat)
   cat("load_wu() done\n")
   return(wu)
 }

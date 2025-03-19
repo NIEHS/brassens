@@ -1,7 +1,7 @@
 #' Summarize hourly temperature at each site.
 #' This function might be used when stations record more than
 #' one observation per hour.
-#' @param x a data.frame, data.table, sf or sftime
+#' @param x a data.frame, data.table, sf
 #' @param time the column name for the time
 #' @param temp the column name for the temperature
 #' @param lat the column name for the latitude
@@ -15,8 +15,8 @@
 #' @export
 summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   stopifnot(
-    "x is not a data.frame, data.table, sf or sftime" =
-      inherits(x, c("sf", "sftime", "data.table", "data.frame")),
+    "x is not a data.frame, data.table, sf" =
+      inherits(x, c("sf", "data.table", "data.frame")),
     "time, temp, lat, lon are not all characters" =
       is.character(time) &
       is.character(temp) &
@@ -31,6 +31,7 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
     rename("lon" = lon) |>
     rename("time" = time) |>
     rename("temp" = temp)
+  # timestamp corresponds to measurements in previous 60min
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
   hourly_avg <- hourly_avg |>
     group_by(lat, lon, time) |>
@@ -42,13 +43,24 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   return(hourly_avg)
 }
 
+remove_daily_cws <- function(x) {
+  ts <- min(x$time, na.rm = TRUE)
+  te <- max(x$time, na.rm = TRUE)
+  n_days <- ceiling(as.numeric(difftime(te, ts, units = "days")))
+  stats <- x |>
+    group_by(site_id) |>
+    summarise(count = n())
+  cws_to_remove <- stats[which(stats$count <= n_days), ]$site_id
+  return(x[which(!(x$site_id %in% cws_to_remove)), ])
+}
+
 #' Format observations directly downloaded on PurpleAir API.
-#' @param raw a data.frame, data.table, sf or sftime with the raw observations
+#' @param raw a data.frame, data.table, sf with the raw observations
 #' and columns "time_stamp", "latitude", "longitude", "temperature"
 #' @param raw_tz the initial timezone, see PurpleAir API documentation
 #' @param raw_temp_unit the initial temperature unit
 #' @param raw_crs the initial coordinate reference system
-#' @return sftime from hourly_temp class
+#' @return sf from hourly_temp class
 #' @importFrom lubridate with_tz floor_date
 #' @author Eva Marques
 #' @export
@@ -58,8 +70,8 @@ format_pa <- function(raw,
                       raw_crs = 4326) {
   pa_cols <- c("time_stamp", "latitude", "longitude", "temperature")
   stopifnot(
-    "raw is not a data.frame, data.table, sf or sftime" =
-      inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+    "raw is not a data.frame, data.table, sf" =
+      inherits(raw, c("sf", "data.table", "data.frame")),
     "Some columns missing or mispelled" =
       all(pa_cols %in% colnames(raw))
   )
@@ -78,23 +90,23 @@ format_pa <- function(raw,
     time = "time_utc",
     network = "PA"
   ) |>
-    sftime::st_as_sftime(
+    sf::st_as_sf(
       coords = c("lon", "lat"),
-      time_column_name = "time",
       crs = raw_crs,
       remove = FALSE
-    )
+    ) |>
+    remove_daily_cws()
   cat("format_pa() done\n")
   return(x)
 }
 
 #' Format observations sent by IBM.
-#' @param raw a data.frame, data.table, sf or sftime with the raw observations
+#' @param raw a data.frame, data.table, sf with the raw observations
 #' and columns "obsTimeUtc", "lat", "lon", "tempAvg"
 #' @param raw_tz the initial timezone, see PurpleAir API documentation
 #' @param raw_temp_unit the initial temperature unit
 #' @param raw_crs the initial coordinate reference system
-#' @return sftime from hourly_temp class
+#' @return sf from hourly_temp class
 #' @importFrom lubridate floor_date
 #' @author Eva Marques
 #' @export
@@ -104,17 +116,19 @@ format_wu <- function(raw,
                       raw_crs = 4326) {
   wu_cols <- c("obsTimeUtc", "lat", "lon", "tempAvg")
   stopifnot(
-    "raw is not a data.frame, data.table, sf or sftime" =
-      inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+    "raw is not a data.frame, data.table, sf" =
+      inherits(raw, c("sf", "data.table", "data.frame")),
     "Some columns missing or mispelled" =
       all(wu_cols %in% colnames(raw))
   )
   x <- raw
   if (raw_temp_unit != "C") {
-    x$tempAvg_c <- convert_temp(x$tempAvg, from = raw_temp_unit, to = "C")
+    x$tempAvg_c <- x$tempAvg |>
+      as.numeric() |>
+      convert_temp(from = raw_temp_unit, to = "C")
   }
   x$obsTimeUtc <- as.POSIXct(x$obsTimeUtc, tz = "UTC") |>
-    lubridate::floor_date(unit = "hours")
+    lubridate::floor_date(unit = "hours") + lubridate::hours(1)
   x <- summarize_hourly_temp(
     x,
     "obsTimeUtc",
@@ -129,22 +143,22 @@ format_wu <- function(raw,
       time = "time",
       network = "WU"
     ) |>
-    sftime::st_as_sftime(
+    sf::st_as_sf(
       coords = c("lon", "lat"),
-      time_column_name = "time",
       crs = raw_crs,
       remove = FALSE
-    )
+    ) |>
+    remove_daily_cws()
   cat("format_wu() done\n")
   return(x)
 }
 
 #' Format observations from raw data downloaded on NOAA website
 #' See function load_ghcnh_station.
-#' @param raw a data.frame, data.table, sf or sftime with the raw observations
+#' @param raw a data.frame, data.table, sf with the raw observations
 #' and columns "Year", "Month", "Day", "Hour", "temperature", "Latitude",
 #' "Longitude", "temperature_Source_Code"
-#' @return sftime from hourly_temp class
+#' @return sf from hourly_temp class
 #' @importFrom dplyr rename
 #' @author Eva Marques
 #' @export
@@ -157,8 +171,8 @@ format_ghcnh <- function(raw) {
     "temperature_Source_Code"
   )
   stopifnot(
-    "raw is not a data.frame, data.table, sf or sftime" =
-      inherits(raw, c("sf", "sftime", "data.table", "data.frame")),
+    "raw is not a data.frame, data.table, sf" =
+      inherits(raw, c("sf", "data.table", "data.frame")),
     "Some columns missing or mispelled" =
       all(ghcnh_cols %in% colnames(raw))
   )
@@ -192,12 +206,12 @@ format_ghcnh <- function(raw) {
     labels = c("NCEI/ASOS/AWOS", "NCEI/US CRN")
   )
   x <- x |>
-    sftime::st_as_sftime(
+    sf::st_as_sf(
       coords = c("lon", "lat"),
-      time_column_name = "time",
       crs = 4326,
       remove = FALSE
-    )
+    ) |>
+    remove_daily_cws()
   cat("format_ghcnh() done\n")
   return(x)
 }

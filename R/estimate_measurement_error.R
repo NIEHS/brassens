@@ -17,8 +17,8 @@ find_closest_ref <- function(cws, ref) {
     "some columns missing in cws" = all(cols %in% colnames(cws)),
     "some columns missing in ref" = all(cols %in% colnames(ref))
   )
-  cws_loc <- unique(cws[, cols])
-  ref_loc <- unique(ref[, cols])
+  cws_loc <- dplyr::distinct(cws[, cols])
+  ref_loc <- dplyr::distinct(ref[, cols])
   nearest <- sf::st_nearest_feature(cws_loc, ref_loc)
   ref_nearest <- ref_loc[nearest, ]
   cws_loc$ref_id <- ref_nearest$site_id

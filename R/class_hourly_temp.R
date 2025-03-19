@@ -33,8 +33,8 @@ setValidity("hourly_temp", function(object) {
 })
 
 
-#' Build a hourly_temp from a data.frame, data.table, sf or sftime
-#' @param x a data.frame, data.table, sf or sftime
+#' Build a hourly_temp from a data.frame, data.table, sf 
+#' @param x a data.frame, data.table, sf 
 #' @param temp the column name for the temperature in degree celcius
 #' @param lat the column name for the latitude
 #' @param lon the column name for the longitude
@@ -51,8 +51,8 @@ hourly_temp <- function(x,
                         time = "time",
                         network) {
   stopifnot(
-    "x is not a data.frame, data.table, sf or sftime." =
-      class(x)[1] %in% c("data.frame", "data.table", "sf", "sftime"),
+    "x is not a data.frame, data.table, sf." =
+      class(x)[1] %in% c("data.frame", "data.table", "sf"),
     "time, temp, lat, lon are not all characters." =
       is.character(time) &
       is.character(temp) &

@@ -15,6 +15,8 @@ clean_cws_large(x, area, epsg_m = "epsg:32119", res = 1e+05, ...)
 \item{epsg_m}{crs in meters (default: epsg:32119)}
 
 \item{res}{resolution of the squares in meters (default: 100km)}
+
+\item{...}{arguments passed through \code{CrowdQCplus::cqcp_qcCWS} function}
 }
 \value{
 cleaned data.frame

@@ -9,6 +9,8 @@ clean_cws(x, ...)
 }
 \arguments{
 \item{x}{sf with columns: site_id, temp, lat, lon, time}
+
+\item{...}{arguments passed through \code{CrowdQCplus::cqcp_qcCWS} function}
 }
 \value{
 cleaned data.frame

@@ -5,7 +5,7 @@
 #' @import utils
 #' @export
 # nolint start
-#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]
+#' @references \link[Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
 # nolint end
 find_ghcnh_polygon <- function(polygon) {
   poly <- format_area(polygon)
@@ -40,7 +40,7 @@ find_ghcnh_polygon <- function(polygon) {
 #' @import utils
 #' @export
 # nolint start
-#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]
+#' @references \link[Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
 # nolint end
 find_nearest_ghcnh <- function(lat, lon) {
   stopifnot(
@@ -84,7 +84,7 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @importFrom tidyr drop_na
 #' @import utils
 # nolint start
-#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]
+#' @references \link[Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
 # nolint end
 download_ghcnh_station <- function(site_id, year) {
   temperature <- NULL
@@ -126,7 +126,7 @@ download_ghcnh_station <- function(site_id, year) {
 #' @return a data.frame with the GHCN-H stations observations in the area
 #' @importFrom dplyr between
 # nolint start
-#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]
+#' @references \link[Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. [accessed on 2024/06/12]]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
 # nolint end
 download_ghcnh <- function(ts, te, area) {
   stopifnot(

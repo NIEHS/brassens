@@ -35,6 +35,7 @@ manage_na <- function(data, na_thresh = 0.1) {
 #' Clean Weather Underground data with CrowdQC+. Keep only observations
 #' passing all tests (o3 level)
 #' @param x sf with columns: site_id, temp, lat, lon, time
+#' @param ... arguments passed through `CrowdQCplus::cqcp_qcCWS` function
 #' @return cleaned data.frame
 #' @import sf
 # nolint start
@@ -147,6 +148,7 @@ cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
 #' @param area polygon
 #' @param epsg_m crs in meters (default: epsg:32119)
 #' @param res resolution of the squares in meters (default: 100km)
+#' @param ... arguments passed through `CrowdQCplus::cqcp_qcCWS` function
 #' @return cleaned data.frame
 clean_cws_large <- function(
   x,

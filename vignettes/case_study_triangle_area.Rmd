@@ -82,14 +82,18 @@ tile_ts(cws_final, ts = ts, te = te, var = temp)
 
 ```{r}
 map_stations(cws_raw, timestamp, var = temp, imp, title = "Raw data")
-map_stations(cws_qc,
-             timestamp,
-             var = temp,
-             imp,
-             title = "Cleaned with CrowdQC+")
-map_stations(cws_final,
-             timestamp,
-             var = temp,
-             imp,
-             title = "Cleaned with CrowdQC+ and calibrated with GHCNh")
+map_stations(
+  cws_qc,
+  timestamp,
+  var = temp,
+  imp,
+  title = "Cleaned with CrowdQC+"
+)
+map_stations(
+  cws_final,
+  timestamp,
+  var = temp,
+  imp,
+  title = "Cleaned with CrowdQC+ and calibrated with GHCNh"
+)
 ```

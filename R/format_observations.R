@@ -27,10 +27,10 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   )
   hourly_avg <- x |>
     data.table::as.data.table() |>
-    dplyr::rename("lat" = lat) |>
-    dplyr::rename("lon" = lon) |>
-    dplyr::rename("time" = time) |>
-    dplyr::rename("temp" = temp)
+    dplyr::rename(lat = lat) |>
+    dplyr::rename(lon = lon) |>
+    dplyr::rename(time = time) |>
+    dplyr::rename(temp = temp)
   # timestamp corresponds to measurements in previous 60min
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
   hourly_avg <- hourly_avg |>

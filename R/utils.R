@@ -46,7 +46,8 @@ my_pal <- function(name) {
   if (name == "temp") {
     return(fields::tim.colors(n = 64, alpha = 1.0))
   } else if (name == "rh_ipcc") {
-    pal_ipcc <- list(c(140, 81, 10),
+    pal_ipcc <- list(
+      c(140, 81, 10),
       c(191, 129, 45),
       c(223, 194, 125),
       c(246, 232, 195),
@@ -60,7 +61,8 @@ my_pal <- function(name) {
       rev()
     return(pal_ipcc)
   } else if (name == "temp_ipcc") {
-    pal_ipcc <- list(c(103, 0, 31),
+    pal_ipcc <- list(
+      c(103, 0, 31),
       c(178, 24, 43),
       c(214, 96, 77),
       c(244, 165, 130),

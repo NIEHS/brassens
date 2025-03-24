@@ -5,10 +5,10 @@
 \title{Clean Weather Underground data with CrowdQC+. Keep only observations
 passing all tests (o3 level)}
 \usage{
-clean_cws(x)
+clean_cws(x, ...)
 }
 \arguments{
-\item{x}{sftime with columns: site_id, temp, lat, lon, time}
+\item{x}{sf with columns: site_id, temp, lat, lon, time}
 }
 \value{
 cleaned data.frame

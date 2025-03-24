@@ -1,6 +1,4 @@
 # ` `@title` `Load PurpleAir data`
-
-
 #' Find a list of sensors in a specific area
 #'
 #' @param nwlat North-west latitude
@@ -16,12 +14,13 @@
 # nolint start
 #' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
 # nolint end
-find_sensors <- function(nwlat,
-                         selat,
-                         nwlng,
-                         selng,
-                         api_key,
-                         location_type = 0) {
+find_sensors <- function(
+    nwlat,
+    selat,
+    nwlng,
+    selng,
+    api_key,
+    location_type = 0) {
   fields <- "sensor_index,latitude, longitude, temperature, humidity"
   query_list <- list(
     nwlng = nwlng,
@@ -37,10 +36,12 @@ find_sensors <- function(nwlat,
   r_temp <- httr::GET(
     url = url_base,
     query = query_list,
-    config = add_headers("X-API-Key" = api_key)
+    config = httr::add_headers("X-API-Key" = api_key)
   )
   # Structurized data in form of R vectors and lists
-  r_parsed <- fromJSON(content(r_temp, as = "text"))
+  r_parsed <- jsonlite::fromJSON(
+    httr::content(r_temp, as = "text")
+  )
   # Data frame from JSON data
   sensors <- as.data.frame(r_parsed$data)
   colnames(sensors) <- r_parsed$fields
@@ -62,12 +63,13 @@ find_sensors <- function(nwlat,
 # nolint start
 #' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
 # nolint end
-request_sensor_history <- function(start_ts,
-                                   end_ts,
-                                   sensor_index,
-                                   api_key,
-                                   average = "60",
-                                   fields = "temperature, humidity") {
+request_sensor_history <- function(
+    start_ts,
+    end_ts,
+    sensor_index,
+    api_key,
+    average = "60",
+    fields = "temperature, humidity") {
   query_list <- list(
     start_timestamp = as.character(as.integer(start_ts)),
     end_timestamp = as.character(as.integer(end_ts)),
@@ -83,10 +85,12 @@ request_sensor_history <- function(start_ts,
   r_temp <- httr::GET(
     url = url_base,
     query = query_list,
-    config = add_headers("X-API-Key" = api_key)
+    config = httr::add_headers("X-API-Key" = api_key)
   )
   # Structurized data in form of R vectors and lists
-  r_parsed <- fromJSON(content(r_temp, as = "text"))
+  r_parsed <- jsonlite::fromJSON(
+    httr::content(r_temp, as = "text")
+  )
   # Data frame from JSON data
   s_history <- as.data.frame(r_parsed$data)
   if (nrow(s_history) == 0) {

@@ -3,15 +3,21 @@ testthat::test_that("find_closest_ref works well", {
     testthat::test_path() |>
     readRDS() |>
     format_wu()
-  ref <- "../testdata/ghcnh_formatted_testdata.rds" |>
+  ref <- "../testdata/ghcnh_formatted_testdata.csv" |>
     testthat::test_path() |>
-    readRDS()
-  expect_no_error(find_closest_ref(cws, ref))
+    read.csv()
+  ref <- ref |>
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  ref$time <- as.POSIXct(
+    ref$time,
+    tz = "UTC",
+    format = "%Y-%m-%d %H:%M:%S"
+  )
   expect_error(find_closest_ref(as.data.frame(cws), ref))
   expect_error(find_closest_ref(cws, as.data.frame(ref)))
   expect_error(find_closest_ref(cws, ref[, c("geometry")]))
   expect_error(find_closest_ref(cwsref[, c("site_id")], ref))
-  r <- find_closest_ref(cws, ref)
+  expect_no_error(r <- find_closest_ref(cws, ref))
   expect_true(all(c("ref_id", "dist_to_ref") %in% colnames(r)))
   expect_true(all(colnames(cws) %in% colnames(r)))
   expect_true(all(r$dist_to_ref >= 0))
@@ -22,22 +28,32 @@ testthat::test_that("find_closest_ref works well", {
   )
 })
 
-
 testthat::test_that("est_temp_error works well", {
   cws <- "../testdata/wu_raw_simulated_testdata.rds" |>
     testthat::test_path() |>
     readRDS() |>
     format_wu()
-  ref <- "../testdata/ghcnh_formatted_testdata.rds" |>
+  ref <- "../testdata/ghcnh_formatted_testdata.csv" |>
     testthat::test_path() |>
-    readRDS()
-  expect_no_error(est_temp_error(cws, ref))
-  r <- est_temp_error(cws, ref)
+    read.csv()
+  ref <- ref |>
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  ref$time <- as.POSIXct(
+    ref$time,
+    tz = "UTC",
+    format = "%Y-%m-%d %H:%M:%S"
+  )
+  expect_no_error(r <- est_temp_error(cws, ref))
   new_cols <- c("temp_err", "temp_ref", "ref_id", "dist_to_ref")
   expect_true(all(new_cols %in% colnames(r)))
   expect_true(all(colnames(cws) %in% colnames(r)))
   expect_true(inherits(r, "sf"))
-  expect_equal(r$temp_ref + r$temp_err, r$temp, tolerance = 1e-6)
+  expect_equal(
+    r[which(!is.na(r$temp) & !is.na(r$temp_ref)), ]$temp_ref +
+      r[which(!is.na(r$temp) & !is.na(r$temp_ref)), ]$temp_err,
+    r[which(!is.na(r$temp) & !is.na(r$temp_ref)), ]$temp,
+    tolerance = 1e-6
+  )
   t1 <- as.POSIXct("2021-07-21 06:00:00", tz = "UTC")
   t2 <- as.POSIXct("2021-07-21 15:00:00", tz = "UTC")
   eg1 <- r[which(r$site_id == "-78.394156_35.631584" & r$time == t1), ]
@@ -59,12 +75,6 @@ testthat::test_that("est_temp_error works well", {
     est_temp_error(cws_date, ref),
     "time should inherit from POSIXct in cws"
   )
-  cws_wrong_crs <- cws |>
-    sf::st_transform(32618)
-  expect_error(
-    est_temp_error(cws_wrong_crs, ref),
-    "cws and ref have different crs"
-  )
   cws_with_sec <- cws
   lubridate::second(cws_with_sec$time) <- sample(
     x = 0:59,
@@ -72,7 +82,6 @@ testthat::test_that("est_temp_error works well", {
     replace = TRUE
   )
   expect_error(est_temp_error(cws_with_sec, ref))
-
   cws_with_min <- cws
   lubridate::minute(cws_with_min$time) <- sample(
     x = 0:59,

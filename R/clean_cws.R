@@ -49,7 +49,7 @@ clean_cws <- function(x, ...) {
   x_qcp <- x |>
     dplyr::rename("p_id" = "site_id") |>
     dplyr::rename("ta" = "temp") |>
-    as.data.table()
+    data.table::as.data.table()
   x_qcp$p_id <- as.character(x_qcp$p_id)
   x_qcp <- CrowdQCplus::cqcp_padding(x_qcp)
   x_qcp <- CrowdQCplus::cqcp_add_dem_height(x_qcp)
@@ -57,22 +57,38 @@ clean_cws <- function(x, ...) {
   ok <- CrowdQCplus::cqcp_check_input(x_qcp)
   if (ok) {
     data_qc <- CrowdQCplus::cqcp_qcCWS(data, ...)
-    cat("# stations after m1:",
-        length(unique(data_qc[which(data_qc$m1),]$p_id)), "\n")
-    cat("# stations after m2:",
-        length(unique(data_qc[which(data_qc$m2),]$p_id)), "\n")
-    cat("# stations after m3:",
-        length(unique(data_qc[which(data_qc$m3),]$p_id)), "\n")
-    cat("# stations after m4:",
-        length(unique(data_qc[which(data_qc$m4),]$p_id)), "\n")
-    cat("# stations after m5:",
-        length(unique(data_qc[which(data_qc$m5),]$p_id)), "\n")
-    cat("# stations after o1:",
-        length(unique(data_qc[which(data_qc$o1),]$p_id)), "\n")
-    cat("# stations after o2:",
-        length(unique(data_qc[which(data_qc$o2),]$p_id)), "\n")
-    cat("# stations after o3:",
-        length(unique(data_qc[which(data_qc$o3),]$p_id)), "\n")
+    cat(
+      "# stations after m1:",
+      length(unique(data_qc[which(data_qc$m1), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after m2:",
+      length(unique(data_qc[which(data_qc$m2), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after m3:",
+      length(unique(data_qc[which(data_qc$m3), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after m4:",
+      length(unique(data_qc[which(data_qc$m4), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after m5:",
+      length(unique(data_qc[which(data_qc$m5), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after o1:",
+      length(unique(data_qc[which(data_qc$o1), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after o2:",
+      length(unique(data_qc[which(data_qc$o2), ]$p_id)), "\n"
+    )
+    cat(
+      "# stations after o3:",
+      length(unique(data_qc[which(data_qc$o3), ]$p_id)), "\n"
+    )
   }
   col_rm <- c(
     "m1",
@@ -96,7 +112,8 @@ clean_cws <- function(x, ...) {
       coords = c("lon", "lat"),
       crs = 4326,
       remove = FALSE
-    )
+    ) |>
+    suppressWarnings() # raise an unnecessary warning when x_qc is empty
   cat("clean_cws() done\n")
   return(x_qc)
 }

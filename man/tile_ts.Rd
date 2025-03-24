@@ -7,7 +7,7 @@
 tile_ts(data, ts, te, var, palname = "temp_ipcc")
 }
 \arguments{
-\item{data}{data frame or sftime of cws observations}
+\item{data}{data frame of cws observations}
 
 \item{ts}{datetime, start time}
 

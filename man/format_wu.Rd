@@ -2,12 +2,12 @@
 % Please edit documentation in R/format_observations.R
 \name{format_wu}
 \alias{format_wu}
-\title{Format observations sent by IBM.}
+\title{Format WeatherUnderground hourly data.}
 \usage{
 format_wu(raw, raw_tz = "UTC", raw_temp_unit = "F", raw_crs = 4326)
 }
 \arguments{
-\item{raw}{a data.frame, data.table, sf or sftime with the raw observations
+\item{raw}{a data.frame, data.table, sf with the raw observations
 and columns "obsTimeUtc", "lat", "lon", "tempAvg"}
 
 \item{raw_tz}{the initial timezone, see PurpleAir API documentation}
@@ -17,10 +17,10 @@ and columns "obsTimeUtc", "lat", "lon", "tempAvg"}
 \item{raw_crs}{the initial coordinate reference system}
 }
 \value{
-sftime from hourly_temp class
+sf from hourly_temp class
 }
 \description{
-Format observations sent by IBM.
+Format WeatherUnderground hourly data.
 }
 \author{
 Eva Marques

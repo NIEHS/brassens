@@ -27,16 +27,16 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   )
   hourly_avg <- x |>
     data.table::as.data.table() |>
-    rename("lat" = lat) |>
-    rename("lon" = lon) |>
-    rename("time" = time) |>
-    rename("temp" = temp)
+    dplyr::rename("lat" = lat) |>
+    dplyr::rename("lon" = lon) |>
+    dplyr::rename("time" = time) |>
+    dplyr::rename("temp" = temp)
   # timestamp corresponds to measurements in previous 60min
   hourly_avg$time <- lubridate::floor_date(hourly_avg$time, "hour")
   hourly_avg <- hourly_avg |>
-    group_by(lat, lon, time) |>
-    summarise(temp = median(temp, na.rm = TRUE)) |>
-    ungroup() |>
+    dplyr::group_by(lat, lon, time) |>
+    dplyr::summarise(temp = median(temp, na.rm = TRUE)) |>
+    dplyr::ungroup() |>
     as.data.frame()
   # remove duplicates
   hourly_avg <- unique(hourly_avg)
@@ -44,12 +44,13 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
 }
 
 remove_daily_cws <- function(x) {
+  site_id <- NULL
   ts <- min(x$time, na.rm = TRUE)
   te <- max(x$time, na.rm = TRUE)
   n_days <- ceiling(as.numeric(difftime(te, ts, units = "days")))
   stats <- x |>
-    group_by(site_id) |>
-    summarise(count = n())
+    dplyr::group_by(site_id) |>
+    dplyr::summarise(count = dplyr::n())
   cws_to_remove <- stats[which(stats$count <= n_days), ]$site_id
   return(x[which(!(x$site_id %in% cws_to_remove)), ])
 }
@@ -64,10 +65,11 @@ remove_daily_cws <- function(x) {
 #' @importFrom lubridate with_tz floor_date
 #' @author Eva Marques
 #' @export
-format_pa <- function(raw,
-                      raw_tz = "UTC",
-                      raw_temp_unit = "F",
-                      raw_crs = 4326) {
+format_pa <- function(
+    raw,
+    raw_tz = "UTC",
+    raw_temp_unit = "F",
+    raw_crs = 4326) {
   pa_cols <- c("time_stamp", "latitude", "longitude", "temperature")
   stopifnot(
     "raw is not a data.frame, data.table, sf" =
@@ -100,7 +102,7 @@ format_pa <- function(raw,
   return(x)
 }
 
-#' Format observations sent by IBM.
+#' Format WeatherUnderground hourly data.
 #' @param raw a data.frame, data.table, sf with the raw observations
 #' and columns "obsTimeUtc", "lat", "lon", "tempAvg"
 #' @param raw_tz the initial timezone, see PurpleAir API documentation
@@ -110,10 +112,11 @@ format_pa <- function(raw,
 #' @importFrom lubridate floor_date
 #' @author Eva Marques
 #' @export
-format_wu <- function(raw,
-                      raw_tz = "UTC",
-                      raw_temp_unit = "F",
-                      raw_crs = 4326) {
+format_wu <- function(
+    raw,
+    raw_tz = "UTC",
+    raw_temp_unit = "F",
+    raw_crs = 4326) {
   wu_cols <- c("obsTimeUtc", "lat", "lon", "tempAvg")
   stopifnot(
     "raw is not a data.frame, data.table, sf" =

@@ -17,6 +17,8 @@ find_closest_ref <- function(cws, ref) {
     "some columns missing in cws" = all(cols %in% colnames(cws)),
     "some columns missing in ref" = all(cols %in% colnames(ref))
   )
+  cws <- sf::st_transform(cws, 4326)
+  ref <- sf::st_transform(ref, 4326)
   cws_loc <- dplyr::distinct(cws[, cols])
   ref_loc <- dplyr::distinct(ref[, cols])
   nearest <- sf::st_nearest_feature(cws_loc, ref_loc)
@@ -58,6 +60,8 @@ est_temp_error <- function(cws, ref) {
     "time should inherit from POSIXct in ref" =
       inherits(ref$time, "POSIXct")
   )
+  cws <- sf::st_transform(cws, 4326)
+  ref <- sf::st_transform(ref, 4326)
   # check crs
   stopifnot(
     "cws and ref have different crs" =

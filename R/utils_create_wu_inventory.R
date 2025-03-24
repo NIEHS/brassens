@@ -6,6 +6,9 @@
 #' @return a data.frame with the inventory
 #' @import utils
 create_wu_inventory <- function(fpath, invpath) {
+  # nolint start
+  obsTimeUtc <- NULL
+  # nolint end
   flist <- list.files(fpath, full.names = TRUE, recursive = TRUE)
   inventory <- NULL
   for (i in seq_along(flist)) {
@@ -47,7 +50,7 @@ create_wu_inventory <- function(fpath, invpath) {
   inventory <- do.call("rbind", inventory)
   inventory$lat <- as.numeric(inventory$lat)
   inventory$lon <- as.numeric(inventory$lon)
-  write.csv(inventory, invpath,  row.names = FALSE)
+  write.csv(inventory, invpath, row.names = FALSE)
   inventory <- inventory |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
   return(inventory)

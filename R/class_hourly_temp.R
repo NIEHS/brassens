@@ -33,8 +33,8 @@ setValidity("hourly_temp", function(object) {
 })
 
 
-#' Build a hourly_temp from a data.frame, data.table, sf 
-#' @param x a data.frame, data.table, sf 
+#' Build a hourly_temp from a data.frame, data.table, sf
+#' @param x a data.frame, data.table, sf
 #' @param temp the column name for the temperature in degree celcius
 #' @param lat the column name for the latitude
 #' @param lon the column name for the longitude

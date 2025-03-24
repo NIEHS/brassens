@@ -67,7 +67,9 @@ find_nearest_ghcnh <- function(lat, lon) {
     "hcnflag",
     "wmoid"
   )
-  inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  inv <- inv[which(!is.na(inv$lat) & !is.na(inv$lat)), ]
+  inv <- inv |>
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
   nearest <- sf::st_nearest_feature(my_point, inv)
   return(inv[nearest, ])
 }

@@ -56,7 +56,7 @@ timeseries <- function(data, ts, te, var) {
       panel.grid.major = ggplot2::element_line(colour = "grey"),
       panel.grid.minor = ggplot2::element_line(colour = "azure2"),
     )
-  return(p)
+  p
 }
 
 
@@ -119,7 +119,7 @@ hourly_boxplot <- function(data, ts, te, var) {
       panel.grid.major = ggplot2::element_line(colour = "grey"),
       panel.grid.minor = ggplot2::element_line(colour = "white")
     )
-  return(p)
+  p
 }
 
 
@@ -191,7 +191,7 @@ tile_ts <- function(data, ts, te, var, palname = "temp_ipcc") {
       panel.grid.minor = ggplot2::element_line(colour = "azure2"),
       legend.position = "right"
     )
-  return(p)
+  p
 }
 
 #' map observations with imperviousness
@@ -266,5 +266,5 @@ map_stations <- function(
       panel.background = ggplot2::element_rect(fill = "white"),
       panel.grid.major = ggplot2::element_line(colour = "grey")
     )
-  return(p)
+  p
 }

@@ -40,7 +40,7 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
     as.data.frame()
   # remove duplicates
   hourly_avg <- unique(hourly_avg)
-  return(hourly_avg)
+  hourly_avg
 }
 
 remove_daily_cws <- function(x) {
@@ -52,7 +52,7 @@ remove_daily_cws <- function(x) {
     dplyr::group_by(site_id) |>
     dplyr::summarise(count = dplyr::n())
   cws_to_remove <- stats[which(stats$count <= n_days), ]$site_id
-  return(x[which(!(x$site_id %in% cws_to_remove)), ])
+  x[which(!(x$site_id %in% cws_to_remove)), ]
 }
 
 #' Format observations directly downloaded on PurpleAir API.
@@ -99,7 +99,7 @@ format_pa <- function(
     ) |>
     remove_daily_cws()
   cat("format_pa() done\n")
-  return(x)
+  x
 }
 
 #' Format WeatherUnderground hourly data.
@@ -153,7 +153,7 @@ format_wu <- function(
     ) |>
     remove_daily_cws()
   cat("format_wu() done\n")
-  return(x)
+  x
 }
 
 #' Format observations from raw data downloaded on NOAA website
@@ -216,5 +216,5 @@ format_ghcnh <- function(raw) {
     ) |>
     remove_daily_cws()
   cat("format_ghcnh() done\n")
-  return(x)
+  x
 }

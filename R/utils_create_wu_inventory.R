@@ -53,7 +53,7 @@ create_wu_inventory <- function(fpath, invpath) {
   write.csv(inventory, invpath, row.names = FALSE)
   inventory <- inventory |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
-  return(inventory)
+  inventory
 }
 
 # use this version for first batch of data in the Triangle and whole NC
@@ -87,5 +87,5 @@ create_wu_inventory_oldversion <- function(fpath, invpath) {
   write.csv(inventory, invpath, row.names = FALSE)
   inventory <- inventory |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
-  return(inventory)
+  inventory
 }

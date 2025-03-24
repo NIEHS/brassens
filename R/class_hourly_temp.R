@@ -29,7 +29,7 @@ setValidity("hourly_temp", function(object) {
     "duplicates found (more than 1 observation per hour?)" =
       !any(duplicated(obs_id))
   )
-  return(TRUE)
+  TRUE
 })
 
 
@@ -71,5 +71,5 @@ hourly_temp <- function(x,
   y <- generate_site_id(y)
   y <- y[, c("site_id", "temp", "lat", "lon", "time", "network")] |>
     methods::new(Class = "hourly_temp")
-  return(y)
+  y
 }

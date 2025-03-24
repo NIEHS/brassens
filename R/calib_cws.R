@@ -53,12 +53,10 @@ calib_cws <- function(ref, cws, max_dist = 5000) {
   cws <- merge(cws, overall_meas_err, by = "utc")
   cws$temp_bef_cal <- cws$temp
   cws$temp <- cws$temp_bef_cal - cws$bias_med
-  return(
-    list(
-      obs = cws,
-      bias = overall_meas_err,
-      ref_stats = ref_stats,
-      cws_in_buf = cws_in_buf
-    )
+  list(
+    obs = cws,
+    bias = overall_meas_err,
+    ref_stats = ref_stats,
+    cws_in_buf = cws_in_buf
   )
 }

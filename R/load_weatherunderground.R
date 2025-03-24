@@ -56,5 +56,5 @@ load_wu <- function(ts, te, area, inventory) {
   wu$lon <- as.numeric(wu$lon)
   wu$lat <- as.numeric(wu$lat)
   cat("load_wu() done\n")
-  return(wu)
+  wu
 }

@@ -35,7 +35,7 @@ find_closest_ref <- function(cws, ref) {
     cws,
     as.data.frame(cws_loc[, c("site_id", "ref_id", "dist_to_ref")])
   )
-  return(r)
+  r
 }
 
 #' Add temperature from a reference to citizen weather stations observations
@@ -89,5 +89,5 @@ est_temp_error <- function(cws, ref) {
   ref_reformat$geometry <- NULL
   r <- merge(cws_r, ref_reformat, by = c("time", "ref_id"), all.x = TRUE)
   r$temp_err <- r$temp - r$temp_ref
-  return(r)
+  r
 }

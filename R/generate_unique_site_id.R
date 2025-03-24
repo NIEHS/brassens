@@ -13,5 +13,5 @@ generate_site_id <- function(x) {
     sprintf("%.6f", x$lat),
     sep = "_"
   )
-  return(x)
+  x
 }

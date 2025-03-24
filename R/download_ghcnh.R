@@ -29,7 +29,7 @@ find_ghcnh_polygon <- function(polygon) {
   inv <- inv |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, na.fail = FALSE)
   inv_in_poly <- sf::st_filter(inv, poly)
-  return(inv_in_poly)
+  inv_in_poly
 }
 
 #' Find the nearest GHCN-H station to a point
@@ -71,7 +71,7 @@ find_nearest_ghcnh <- function(lat, lon) {
   inv <- inv |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
   nearest <- sf::st_nearest_feature(my_point, inv)
-  return(inv[nearest, ])
+  inv[nearest, ]
 }
 
 #' Download GHCN-H station data of a given year
@@ -109,12 +109,12 @@ download_ghcnh_station <- function(site_id, year) {
       tidyr::drop_na(temperature)
     if (nrow(x) == 0) {
       message("No data found for station ", site_id, " in year ", year, ".")
-      return(NULL)
+      NULL
     }
-    return(x)
+    x
   } else {
     message("The URL does not exist for station ", site_id, ".")
-    return(NULL)
+    NULL
   }
 }
 
@@ -155,10 +155,10 @@ download_ghcnh <- function(ts, te, area) {
   }
   if (nrow(ghcnh) == 0) {
     message("No data found in the area.")
-    return(NULL)
+    NULL
   } else {
     ghcnh <- format_ghcnh(ghcnh)
     ghcnh <- ghcnh[which(dplyr::between(ghcnh$time, ts, te)), ]
-    return(ghcnh)
+    ghcnh
   }
 }

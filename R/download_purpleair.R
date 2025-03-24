@@ -45,7 +45,7 @@ find_sensors <- function(
   # Data frame from JSON data
   sensors <- as.data.frame(r_parsed$data)
   colnames(sensors) <- r_parsed$fields
-  return(sensors)
+  sensors
 }
 
 #' Load PurpleAir sensor history data
@@ -94,14 +94,14 @@ request_sensor_history <- function(
   # Data frame from JSON data
   s_history <- as.data.frame(r_parsed$data)
   if (nrow(s_history) == 0) {
-    return(NULL)
+    NULL
   } else {
     colnames(s_history) <- r_parsed$fields
     s_history$time_stamp <- as.POSIXct(s_history$time_stamp,
       origin = "1970-01-01",
       tz = "UTC"
     )
-    return(s_history)
+    s_history
   }
 }
 
@@ -120,16 +120,18 @@ request_sensor_history <- function(
 # nolint start
 #' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
 # nolint end
-request_sensors_history <- function(nwlat,
-                                    selat,
-                                    nwlng,
-                                    selng,
-                                    location_type = 0,
-                                    start_ts,
-                                    end_ts,
-                                    api_key,
-                                    average = "60",
-                                    fields = "temperature, humidity") {
+request_sensors_history <- function(
+  nwlat,
+  selat,
+  nwlng,
+  selng,
+  location_type = 0,
+  start_ts,
+  end_ts,
+  api_key,
+  average = "60",
+  fields = "temperature, humidity"
+) {
   sensors <- find_sensors(
     nwlat,
     selat,
@@ -165,9 +167,9 @@ request_sensors_history <- function(nwlat,
     }
   }
   if (exists("sensors_history")) {
-    return(sensors_history)
+    sensors_history
   } else {
-    return(NULL)
+    NULL
   }
 }
 
@@ -191,7 +193,7 @@ download_pa <- function(ts, te, area, api_key) {
     te,
     api_key
   )
-  return(pa)
+  pa
 }
 
 #' If a file is provided, open data from file. If not, call download_pa().
@@ -240,5 +242,5 @@ load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   if (nrow(pa) == 0) {
     message("No PurpleAir found at those dates and area.")
   }
-  return(data.table::data.table(pa))
+  data.table::data.table(pa)
 }

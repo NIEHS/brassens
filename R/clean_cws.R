@@ -29,7 +29,7 @@ manage_na <- function(data, na_thresh = 0.1) {
     data.frame()
   keep_id <- unique(n[which(n$n >= n_thresh), c("site_id")])
   output <- output[which(output$site_id %in% keep_id), ]
-  return(output)
+  output
 }
 
 #' Clean Weather Underground data with CrowdQC+. Keep only observations
@@ -115,7 +115,7 @@ clean_cws <- function(x, ...) {
     ) |>
     suppressWarnings() # raise an unnecessary warning when x_qc is empty
   cat("clean_cws() done\n")
-  return(x_qc)
+  x_qc
 }
 
 #' Format an area to be used in clean_cws_large (cut in squares of res*res m2)
@@ -137,7 +137,7 @@ cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
     terra::as.polygons() |>
     terra::project("epsg:4326") |>
     sf::st_as_sf()
-  return(v)
+  v
 }
 
 
@@ -148,11 +148,13 @@ cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
 #' @param epsg_m crs in meters (default: epsg:32119)
 #' @param res resolution of the squares in meters (default: 100km)
 #' @return cleaned data.frame
-clean_cws_large <- function(x,
-                            area,
-                            epsg_m = "epsg:32119",
-                            res = 100000,
-                            ...) {
+clean_cws_large <- function(
+  x,
+  area,
+  epsg_m = "epsg:32119",
+  res = 100000,
+  ...
+) {
   # cut area in squares of res*res m2
   v <- cut_area(area, epsg_m, res)
   # apply crowcQC+ on each square
@@ -168,5 +170,5 @@ clean_cws_large <- function(x,
       clean_cws(...)
   }
   x_cleaned <- do.call("rbind", x_clean)
-  return(x_cleaned)
+  x_cleaned
 }

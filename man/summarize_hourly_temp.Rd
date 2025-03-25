@@ -9,7 +9,7 @@ one observation per hour.}
 summarize_hourly_temp(x, time, temp, lat, lon)
 }
 \arguments{
-\item{x}{a data.frame, data.table, sf or sftime}
+\item{x}{a data.frame, data.table, sf}
 
 \item{time}{the column name for the time}
 

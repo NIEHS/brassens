@@ -1,6 +1,4 @@
 # ` `@title` `Load PurpleAir data`
-
-
 #' Find a list of sensors in a specific area
 #'
 #' @param nwlat North-west latitude
@@ -13,12 +11,16 @@
 #' @export
 #' @import httr
 #' @importFrom jsonlite fromJSON
-find_sensors <- function(nwlat,
-                         selat,
-                         nwlng,
-                         selng,
-                         api_key,
-                         location_type = 0) {
+# nolint start
+#' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+# nolint end
+find_sensors <- function(
+    nwlat,
+    selat,
+    nwlng,
+    selng,
+    api_key,
+    location_type = 0) {
   fields <- "sensor_index,latitude, longitude, temperature, humidity"
   query_list <- list(
     nwlng = nwlng,
@@ -34,14 +36,16 @@ find_sensors <- function(nwlat,
   r_temp <- httr::GET(
     url = url_base,
     query = query_list,
-    config = add_headers("X-API-Key" = api_key)
+    config = httr::add_headers("X-API-Key" = api_key)
   )
   # Structurized data in form of R vectors and lists
-  r_parsed <- fromJSON(content(r_temp, as = "text"))
+  r_parsed <- jsonlite::fromJSON(
+    httr::content(r_temp, as = "text")
+  )
   # Data frame from JSON data
   sensors <- as.data.frame(r_parsed$data)
   colnames(sensors) <- r_parsed$fields
-  return(sensors)
+  sensors
 }
 
 #' Load PurpleAir sensor history data
@@ -56,12 +60,16 @@ find_sensors <- function(nwlat,
 #' @export
 #' @import httr
 #' @importFrom jsonlite fromJSON
-request_sensor_history <- function(start_ts,
-                                   end_ts,
-                                   sensor_index,
-                                   api_key,
-                                   average = "60",
-                                   fields = "temperature, humidity") {
+# nolint start
+#' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+# nolint end
+request_sensor_history <- function(
+    start_ts,
+    end_ts,
+    sensor_index,
+    api_key,
+    average = "60",
+    fields = "temperature, humidity") {
   query_list <- list(
     start_timestamp = as.character(as.integer(start_ts)),
     end_timestamp = as.character(as.integer(end_ts)),
@@ -77,21 +85,23 @@ request_sensor_history <- function(start_ts,
   r_temp <- httr::GET(
     url = url_base,
     query = query_list,
-    config = add_headers("X-API-Key" = api_key)
+    config = httr::add_headers("X-API-Key" = api_key)
   )
   # Structurized data in form of R vectors and lists
-  r_parsed <- fromJSON(content(r_temp, as = "text"))
+  r_parsed <- jsonlite::fromJSON(
+    httr::content(r_temp, as = "text")
+  )
   # Data frame from JSON data
   s_history <- as.data.frame(r_parsed$data)
   if (nrow(s_history) == 0) {
-    return(NULL)
+    NULL
   } else {
     colnames(s_history) <- r_parsed$fields
     s_history$time_stamp <- as.POSIXct(s_history$time_stamp,
       origin = "1970-01-01",
       tz = "UTC"
     )
-    return(s_history)
+    s_history
   }
 }
 
@@ -107,16 +117,21 @@ request_sensor_history <- function(start_ts,
 #' @param average Average time in minutes
 #' @param fields Fields to be included in the data
 #' @return A data frame with sensors history data
-request_sensors_history <- function(nwlat,
-                                    selat,
-                                    nwlng,
-                                    selng,
-                                    location_type = 0,
-                                    start_ts,
-                                    end_ts,
-                                    api_key,
-                                    average = "60",
-                                    fields = "temperature, humidity") {
+# nolint start
+#' @references Code adapted from Callahan J, Martin H, Wilson K, Brasel T, Miller H (2023). AirSensor: Process and Display Data from Air Quality Sensors. R package version 1.1.1, https://CRAN.R-project.org/package=AirSensor.
+# nolint end
+request_sensors_history <- function(
+  nwlat,
+  selat,
+  nwlng,
+  selng,
+  location_type = 0,
+  start_ts,
+  end_ts,
+  api_key,
+  average = "60",
+  fields = "temperature, humidity"
+) {
   sensors <- find_sensors(
     nwlat,
     selat,
@@ -152,9 +167,9 @@ request_sensors_history <- function(nwlat,
     }
   }
   if (exists("sensors_history")) {
-    return(sensors_history)
+    sensors_history
   } else {
-    return(NULL)
+    NULL
   }
 }
 
@@ -178,7 +193,7 @@ download_pa <- function(ts, te, area, api_key) {
     te,
     api_key
   )
-  return(pa)
+  pa
 }
 
 #' If a file is provided, open data from file. If not, call download_pa().
@@ -227,5 +242,5 @@ load_pa <- function(ts, te, area, storage_file = NULL, api_key = NULL) {
   if (nrow(pa) == 0) {
     message("No PurpleAir found at those dates and area.")
   }
-  return(data.table::data.table(pa))
+  data.table::data.table(pa)
 }

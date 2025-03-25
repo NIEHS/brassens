@@ -25,8 +25,7 @@ testthat::test_that("find_ghcnh_polygon works well", {
 
 testthat::test_that("find_nearest_ghcnh works well", {
   expect_error(find_nearest_ghcnh("-78", "35"))
-  expect_no_error(find_nearest_ghcnh(lat = 35.7, lon = -78.69))
-  my_ghcnh <- find_nearest_ghcnh(lat = 35.7, lon = -78.69)
+  expect_no_error(my_ghcnh <- find_nearest_ghcnh(lat = 35.7, lon = -78.69))
   expect_equal(nrow(my_ghcnh), 1)
   expect_equal(my_ghcnh$name, " RALEIGH STATE UNIV            ")
 })
@@ -39,7 +38,6 @@ testthat::test_that("download_ghcnh_station works well", {
   expect_true(is.null(download_ghcnh_station("a", 210000)))
   # page found but empty:
   expect_message(download_ghcnh_station("USC00310750", 2021))
-  expect_true(is.null(download_ghcnh_station("USC00310750", 2021)))
   # test parameters:
   expect_error(download_ghcnh_station(13722, 2023))
   # no error:

@@ -15,18 +15,18 @@ convert_temp <- function(x, from, to) {
   )
   if (from == "C") {
     ifelse(to == "F",
-      return((x * 9 / 5) + 32),
-      return(x + 273.15)
+      (x * 9 / 5) + 32,
+      x + 273.15
     )
   } else if (from == "F") {
     ifelse(to == "C",
-      return((x - 32) * 5 / 9),
-      return((x - 32) * 5 / 9 + 273.15)
+      (x - 32) * 5 / 9,
+      (x - 32) * 5 / 9 + 273.15
     )
   } else if (from == "K") {
     ifelse(to == "C",
-      return(x - 273.15),
-      return((x - 273.15) * 9 / 5 + 32)
+      x - 273.15,
+      (x - 273.15) * 9 / 5 + 32
     )
   }
 }
@@ -44,9 +44,10 @@ my_pal <- function(name) {
   )
   # -- define palettes
   if (name == "temp") {
-    return(fields::tim.colors(n = 64, alpha = 1.0))
+    fields::tim.colors(n = 64, alpha = 1.0)
   } else if (name == "rh_ipcc") {
-    pal_ipcc <- list(c(140, 81, 10),
+    pal_ipcc <- list(
+      c(140, 81, 10),
       c(191, 129, 45),
       c(223, 194, 125),
       c(246, 232, 195),
@@ -58,9 +59,10 @@ my_pal <- function(name) {
     ) |>
       lapply(function(x) rgb(x[1], x[2], x[3], maxColorValue = 255)) |>
       rev()
-    return(pal_ipcc)
+    pal_ipcc
   } else if (name == "temp_ipcc") {
-    pal_ipcc <- list(c(103, 0, 31),
+    pal_ipcc <- list(
+      c(103, 0, 31),
       c(178, 24, 43),
       c(214, 96, 77),
       c(244, 165, 130),
@@ -74,15 +76,15 @@ my_pal <- function(name) {
     ) |>
       lapply(function(x) rgb(x[1], x[2], x[3], maxColorValue = 255)) |>
       rev()
-    return(pal_ipcc)
+    pal_ipcc
   } else if (name == "sw") {
-    return(RColorBrewer::brewer.pal(10, "RdYlBu"))
+    RColorBrewer::brewer.pal(10, "RdYlBu")
   } else if (name == "reds") {
-    return(c("white", "firebrick4"))
+    c("white", "firebrick4")
   } else if (name == "prior") {
-    return(RColorBrewer::brewer.pal(10, "RdBu"))
+    RColorBrewer::brewer.pal(10, "RdBu")
   } else if (name == "uhi") {
-    return(c(
+    c(
       "cyan4",
       "grey",
       "yellow",
@@ -90,6 +92,6 @@ my_pal <- function(name) {
       "red",
       "firebrick",
       "black"
-    ))
+    )
   }
 }

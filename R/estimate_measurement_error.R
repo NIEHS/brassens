@@ -17,8 +17,10 @@ find_closest_ref <- function(cws, ref) {
     "some columns missing in cws" = all(cols %in% colnames(cws)),
     "some columns missing in ref" = all(cols %in% colnames(ref))
   )
-  cws_loc <- unique(cws[, cols])
-  ref_loc <- unique(ref[, cols])
+  cws <- sf::st_transform(cws, 4326)
+  ref <- sf::st_transform(ref, 4326)
+  cws_loc <- dplyr::distinct(cws[, cols])
+  ref_loc <- dplyr::distinct(ref[, cols])
   nearest <- sf::st_nearest_feature(cws_loc, ref_loc)
   ref_nearest <- ref_loc[nearest, ]
   cws_loc$ref_id <- ref_nearest$site_id
@@ -33,7 +35,7 @@ find_closest_ref <- function(cws, ref) {
     cws,
     as.data.frame(cws_loc[, c("site_id", "ref_id", "dist_to_ref")])
   )
-  return(r)
+  r
 }
 
 #' Add temperature from a reference to citizen weather stations observations
@@ -58,6 +60,8 @@ est_temp_error <- function(cws, ref) {
     "time should inherit from POSIXct in ref" =
       inherits(ref$time, "POSIXct")
   )
+  cws <- sf::st_transform(cws, 4326)
+  ref <- sf::st_transform(ref, 4326)
   # check crs
   stopifnot(
     "cws and ref have different crs" =
@@ -85,5 +89,5 @@ est_temp_error <- function(cws, ref) {
   ref_reformat$geometry <- NULL
   r <- merge(cws_r, ref_reformat, by = c("time", "ref_id"), all.x = TRUE)
   r$temp_err <- r$temp - r$temp_ref
-  return(r)
+  r
 }

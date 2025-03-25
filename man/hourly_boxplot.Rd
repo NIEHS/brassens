@@ -7,7 +7,7 @@
 hourly_boxplot(data, ts, te, var)
 }
 \arguments{
-\item{data}{data frame or sftime with all the network, contains "network"
+\item{data}{data frame with all the network, contains "network"
 column}
 
 \item{ts}{datetime, start time}

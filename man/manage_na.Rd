@@ -7,7 +7,7 @@
 manage_na(data, na_thresh = 0.1)
 }
 \arguments{
-\item{data}{formatted sftime (with columns: site_id, temp, time)}
+\item{data}{formatted sf (with columns: site_id, temp, time)}
 
 \item{na_thresh}{threshold of NA to remove a station (0 <= na_tresh <= 1)}
 }

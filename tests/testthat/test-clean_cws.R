@@ -27,15 +27,13 @@ testthat::test_that("clean_cws works well", {
     testthat::test_path() |>
     readRDS() |>
     format_wu()
-  expect_no_error(clean_cws(x))
-  cleaned <- clean_cws(x)
+  expect_no_error(cleaned <- clean_cws(x))
   expect_error(clean_cws(x[, -which(colnames(x) == "temp")]))
-  expect_true(inherits(cleaned, "sftime"))
+  expect_true(inherits(cleaned, "sf"))
   cols <- c("site_id", "temp", "lat", "lon", "time")
   expect_true(all(cols %in% colnames(cleaned)))
   expect_error(clean_cws("Aboli bibelot d'inanite sonore"))
 })
-
 
 testthat::test_that("cut_area works well", {
   nc_url <- paste0(

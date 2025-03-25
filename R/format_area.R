@@ -44,5 +44,5 @@ format_area <- function(x) {
       sf::st_bbox() |>
       sf::st_as_sfc()
   }
-  return(y)
+  y
 }

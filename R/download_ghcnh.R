@@ -4,6 +4,9 @@
 #' @author Eva Marques
 #' @import utils
 #' @export
+# nolint start
+#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. \link[accessed on 2024/06/12]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
+# nolint end
 find_ghcnh_polygon <- function(polygon) {
   poly <- format_area(polygon)
   url <- paste0(
@@ -23,9 +26,10 @@ find_ghcnh_polygon <- function(polygon) {
     "hcnflag",
     "wmoid"
   )
-  inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  inv <- inv |>
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, na.fail = FALSE)
   inv_in_poly <- sf::st_filter(inv, poly)
-  return(inv_in_poly)
+  inv_in_poly
 }
 
 #' Find the nearest GHCN-H station to a point
@@ -35,6 +39,9 @@ find_ghcnh_polygon <- function(polygon) {
 #' @author Eva Marques
 #' @import utils
 #' @export
+# nolint start
+#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. \link[accessed on 2024/06/12]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
+# nolint end
 find_nearest_ghcnh <- function(lat, lon) {
   stopifnot(
     "lat and lon should be numeric" =
@@ -60,9 +67,11 @@ find_nearest_ghcnh <- function(lat, lon) {
     "hcnflag",
     "wmoid"
   )
-  inv <- inv |> sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+  inv <- inv[which(!is.na(inv$lat) & !is.na(inv$lat)), ]
+  inv <- inv |>
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
   nearest <- sf::st_nearest_feature(my_point, inv)
-  return(inv[nearest, ])
+  inv[nearest, ]
 }
 
 #' Download GHCN-H station data of a given year
@@ -74,6 +83,9 @@ find_nearest_ghcnh <- function(lat, lon) {
 #' @importFrom RCurl url.exists
 #' @importFrom tidyr drop_na
 #' @import utils
+# nolint start
+#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. \link[accessed on 2024/06/12]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
+# nolint end
 download_ghcnh_station <- function(site_id, year) {
   temperature <- NULL
   stopifnot("site_id should be a character" = is.character(site_id))
@@ -97,12 +109,12 @@ download_ghcnh_station <- function(site_id, year) {
       tidyr::drop_na(temperature)
     if (nrow(x) == 0) {
       message("No data found for station ", site_id, " in year ", year, ".")
-      return(NULL)
+      NULL
     }
-    return(x)
+    x
   } else {
     message("The URL does not exist for station ", site_id, ".")
-    return(NULL)
+    NULL
   }
 }
 
@@ -113,6 +125,9 @@ download_ghcnh_station <- function(site_id, year) {
 #' @param area a sf, sfc, SpatRaster or SpatVector object
 #' @return a data.frame with the GHCN-H stations observations in the area
 #' @importFrom dplyr between
+# nolint start
+#' @references Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. \link[accessed on 2024/06/12]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
+# nolint end
 download_ghcnh <- function(ts, te, area) {
   stopifnot(
     "ts and te should be POSIXct objects" =
@@ -140,10 +155,10 @@ download_ghcnh <- function(ts, te, area) {
   }
   if (nrow(ghcnh) == 0) {
     message("No data found in the area.")
-    return(NULL)
+    NULL
   } else {
     ghcnh <- format_ghcnh(ghcnh)
     ghcnh <- ghcnh[which(dplyr::between(ghcnh$time, ts, te)), ]
-    return(ghcnh)
+    ghcnh
   }
 }

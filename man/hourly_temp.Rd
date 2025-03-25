@@ -2,12 +2,12 @@
 % Please edit documentation in R/class_hourly_temp.R
 \name{hourly_temp}
 \alias{hourly_temp}
-\title{Build a hourly_temp from a data.frame, data.table, sf or sftime}
+\title{Build a hourly_temp from a data.frame, data.table, sf}
 \usage{
 hourly_temp(x, temp = "temp", lat = "lat", lon = "lon", time = "time", network)
 }
 \arguments{
-\item{x}{a data.frame, data.table, sf or sftime}
+\item{x}{a data.frame, data.table, sf}
 
 \item{temp}{the column name for the temperature in degree celcius}
 
@@ -23,7 +23,7 @@ hourly_temp(x, temp = "temp", lat = "lat", lon = "lon", time = "time", network)
 a hourly_temp object
 }
 \description{
-Build a hourly_temp from a data.frame, data.table, sf or sftime
+Build a hourly_temp from a data.frame, data.table, sf
 }
 \author{
 Eva Marques

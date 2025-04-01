@@ -159,8 +159,8 @@ format_wu <- function(
 #' Format observations from raw data downloaded on NOAA website
 #' See function load_ghcnh_station.
 #' @param raw a data.frame, data.table, sf with the raw observations
-#' and columns "Year", "Month", "Day", "Hour", "temperature", "Latitude",
-#' "Longitude", "temperature_Source_Code"
+#' and columns "Year", "Month", "Day", "Hour", "temperature", "LATITUDE",
+#' "LONGITUDE", "temperature_Source_Code"
 #' @return sf from hourly_temp class
 #' @importFrom dplyr rename
 #' @author Eva Marques
@@ -169,8 +169,8 @@ format_ghcnh <- function(raw) {
   ghcnh_cols <- c(
     "DATE",
     "temperature",
-    "Latitude",
-    "Longitude",
+    "LATITUDE",
+    "LONGITUDE",
     "temperature_Source_Code"
   )
   stopifnot(
@@ -185,8 +185,8 @@ format_ghcnh <- function(raw) {
     summarize_hourly_temp(
       "time",
       "temperature",
-      "Latitude",
-      "Longitude"
+      "LATITUDE",
+      "LONGITUDE"
     ) |>
     hourly_temp(
       temp = "temp",
@@ -195,9 +195,9 @@ format_ghcnh <- function(raw) {
       time = "time",
       network = "GHCNh"
     )
-  network <- raw[, c("Longitude", "Latitude", "temperature_Source_Code")] |>
-    dplyr::rename("lon" = "Longitude") |>
-    dplyr::rename("lat" = "Latitude") |>
+  network <- raw[, c("LONGITUDE", "LATITUDE", "temperature_Source_Code")] |>
+    dplyr::rename("lon" = "LONGITUDE") |>
+    dplyr::rename("lat" = "LATITUDE") |>
     dplyr::rename("network" = "temperature_Source_Code") |>
     unique()
   x$network <- NULL

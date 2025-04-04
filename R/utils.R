@@ -13,21 +13,25 @@ convert_temp <- function(x, from, to) {
       to %in% c("C", "F", "K")
   )
   if (from == "C") {
-    ifelse(to == "F",
-      (x * 9 / 5) + 32,
-      x + 273.15
-    )
+    if (to == "F") {
+      out <- (x * 9 / 5) + 32
+    } else {
+      out <- x + 273.15
+    }
   } else if (from == "F") {
-    ifelse(to == "C",
-      (x - 32) * 5 / 9,
-      (x - 32) * 5 / 9 + 273.15
-    )
+    if (to == "C") {
+      out <- (x - 32) * 5 / 9
+    } else {
+      out <- (x - 32) * 5 / 9 + 273.15
+    }
   } else if (from == "K") {
-    ifelse(to == "C",
-      x - 273.15,
-      (x - 273.15) * 9 / 5 + 32
-    )
+    if (to == "C") {
+      out <- x - 273.15
+    } else {
+      out <- (x - 273.15) * 9 / 5 + 32
+    }
   }
+  out
 }
 
 #' Find my home-made palettes

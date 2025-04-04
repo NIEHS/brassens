@@ -19,3 +19,6 @@ sf of polygons
 \description{
 Format an area to be used in clean_cws_large (cut in squares of res*res m2)
 }
+\author{
+Eva Marques
+}

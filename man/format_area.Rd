@@ -15,3 +15,6 @@ a POLYGON object or a bbox
 \description{
 Tranform spatial objects to a POLYGON surrounding an area
 }
+\author{
+Eva Marques
+}

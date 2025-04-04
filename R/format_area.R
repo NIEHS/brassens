@@ -1,6 +1,11 @@
 #' Tranform spatial objects to a POLYGON surrounding an area
 #' @param x a sf, sfc, SpatRaster or SpatVector object
 #' @return a POLYGON object or a bbox
+#' @importFrom sf st_geometry_type st_transform st_bbox st_as_sfc
+#' st_as_sf
+#' @importFrom terra geomtype project
+#' @export
+#' @author Eva Marques
 format_area <- function(x) {
   stopifnot(
     "x is not a sf, sfc, SpatRaster or SpatVector" =

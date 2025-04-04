@@ -20,3 +20,6 @@ with additional columns ref_id and dist_to_ref
 \description{
 Find the closest reference site for each site in a cws object
 }
+\author{
+Eva Marques
+}

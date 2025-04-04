@@ -9,8 +9,8 @@ format_ghcnh(raw)
 }
 \arguments{
 \item{raw}{a data.frame, data.table, sf with the raw observations
-and columns "Year", "Month", "Day", "Hour", "temperature", "Latitude",
-"Longitude", "temperature_Source_Code"}
+and columns "Year", "Month", "Day", "Hour", "temperature", "LATITUDE",
+"LONGITUDE", "temperature_Source_Code"}
 }
 \value{
 sf from hourly_temp class

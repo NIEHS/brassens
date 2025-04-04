@@ -32,3 +32,6 @@ map_stations(
 \description{
 map observations with imperviousness
 }
+\author{
+Eva Marques
+}

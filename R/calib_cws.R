@@ -1,3 +1,14 @@
+#' Calibrate Personal weather stations with stations from a
+#' reference network
+#' @param ref sf. Reference stations.
+#' @param cws sf. Personal weather stations.
+#' @param max_dist integer. Maximum distance allowed between ref
+#' and cws stations.
+#' @importFrom lubridate tz hour
+#' @importFrom terra vect project buffer intersect same.crs
+#' @importFrom dplyr rename distinct group_by summarise n_distinct ungroup
+#' @export
+#' @author Eva Marques
 calib_cws <- function(ref, cws, max_dist = 5000) {
   utc <- meas_err <- site_id <- ref_id <- temp <- NULL
   stopifnot(

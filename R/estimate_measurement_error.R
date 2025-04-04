@@ -5,7 +5,10 @@
 #' with columns site_id and geometry
 #' @return sf object with the closest reference site for each cws
 #' with additional columns ref_id and dist_to_ref
+#' @importFrom sf st_transform st_nearest_feature st_distance
+#' @importFrom dplyr distinct
 #' @export
+#' @author Eva Marques
 find_closest_ref <- function(cws, ref) {
   stopifnot(
     "cws does not inherit from sf" = inherits(cws, "sf"),
@@ -46,6 +49,10 @@ find_closest_ref <- function(cws, ref) {
 #' @return sf (or inherited) object with additional columns temp_ref, temp_err,
 #' ref_id, dist_to_ref
 #' @importFrom dplyr rename
+#' @importFrom sf st_transform st_crs
+#' @importFrom lubridate minute second
+#' @export
+#' @author Eva Marques
 est_temp_error <- function(cws, ref) {
   # check column names
   cols <- c("site_id", "temp", "geometry", "time")
@@ -76,7 +83,6 @@ est_temp_error <- function(cws, ref) {
       all(lubridate::minute(ref$time) == 0) &
       all(lubridate::second(ref$time) == 0)
   )
-
   cws_r <- find_closest_ref(cws, ref)
   ref_reformat <- ref[, c(
     "site_id",

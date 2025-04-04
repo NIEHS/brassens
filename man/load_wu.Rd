@@ -23,5 +23,4 @@ Load Weather Underground stations for a given period and area.
 }
 \author{
 Eva Marques
-Weather Underground stations (see create_wu_inventory function)
 }

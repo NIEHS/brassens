@@ -5,6 +5,7 @@
 #' @param invpath the path to the output inventory file
 #' @return a data.frame with the inventory
 #' @import utils
+#' @export
 create_wu_inventory <- function(fpath, invpath) {
   # nolint start
   obsTimeUtc <- NULL

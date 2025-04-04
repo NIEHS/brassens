@@ -5,6 +5,7 @@
 <url><loc>/articles/index.html</loc></url>
 <url><loc>/authors.html</loc></url>
 <url><loc>/index.html</loc></url>
+<url><loc>/reference/calib_cws.html</loc></url>
 <url><loc>/reference/clean_cws.html</loc></url>
 <url><loc>/reference/clean_cws_large.html</loc></url>
 <url><loc>/reference/convert_temp.html</loc></url>
@@ -32,6 +33,7 @@
 <url><loc>/reference/manage_na.html</loc></url>
 <url><loc>/reference/map_stations.html</loc></url>
 <url><loc>/reference/my_pal.html</loc></url>
+<url><loc>/reference/remove_daily_cws.html</loc></url>
 <url><loc>/reference/request_sensor_history.html</loc></url>
 <url><loc>/reference/request_sensors_history.html</loc></url>
 <url><loc>/reference/summarize_hourly_temp.html</loc></url>

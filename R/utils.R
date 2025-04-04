@@ -10,8 +10,7 @@ convert_temp <- function(x, from, to) {
     "from should be \"C\", \"F\" or \"K\"" =
       from %in% c("C", "F", "K"),
     "to should be \"C\", \"F\" or \"K\"" =
-      to %in% c("C", "F", "K"),
-    "x is not numeric" = is.numeric(x)
+      to %in% c("C", "F", "K")
   )
   if (from == "C") {
     ifelse(to == "F",

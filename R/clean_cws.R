@@ -3,6 +3,8 @@
 #' @param na_thresh threshold of NA to remove a station (0 <= na_tresh <= 1)
 #' @return cleaned data.frame
 #' @importFrom dplyr group_by n summarize
+#' @export
+#' @author Eva Marques
 manage_na <- function(data, na_thresh = 0.1) {
   stopifnot(
     "threshold must be between 0 and 1" =
@@ -37,7 +39,11 @@ manage_na <- function(data, na_thresh = 0.1) {
 #' @param x sf with columns: site_id, temp, lat, lon, time
 #' @param ... arguments passed through `CrowdQCplus::cqcp_qcCWS` function
 #' @return cleaned data.frame
-#' @import sf
+#' @import CrowdQCplus
+#' @importFrom dplyr rename
+#' @importFrom data.table as.data.table
+#' @importFrom sf st_as_sf
+#' @export
 # nolint start
 #' @references Fenner, D., Bechtel, B., Demuzere, M., Kittner, J. and Meier, F. (2021): CrowdQC+ – A quality-control for crowdsourced air-temperature observations enabling world-wide urban climate applications. Frontiers in Environmental Science 9: 720747. DOI: 10.3389/fenvs.2021.720747.
 # nolint end
@@ -125,6 +131,9 @@ clean_cws <- function(x, ...) {
 #' @param res resolution of the squares in meters (default: 100km)
 #' @return sf of polygons
 #' @importFrom terra vect project mask as.polygons
+#' @importFrom sf st_as_sf
+#' @export
+#' @author Eva Marques
 cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
   # project area with a crs in meters
   area_m <- area |>
@@ -150,6 +159,9 @@ cut_area <- function(area, epsg_m = "epsg:32119", res = 100000) {
 #' @param res resolution of the squares in meters (default: 100km)
 #' @param ... arguments passed through `CrowdQCplus::cqcp_qcCWS` function
 #' @return cleaned data.frame
+#' @importFrom sf st_filter
+#' @export
+#' @author Eva Marques
 clean_cws_large <- function(
   x,
   area,

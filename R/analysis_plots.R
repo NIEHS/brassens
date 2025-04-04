@@ -205,6 +205,8 @@ tile_ts <- function(data, ts, te, var, palname = "temp_ipcc") {
 #' @import ggplot2
 #' @import ggspatial
 #' @importFrom tidyterra geom_spatraster scale_color_whitebox_c
+#' @export
+#' @author Eva Marques
 map_stations <- function(
     data,
     datetime,

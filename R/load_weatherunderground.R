@@ -6,7 +6,7 @@
 #' @return a data.table with the raw WU data
 #' @importFrom data.table fread
 #' @author Eva Marques
-#' Weather Underground stations (see create_wu_inventory function)
+#' @export
 load_wu <- function(ts, te, area, inventory) {
   obsTimeUtc <- NULL # nolint
   wu <- NULL

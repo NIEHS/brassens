@@ -4,6 +4,7 @@
 #' @param x A data.frame, data.table, sf or sftime with columns "lat" and "lon"
 #' @return A data frame with an additional column "id"
 #' @author Eva Marques
+#' @export
 generate_site_id <- function(x) {
   stopifnot(
     "lat and lon columns are missing" =

@@ -43,6 +43,7 @@ setValidity("hourly_temp", function(object) {
 #' @return a hourly_temp object
 #' @importFrom methods new
 #' @importFrom dplyr rename
+#' @export
 #' @author Eva Marques
 hourly_temp <- function(x,
                         temp = "temp",

@@ -43,6 +43,12 @@ summarize_hourly_temp <- function(x, time, temp, lat, lon) {
   hourly_avg
 }
 
+#' Remove personal weather stations which provide daily statistics only.
+#' @param x data.frame or sf. Personal weather stations dataset.
+#' @return same as x without daily stations.
+#' @importFrom dplyr group_by summarise n
+#' @export
+#' @author Eva Marques
 remove_daily_cws <- function(x) {
   site_id <- NULL
   ts <- min(x$time, na.rm = TRUE)

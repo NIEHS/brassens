@@ -22,3 +22,6 @@ Download all GHCN-H stations data in area between two dates
 \references{
 Menne, Matthew J.; Noone, Simon; Casey, Nancy W.; Dunn, Robert H.; McNeill, Shelley; Kantor, Diana; Thorne, Peter W.; Orcutt, Karen; Cunningham, Sam; Risavi, Nicholas. 2023. Global Historical Climatology Network-Hourly (GHCNh). NOAA National Centers for Environmental Information. \link[accessed on 2024/06/12]{https://www.ncei.noaa.gov/products/global-historical-climatology-network-hourly}
 }
+\author{
+Eva Marques
+}

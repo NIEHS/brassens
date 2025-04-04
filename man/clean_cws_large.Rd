@@ -24,3 +24,6 @@ cleaned data.frame
 \description{
 Clean Weather Underground data with CrowdQC+ on an area >100km*100km
 }
+\author{
+Eva Marques
+}

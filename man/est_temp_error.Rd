@@ -20,3 +20,6 @@ ref_id, dist_to_ref
 \description{
 Add temperature from a reference to citizen weather stations observations
 }
+\author{
+Eva Marques
+}

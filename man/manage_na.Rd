@@ -17,3 +17,6 @@ cleaned data.frame
 \description{
 Remove NA and stations with too many NA
 }
+\author{
+Eva Marques
+}

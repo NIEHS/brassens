@@ -14,27 +14,24 @@ create_wu_inventory <- function(fpath, invpath) {
   inventory <- NULL
   for (i in seq_along(flist)) {
     f <- flist[i]
-    ncol <- ncol(read.csv(file = f, nrows = 1))
-    # info is a datatable with key elements (stationID, obsTimeUtc, lon, lat)
-    info <- try(
-      data.table::fread(
-        file = f,
-        colClasses = c(
-          NA,
-          rep("NULL", 1),
-          NA,
-          rep("NULL", 2),
-          NA,
-          NA,
-          rep("NULL", ncol - 7)
-        )
-      )
-    )
-    # remove unavailable rows
-    if ("try-error" %in% class(info)) {
+    ncol <- try(ncol(read.csv(file = f, nrows = 1)))
+    if ("try-error" %in% class(ncol)) {
       message("error on file ", f, "\n")
       next()
     }
+    # info is a datatable with key elements (stationID, obsTimeUtc, lon, lat)
+    info <- data.table::fread(
+      file = f,
+      colClasses = c(
+        NA,
+        rep("NULL", 1),
+        NA,
+        rep("NULL", 2),
+        NA,
+        NA,
+        rep("NULL", ncol - 7)
+      )
+    )
     info <- info[as.character(obsTimeUtc) != "unavailable", ]
     info <- info[as.character(obsTimeUtc) != "api_failure", ]
     if (nrow(info != 0)) {

@@ -54,6 +54,7 @@ create_wu_inventory <- function(fpath, invpath) {
   inventory <- do.call("rbind", inventory)
   inventory$lat <- as.numeric(inventory$lat)
   inventory$lon <- as.numeric(inventory$lon)
+  inventory <- inventory[which(inventory$stationID != "api failure"), ]
   write.csv(inventory, invpath, row.names = FALSE)
   inventory <- inventory |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)

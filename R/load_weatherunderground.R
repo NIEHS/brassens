@@ -36,6 +36,7 @@ load_wu <- function(ts, te, area, inventory) {
   for (f in inv_selection$fname) {
     aws <- data.table::fread(f)
     aws <- aws[as.character(obsTimeUtc) != "unavailable"]
+    aws <- aws[as.character(obsTimeUtc) != "api failure"]
     aws$obsTimeUtc <- as.POSIXct(aws$obsTimeUtc, tz = "UTC")
     aws <- aws[obsTimeUtc >= ts & obsTimeUtc <= te, ]
     # datetime type problem (character if "unavailable" or double)

@@ -3,6 +3,7 @@
 [![lint](https://github.com/NIEHS/brassens/actions/workflows/lint.yaml/badge.svg)](https://github.com/NIEHS/brassens/actions/workflows/lint.yaml)
 [![pkgdown](https://github.com/NIEHS/brassens/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/NIEHS/brassens/actions/workflows/pkgdown.yaml)
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![DOI](https://zenodo.org/badge/775660959.svg)](https://doi.org/10.5281/zenodo.15595882)
 
 # brassens
 

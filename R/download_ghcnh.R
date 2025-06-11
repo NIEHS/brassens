@@ -24,7 +24,8 @@ find_ghcnh_polygon <- function(polygon) {
     "name",
     "gsnflag",
     "hcnflag",
-    "wmoid"
+    "wmoid",
+    "icao"
   )
   inv <- inv |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, na.fail = FALSE)

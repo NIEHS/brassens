@@ -29,8 +29,15 @@ find_ghcnh_polygon <- function(polygon) {
   )
   inv <- inv |>
     sf::st_as_sf(coords = c("lon", "lat"), crs = 4326, na.fail = FALSE)
-  inv_in_poly <- sf::st_filter(inv, poly)
-  inv_in_poly
+  if (!sf::st_is_valid(poly)) {
+    poly <- terra::vect(poly)
+    inv <- terra::vect(inv)
+    inv_in_poly <- terra::crop(inv, poly) |>
+      sf::st_as_sf()
+  } else {
+    inv_in_poly <- sf::st_filter(inv, poly)
+    inv_in_poly
+  }
 }
 
 #' Find the nearest GHCN-H station to a point

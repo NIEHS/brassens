@@ -21,11 +21,11 @@ load_wu <- function(ts, te, area, inventory) {
   # extract stations in inventory that are within the area
   if (!sf::st_is_valid(area)) {
     area <- terra::vect(area)
-    inv <- terra::vect(inv)
-    inv_selection <- terra::crop(inv, area) |>
+    inventory <- terra::vect(inventory)
+    inv_selection <- terra::crop(inventory, area) |>
       sf::st_as_sf()
   } else {
-    inv_selection <- sf::st_filter(inv, area)
+    inv_selection <- sf::st_filter(inventory, area)
   }
   # check type of ts_utc and te_utc
   if (
